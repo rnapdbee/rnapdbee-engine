@@ -3,7 +3,7 @@ Project generated with [Spring](https://start.spring.io/) version 2.6.6.
 
 ## Requirements
 - Maven
-- Java 8 (SDK 1.8)
+- Java 11 (SDK 11)
 - Docker
 
 ## Build

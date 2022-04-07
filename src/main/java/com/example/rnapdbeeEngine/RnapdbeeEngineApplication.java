@@ -6,8 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class RnapdbeeEngineApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(RnapdbeeEngineApplication.class, args);
-    }
-
+  public static void main(String[] args) {
+    SpringApplication.run(RnapdbeeEngineApplication.class, args);
+  }
 }

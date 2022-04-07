@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class HomeController {
 
-    @GetMapping(path = "/")
-    public String home() {
-        return "Rnapdbee engine home";
-    }
+  @GetMapping(path = "/")
+  public String home() {
+    return "Rnapdbee engine home";
+  }
 }
