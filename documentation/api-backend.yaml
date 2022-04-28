@@ -1,0 +1,674 @@
+swagger: "2.0"
+info:
+  description: "This is API of the back-end service of RNApdbee v3.0."
+  version: "1.0.0"
+  title: "RNApdbee Backend"
+host: "RNApdbee.cs.put.poznan.pl"
+basePath: "/api/v1/engine"
+tags:
+  - name: "3D -> (...)"
+    description: "Access to RNApdbee engine for 3D calculations"
+  - name: "3D -> multi 2D"
+    description: "Access to RNApdbee engine for Multi calculations"
+  - name: "2D -> (...)"
+    description: "Access to RNApdbee engine for 2D calculations"
+  - name: "(...) -> Image"
+    description: "Access to RNApdbee engine for Image calculations"
+
+schemes:
+  - "https"
+  - "http"
+paths:
+
+  /3d/:
+    post:
+      tags:
+        - "3D -> (...)"
+      summary: "Perform a 3d calculation based on the payload"
+      description: ""
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: ""
+          required: true
+          schema:
+            type: "object"
+            properties:
+              fileContent:
+                type: "string"
+              modelSelection:
+                $ref: "#/definitions/ModelSelection"
+              analysisTool:
+                $ref: "#/definitions/AnalysisTool"
+              nonCanonicalHandling:
+                $ref: "#/definitions/NonCanonicalHandling"
+              removeIsolated:
+                type: "boolean"
+              structuralElementsHandling:
+                $ref: "#/definitions/StructuralElementsHandling"
+              visualizationTool:
+                $ref: "#/definitions/VisualizationTools"
+            required:
+              - fileContent
+              - modelSelection
+              - analysisTool
+              - nonCanonicalHandling
+              - removeIsolated
+              - structuralElementsHandling
+              - visualizationTool
+      responses:
+        "400":
+          description: "Bad request"
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Output3D"
+
+  /3d/{ID}:
+    get:
+      tags:
+        - "3D -> (...)"
+      summary: "Fetch an existing 3d calculation"
+      description: ""
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "ID"
+          in: "path"
+          required: true
+          type: "integer"
+          description: "ID of resource in the database"
+      responses:
+        "400":
+          description: "Invalid supplied"
+        "404":
+          description: "Resource not found"
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Output3D"
+
+  /3d/pdb/{PDBID}:
+    post:
+      tags:
+        - "3D -> (...)"
+      summary: "Perform a 3d calculation based on object fetched from Protein Data Bank"
+      description: ""
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "PDBID"
+          in: "path"
+          required: true
+          type: "string"
+          description: "PDBID of the object in Protein Data Bank"
+      responses:
+        "400":
+          description: "Bad request"
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Output3D"
+
+  /multi/:
+    post:
+      tags:
+        - "3D -> multi 2D"
+      summary: "Perform a multi calculation"
+      description: ""
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: ""
+          required: true
+          schema:
+            type: "object"
+            properties:
+              fileContent:
+                type: "string"
+              modelSelection:
+                $ref: "#/definitions/ModelSelection"
+              includeNonCanonical:
+                type: "boolean"
+              removeIsolated:
+                type: "boolean"
+              visualizationTool:
+                $ref: "#/definitions/VisualizationTools"
+            required:
+              - fileContent
+              - modelSelection
+              - includeNonCanonical
+              - removeIsolated
+              - visualizationTool
+      responses:
+        "400":
+          description: "Bad request"
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/OutputMulti"
+
+  /multi/{ID}:
+    get:
+      tags:
+        - "3D -> multi 2D"
+      summary: "Fetch an existing multi calculation"
+      description: ""
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "ID"
+          in: "path"
+          required: true
+          type: "integer"
+          description: "ID of resource in the database"
+      responses:
+        "400":
+          description: "Invalid supplied"
+        "404":
+          description: "Resource not found"
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Output3D"
+
+  /multi/pdb/{PDBID}:
+    post:
+      tags:
+        - "3D -> multi 2D"
+      summary: "Perform a multi based on object fetched from Protein Data Bank"
+      description: ""
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "PDBID"
+          in: "path"
+          required: true
+          type: "string"
+          description: "ID of resource in the Protein Data Bank"
+
+      responses:
+        "400":
+          description: "Bad request"
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/OutputMulti"
+
+  /2d/:
+    post:
+      tags:
+        - "2D -> (...)"
+      summary: "Perform a 2D calculation"
+      description: ""
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: ""
+          required: true
+          schema:
+            type: "object"
+            properties:
+              fileContent:
+                type: "string"
+              removeIsolated:
+                type: "boolean"
+              structuralElementsHandling:
+                $ref: "#/definitions/StructuralElementsHandling"
+              visualizationTool:
+                $ref: "#/definitions/VisualizationTools"
+            required:
+              - fileContent
+              - removeIsolated
+              - structuralElementsHandling
+              - visualizationTool
+      responses:
+        "400":
+          description: "Bad request"
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Output2D"
+
+  /2d/{ID}:
+    get:
+      tags:
+        - "2D -> (...)"
+      summary: "Fetch a 2D calculation from the database"
+      description: ""
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "ID"
+          in: "path"
+          required: true
+          type: "integer"
+          description: "ID of resource in the database"
+      responses:
+        "400":
+          description: "Bad request"
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Output2D"
+
+  /image/:
+    post:
+      tags:
+        - "(...) -> Image"
+      summary: "Perform an image calculation"
+      description: ""
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: ""
+          required: true
+          schema:
+            type: "object"
+            properties:
+              fileContent:
+                type: "string"
+              structuralElementsHandling:
+                $ref: "#/definitions/StructuralElementsHandling"
+              visualizationTool:
+                $ref: "#/definitions/VisualizationTools"
+            required:
+              - fileContent
+              - structuralElementsHandling
+              - visualizationTool
+      responses:
+        "400":
+          description: "Bad request"
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/OutputImage"
+
+  /image/{ID}:
+    get:
+      tags:
+        - "(...) -> Image"
+      summary: "Fetch an image calculation from the database"
+      description: ""
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "ID"
+          in: "path"
+          required: true
+          type: "integer"
+          description: "ID of resource in the database"
+      responses:
+        "400":
+          description: "Bad request"
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/OutputImage"
+
+definitions:
+  NonCanonicalHandling:
+    type: "string"
+    enum:
+      - "VisualizationOnly"
+      - "TextAndVisualization"
+      - "Ignore"
+  AnalysisTool:
+    type: "string"
+    enum:
+      - "fr3d-python"
+      - "bpnet"
+      - "baRNAba"
+      - "RNAView"
+      - "MC-Annotate"
+  ModelSelection:
+    type: "string"
+    enum: ["First", "All"]
+  VisualizationTools:
+    type: "string"
+    enum: ["VARNA", "PseudoViewer", "R-Chie", "RNAglib", "forna", "RNApuzzler", "RNAturtle", "RNAtraveler", "baRNAba", "None"]
+  StructuralElementsHandling:
+    type: "string"
+    enum: ["UsePseudoknots", "IgnorePseudoknots"]
+
+  Output3D:
+    type: object
+    properties:
+      analysisOutput:
+        $ref: "#/definitions/AnalysisOutput"
+      output2D:
+        $ref: "#/definitions/Output2D"
+    required:
+      - analysisOutput
+      - output2D
+
+  OutputMulti:
+    type: object
+    properties:
+      entries:
+        type: array
+        items:
+          $ref: "#/definitions/OutputMultiEntry"
+    required:
+      - entries
+
+  OutputMultiEntry:
+    type: object
+    properties:
+      output2D:
+        $ref: "#/definitions/Output2D"
+      consensusVisualization:
+        $ref: "#/definitions/ConsensusVisualization"
+    required:
+      - output2D
+      - consensusVisualization
+
+  ConsensusVisualization:
+    type: object
+
+  Output2D:
+    type: object
+    properties:
+      bpseq:
+        $ref: "#/definitions/BPSEQ"
+      ct:
+        $ref: "#/definitions/CT"
+      dotBarcket:
+        $ref: "#/definitions/DotBracket"
+      structuralElements:
+        $ref: "#/definitions/StructuralElements"
+      outputImage:
+        $ref: "#/definitions/OutputImage"
+    required:
+      - bpseq
+      - ct
+      - dotBarcket
+      - structuralElements
+      - outputImage
+
+  BPSEQ:
+    type: object
+
+  CT:
+    type: object
+
+  DotBracket:
+    type: object
+
+  StructuralElements:
+    type: object
+
+  OutputImage:
+    type: object
+    properties:
+      visualization:
+        $ref: "#/definitions/Visualization"
+    required:
+      - visualization
+
+  Visualization:
+    type: object
+
+  AnalysisOutput:
+    type: object
+    properties:
+      basePairs:
+        type: array
+        items:
+          $ref: "#/definitions/BasePair"
+      stackings:
+        type: array
+        items:
+          $ref: "#/definitions/Stacking"
+      baseRiboseInteractions:
+        type: array
+        items:
+          $ref: "#/definitions/BaseRibose"
+      basePhosphateInteractions:
+        type: array
+        items:
+          $ref: "#/definitions/BasePhosphate"
+      other:
+        type: array
+        items:
+          $ref: "#/definitions/Other"
+    required:
+      - basePairs
+      - stackings
+      - baseRiboseInteractions
+      - basePhosphateInteractions
+      - other
+
+  BasePair:
+    type: object
+    properties:
+      nt1:
+        $ref: "#/definitions/Residue"
+      nt2:
+        $ref: "#/definitions/Residue"
+      leontisWesthof:
+        $ref: "#/definitions/LeontisWesthof"
+      saenger:
+        $ref: "#/definitions/Saenger"
+    required:
+      - leontisWesthof
+      - nt1
+      - nt2
+
+  BaseRibose:
+    type: object
+    properties:
+      nt1:
+        $ref: "#/definitions/Residue"
+      nt2:
+        $ref: "#/definitions/Residue"
+      br:
+        $ref: "#/definitions/BR"
+    required:
+      - nt1
+      - nt2
+
+  BasePhosphate:
+    type: object
+    properties:
+      nt1:
+        $ref: "#/definitions/Residue"
+      nt2:
+        $ref: "#/definitions/Residue"
+      bph:
+        $ref: "#/definitions/BPh"
+    required:
+      - nt1
+      - nt2
+
+  Stacking:
+    type: object
+    properties:
+      nt1:
+        $ref: "#/definitions/Residue"
+      nt2:
+        $ref: "#/definitions/Residue"
+      topology:
+        $ref: "#/definitions/StackingTopology"
+    required:
+      - nt1
+      - nt2
+
+  Other:
+    type: object
+    properties:
+      nt1:
+        $ref: "#/definitions/Residue"
+      nt2:
+        $ref: "#/definitions/Residue"
+    required:
+      - nt1
+      - nt2
+
+  Residue:
+    type: object
+    properties:
+      label:
+        $ref: "#/definitions/ResidueLabel"
+      auth:
+        $ref: "#/definitions/ResidueAuth"
+      atoms:
+        type: array
+        items:
+          $ref: "#/definitions/Atom"
+    required:
+      - atoms
+
+  Atom:
+    type: object
+
+  ResidueAuth:
+    type: object
+    properties:
+      chain:
+        type: string
+      number:
+        type: integer
+      icode:
+        type: string
+      name:
+        type: string
+    required:
+      - chain
+      - number
+      - icode
+      - name
+
+  ResidueLabel:
+    type: object
+    properties:
+      chain:
+        type: string
+      number:
+        type: integer
+      name:
+        type: string
+    required:
+      - chain
+      - number
+      - name
+
+  LeontisWesthof:
+    type: "string"
+    enum:
+      - "cWW"
+      - "cWH"
+      - "cWS"
+      - "cHW"
+      - "cHH"
+      - "cHS"
+      - "cSW"
+      - "cSH"
+      - "cSS"
+      - "tWW"
+      - "tWH"
+      - "tWS"
+      - "tHW"
+      - "tHH"
+      - "tHS"
+      - "tSW"
+      - "tSH"
+      - "tSS"
+
+  Saenger:
+    type: "string"
+    enum:
+      - "I"
+      - "II"
+      - "III"
+      - "IV"
+      - "V"
+      - "VI"
+      - "VII"
+      - "VIII"
+      - "IX"
+      - "X"
+      - "XI"
+      - "XII"
+      - "XIII"
+      - "XIV"
+      - "XV"
+      - "XVI"
+      - "XVII"
+      - "XVIII"
+      - "XIX"
+      - "XX"
+      - "XXI"
+      - "XXII"
+      - "XXIII"
+      - "XXIV"
+      - "XXV"
+      - "XXVI"
+      - "XXVII"
+      - "XXVIII"
+
+  BR:
+    type: integer
+    enum:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      - 9
+
+  BPh:
+    type: integer
+    enum:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      - 9
+
+  StackingTopology:
+    type: string
+    enum:
+      - upward
+      - downward
+      - inward
+      - outward
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"
+

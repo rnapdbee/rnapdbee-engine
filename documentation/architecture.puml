@@ -1,0 +1,23 @@
+@startuml
+
+queue RabbitMQ as Q1
+queue RabbitMQ as Q2
+interface "REST\nAPI" as RA1
+interface "REST API" as RA2
+interface "REST\nAPI" as RA3
+database Database as DB
+
+[Back-end] -r-> Q2 : queues\nrequests
+Q2 -r-> RA2
+[RNApdbee engine] -l-> RA2 : exhibits
+
+[Back-end] -d-> RA1 : exhibits
+[Front-end]  -u-> RA1  : uses
+
+[Back-end] -u-> DB : stores calculations
+
+[Adapter-service] -d-> RA3 : exhibits
+[RNApdbee engine] -u-> Q1 : queues\nrequests
+Q1 -u-> RA3
+
+@enduml
