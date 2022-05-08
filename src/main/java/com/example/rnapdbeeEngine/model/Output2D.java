@@ -8,10 +8,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class Output2D {
     @JsonProperty("bpseq")
-    private BPSEQ bpseq;
+    private BpSeq bpseq;
 
     @JsonProperty("ct")
-    private CT ct;
+    private Ct ct;
 
     @JsonProperty("dotBarcket")
     private DotBracket dotBarcket;
@@ -22,11 +22,11 @@ public class Output2D {
     @JsonProperty("outputImage")
     private OutputImage outputImage;
 
-    public BPSEQ getBpseq() {
+    public BpSeq getBpseq() {
         return bpseq;
     }
 
-    public CT getCt() {
+    public Ct getCt() {
         return ct;
     }
 
