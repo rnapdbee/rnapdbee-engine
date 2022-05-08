@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * DTO class for Residue Label
  */
 public class ResidueLabel {
+
     @JsonProperty("chain")
     private String chain;
 

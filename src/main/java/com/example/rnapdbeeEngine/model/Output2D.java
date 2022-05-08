@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Output2D
  */
 public class Output2D {
+
     @JsonProperty("bpseq")
     private BpSeq bpseq;
 
@@ -41,4 +42,5 @@ public class Output2D {
     public OutputImage getOutputImage() {
         return outputImage;
     }
+
 }

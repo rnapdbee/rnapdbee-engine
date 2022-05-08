@@ -35,4 +35,5 @@ public class ResidueAuth {
     public String getName() {
         return name;
     }
+
 }

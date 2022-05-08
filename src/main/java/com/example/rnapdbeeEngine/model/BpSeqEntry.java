@@ -4,7 +4,7 @@ package com.example.rnapdbeeEngine.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * DTO class for entry of BpSeq - fields taken from BioCommons' ImmutableEntry class
+ * DTO class for entry of BpSeq - fields structure taken from BioCommons' ImmutableEntry class
  */
 public class BpSeqEntry {
 

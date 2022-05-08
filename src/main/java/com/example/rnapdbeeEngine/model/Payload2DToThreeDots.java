@@ -35,4 +35,5 @@ public class Payload2DToThreeDots {
     public VisualizationTools getVisualizationTool() {
         return visualizationTool;
     }
+
 }

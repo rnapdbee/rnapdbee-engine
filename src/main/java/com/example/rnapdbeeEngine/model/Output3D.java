@@ -14,4 +14,11 @@ public class Output3D {
     @JsonProperty("output2D")
     private Output2D output2D;
 
+    public AnalysisOutput getAnalysisOutput() {
+        return analysisOutput;
+    }
+
+    public Output2D getOutput2D() {
+        return output2D;
+    }
 }

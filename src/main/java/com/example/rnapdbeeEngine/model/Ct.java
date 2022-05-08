@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 /**
- * DTO class for Ct - fields taken from the BioCommons' ImmutableCt class
+ * DTO class for Ct - fields structure taken from the BioCommons' ImmutableCt class
  */
 public class Ct {
 

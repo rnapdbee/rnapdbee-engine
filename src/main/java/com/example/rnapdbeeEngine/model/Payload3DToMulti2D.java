@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Payload object of 3D -> multi 2D calculation
  */
 public class Payload3DToMulti2D {
+
     @JsonProperty("fileContent")
     private String fileContent;
 

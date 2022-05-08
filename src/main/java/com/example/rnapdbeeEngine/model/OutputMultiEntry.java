@@ -14,4 +14,11 @@ public class OutputMultiEntry {
     @JsonProperty("consensusVisualization")
     private ConsensusVisualization consensusVisualization;
 
+    public Output2D getOutput2D() {
+        return output2D;
+    }
+
+    public ConsensusVisualization getConsensusVisualization() {
+        return consensusVisualization;
+    }
 }

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Payload of (...) -> Image calculation
  */
 public class ThreeDotsToImagePayload {
+
     @JsonProperty("fileContent")
     private String fileContent;
 
@@ -27,5 +28,6 @@ public class ThreeDotsToImagePayload {
     public VisualizationTools getVisualizationTool() {
         return visualizationTool;
     }
+
 }
 

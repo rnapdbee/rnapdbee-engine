@@ -17,4 +17,5 @@ public class OutputMulti {
     public List<OutputMultiEntry> getEntries() {
         return entries;
     }
+
 }

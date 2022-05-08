@@ -4,7 +4,7 @@ package com.example.rnapdbeeEngine.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * DTO class for entry of Ct - fields taken from the BioCommons' ImmutableExtendedEntry class
+ * DTO class for entry of Ct - fields structure taken from the BioCommons' ImmutableExtendedEntry class
  */
 public class CtExtendedEntry {
 
