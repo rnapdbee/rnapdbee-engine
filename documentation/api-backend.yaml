@@ -184,7 +184,7 @@ paths:
         "200":
           description: "OK"
           schema:
-            $ref: "#/definitions/Output3D"
+            $ref: "#/definitions/OutputMulti"
 
   /multi/pdb/{PDBID}:
     post:
