@@ -2,16 +2,18 @@ image: maven:latest
 
 stages:
   - build
-  - tests
+  - test
   - package
 
 build:
   stage: build
+  image: docker:latest
   script:
-    - mvn compile
+    - mvn clean install
+    - DOCKER_BUILDKIT=1 docker compose build
 
-tests:
-  stage: tests
+test:
+  stage: test
   script:
     - mvn test
 
