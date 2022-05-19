@@ -3,32 +3,28 @@ image: maven:latest
 stages:
   - build
   - test
-  - package
+  - build_docker
 
 build:
   stage: build
-  image: docker:latest
   script:
     - mvn clean install
-    - DOCKER_BUILDKIT=1 docker compose build
+  artifacts:
+    name: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
+    paths:
+      - target/*.jar
+    expire_in: 1 week
 
 test:
   stage: test
   script:
     - mvn test
 
-package:
-  stage: package
-
+build_docker:
+  stage: build_docker
+  image: docker:latest
   only:
     - develop
     - main
-
   script:
-    - mvn package
-
-  artifacts:
-    name: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
-    paths:
-      - target/*.jar
-    expire_in: 1 week
+    - DOCKER_BUILDKIT=1 docker compose build
