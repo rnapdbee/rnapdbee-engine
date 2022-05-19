@@ -18,19 +18,12 @@ public class Residue {
     @JsonProperty("auth")
     private ResidueAuth auth;
 
-    @JsonProperty("atoms")
-    private List<Atom> atoms = new ArrayList<>();
-
     public ResidueLabel getLabel() {
         return label;
     }
 
     public ResidueAuth getAuth() {
         return auth;
-    }
-
-    public List<Atom> getAtoms() {
-        return atoms;
     }
 
 }
