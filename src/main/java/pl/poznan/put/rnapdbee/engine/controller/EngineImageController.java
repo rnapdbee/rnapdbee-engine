@@ -7,18 +7,13 @@ import pl.poznan.put.rnapdbee.engine.model.OutputImage;
 import pl.poznan.put.rnapdbee.engine.model.ThreeDotsToImagePayload;
 
 @RestController
-@RequestMapping("api/rnapdbee/engine/image")
+@RequestMapping("api/v1/engine/image")
 public class EngineImageController {
 
     private static final Logger logger = LoggerFactory.getLogger(EngineImageController.class);
 
     @PostMapping(path = "/", produces = "application/json")
     public OutputImage calculateMulti(@RequestBody ThreeDotsToImagePayload threeDotsToImagePayload) {
-        return new OutputImage();
-    }
-
-    @GetMapping(path = "/{id}", produces = "application/json")
-    public OutputImage fetchExistingMulti(@PathVariable(name = "id") Integer id) {
         return new OutputImage();
     }
 }

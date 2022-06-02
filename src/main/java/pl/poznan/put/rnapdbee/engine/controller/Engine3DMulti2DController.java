@@ -7,18 +7,13 @@ import pl.poznan.put.rnapdbee.engine.model.OutputMulti;
 import pl.poznan.put.rnapdbee.engine.model.Payload3DToMulti2D;
 
 @RestController
-@RequestMapping("api/rnapdbee/engine/multi")
+@RequestMapping("api/v1/engine/multi")
 public class Engine3DMulti2DController {
 
     private static final Logger logger = LoggerFactory.getLogger(Engine3DMulti2DController.class);
 
     @PostMapping(path = "/", produces = "application/json")
     public OutputMulti calculateMulti(@RequestBody Payload3DToMulti2D payload3DToMulti2D) {
-        return new OutputMulti();
-    }
-
-    @GetMapping(path = "/{id}", produces = "application/json")
-    public OutputMulti fetchExistingMulti(@PathVariable(name = "id") Integer id) {
         return new OutputMulti();
     }
 
