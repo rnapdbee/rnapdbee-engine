@@ -1,4 +1,4 @@
-package pl.poznan.put.rnapdbee.engine.controller;
+package pl.poznan.put.rnapdbee.engine.calculation.controller;
 
 
 import org.slf4j.Logger;
