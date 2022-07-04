@@ -29,7 +29,7 @@ public class Payload3DThreeDots {
   private StructuralElementsHandling structuralElementsHandling;
 
   @JsonProperty("visualizationTool")
-  private VisualizationTools visualizationTool;
+  private VisualizationTool visualizationTool;
 
   public String getFileContent() {
     return fileContent;
@@ -55,7 +55,7 @@ public class Payload3DThreeDots {
     return structuralElementsHandling;
   }
 
-  public VisualizationTools getVisualizationTool() {
+  public VisualizationTool getVisualizationTool() {
     return visualizationTool;
   }
 

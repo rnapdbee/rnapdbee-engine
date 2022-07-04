@@ -4,7 +4,7 @@ package pl.poznan.put.rnapdbee.engine.model;
 /**
  * enum for VisualizationTools
  */
-public enum VisualizationTools {
+public enum VisualizationTool {
   
   VARNA("VARNA"),
   PSEUDOVIEWER("PseudoViewer"),
@@ -19,7 +19,7 @@ public enum VisualizationTools {
 
   private String value;
 
-  VisualizationTools(String value) {
+  VisualizationTool(String value) {
     this.value = value;
   }
 

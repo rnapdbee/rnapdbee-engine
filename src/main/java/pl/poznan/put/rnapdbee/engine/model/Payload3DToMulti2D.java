@@ -21,7 +21,7 @@ public class Payload3DToMulti2D {
     private Boolean removeIsolated;
 
     @JsonProperty("visualizationTool")
-    private VisualizationTools visualizationTool;
+    private VisualizationTool visualizationTool;
 
     public String getFileContent() {
         return fileContent;
@@ -39,7 +39,7 @@ public class Payload3DToMulti2D {
         return removeIsolated;
     }
 
-    public VisualizationTools getVisualizationTool() {
+    public VisualizationTool getVisualizationTool() {
         return visualizationTool;
     }
 

@@ -15,7 +15,7 @@ public class ThreeDotsToImagePayload {
     private StructuralElementsHandling structuralElementsHandling;
 
     @JsonProperty("visualizationTool")
-    private VisualizationTools visualizationTool;
+    private VisualizationTool visualizationTool;
 
     public String getFileContent() {
         return fileContent;
@@ -25,7 +25,7 @@ public class ThreeDotsToImagePayload {
         return structuralElementsHandling;
     }
 
-    public VisualizationTools getVisualizationTool() {
+    public VisualizationTool getVisualizationTool() {
         return visualizationTool;
     }
 
