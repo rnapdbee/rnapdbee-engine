@@ -5,8 +5,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import pl.poznan.put.rnapdbee.engine.model.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import pl.poznan.put.rnapdbee.engine.model.AnalysisTool;
+import pl.poznan.put.rnapdbee.engine.model.ModelSelection;
+import pl.poznan.put.rnapdbee.engine.model.NonCanonicalHandling;
+import pl.poznan.put.rnapdbee.engine.model.Output2D;
+import pl.poznan.put.rnapdbee.engine.model.Output3D;
+import pl.poznan.put.rnapdbee.engine.model.OutputImage;
+import pl.poznan.put.rnapdbee.engine.model.OutputMulti;
+import pl.poznan.put.rnapdbee.engine.model.StructuralElementsHandling;
+import pl.poznan.put.rnapdbee.engine.model.VisualizationTool;
 
 @RestController
 @RequestMapping("api/v1/calculation")
