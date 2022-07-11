@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   description: "This is API of the engine service of RNApdbee v3.0."
-  version: "1.0.4"
+  version: "1.0.5"
   title: "RNApdbee Engine API"
 
 
@@ -29,7 +29,7 @@ paths:
     post:
       tags:
         - "Calculations"
-      summary: "Perform a 3d calculation based on the payload"
+      summary: "Perform a 3D to Dot-Bracket calculation"
       description: ""
       parameters:
         - $ref: "#/components/parameters/modelSelection"
@@ -38,6 +38,7 @@ paths:
         - $ref: "#/components/parameters/removeIsolated"
         - $ref: "#/components/parameters/structuralElementsHandling"
         - $ref: "#/components/parameters/visualizationTool"
+        - $ref: "#/components/parameters/contentDispositionHeader"
       requestBody:
         description: ""
         required: true
@@ -56,45 +57,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/Output3D"
 
-  /multi/:
-    post:
-      tags:
-        - "Calculations"
-      summary: "Perform a multi calculation"
-      description: ""
-      parameters:
-        - $ref: "#/components/parameters/modelSelection"
-        - $ref: "#/components/parameters/includeNonCanonical"
-        - $ref: "#/components/parameters/removeIsolated"
-        - $ref: "#/components/parameters/visualizationTool"
-      requestBody:
-        description: ""
-        required: true
-        content:
-          text/plain:
-            schema:
-              type: "string"
-              example: "content of the file"
-      responses:
-        "400":
-          description: "Bad request"
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/OutputMulti"
-
   /2d/:
     post:
       tags:
         - "Calculations"
-      summary: "Perform a 2D calculation"
+      summary: "Perform a 2D to Dot-Bracket calculation"
       description: ""
       parameters:
         - $ref: "#/components/parameters/removeIsolated"
         - $ref: "#/components/parameters/structuralElementsHandling"
         - $ref: "#/components/parameters/visualizationTool"
+        - $ref: "#/components/parameters/contentDispositionHeader"
       requestBody:
         description: ""
         required: true
@@ -117,11 +90,12 @@ paths:
     post:
       tags:
         - "Calculations"
-      summary: "Perform an image calculation"
+      summary: "Perform a Dot-Bracket to Image calculation"
       description: ""
       parameters:
         - $ref: "#/components/parameters/structuralElementsHandling"
         - $ref: "#/components/parameters/visualizationTool"
+        - $ref: "#/components/parameters/contentDispositionHeader"
       requestBody:
         description: ""
         required: true
@@ -140,6 +114,36 @@ paths:
               schema:
                 $ref: "#/components/schemas/OutputImage"
 
+  /multi/:
+    post:
+      tags:
+        - "Calculations"
+      summary: "Perform a 3D to multi 2D calculation"
+      description: ""
+      parameters:
+        - $ref: "#/components/parameters/modelSelection"
+        - $ref: "#/components/parameters/includeNonCanonical"
+        - $ref: "#/components/parameters/removeIsolated"
+        - $ref: "#/components/parameters/visualizationTool"
+        - $ref: "#/components/parameters/contentDispositionHeader"
+      requestBody:
+        description: ""
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: "string"
+              example: "content of the file"
+      responses:
+        "400":
+          description: "Bad request"
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OutputMulti"
+
 components:
   parameters:
     modelSelection:
@@ -148,7 +152,7 @@ components:
       required: true
       schema:
         type: "string"
-        enum: ["First", "All"]
+        enum: ["FIRST", "ALL"]
     analysisTool:
       in: query
       name: analysisTool
@@ -156,11 +160,11 @@ components:
       schema:
         type: "string"
         enum:
-          - "fr3d-python"
-          - "bpnet"
-          - "baRNAba"
-          - "RNAView"
-          - "MC-Annotate"
+          - "FR3D_PYTHON"
+          - "BPNET"
+          - "BARNABA"
+          - "RNAVIEW"
+          - "MC_ANNOTATE"
     nonCanonicalHandling:
       in: query
       name: nonCanonicalHandling
@@ -168,9 +172,9 @@ components:
       schema:
         type: "string"
         enum:
-          - "VisualizationOnly"
-          - "TextAndVisualization"
-          - "Ignore"
+          - "VISUALIZATION_ONLY"
+          - "TEXT_AND_VISUALIZATION"
+          - "IGNORE"
     removeIsolated:
       in: query
       name: removeIsolated
@@ -191,14 +195,22 @@ components:
       required: true
       schema:
         type: "string"
-        enum: ["UsePseudoknots", "IgnorePseudoknots"]
+        enum: ["USE_PSEUDOKNOTS", "IGNORE_PSEUDOKNOTS"]
     visualizationTool:
       in: query
       name: visualizationTool
       required: true
       schema:
         type: "string"
-        enum: ["VARNA", "PseudoViewer", "R-Chie", "RNAglib", "forna", "RNApuzzler", "RNAturtle", "RNAtraveler", "baRNAba", "None"]
+        enum: ["VARNA", "PSEUDO_VIEWER", "R_CHIE", "RNA_GLIB", "FORNA", "RNA_PUZZLER", "RNA_TURTLE", "RNA_TRAVELER", "BARNABA", "NONE"]
+    contentDispositionHeader:
+      in: header
+      name: Content-Disposition
+      required: true
+      schema:
+        type: string
+        description: Used only with `application/pdf` responses
+        example: attachment; filename="name.pdf"
 
   schemas:
     Output3D:
