@@ -6,19 +6,24 @@ package pl.poznan.put.rnapdbee.engine.model;
  */
 public enum StructuralElementsHandling {
 
-    USE_PSEUDO_KNOTS("UsePseudoknots"),
+    USE_PSEUDOKNOTS( true, true),
+    IGNORE_PSEUDOKNOTS( false, false);
 
-    IGNORE_PSEUDOKNOTS("IgnorePseudoknots");
+    private final boolean canElementsEndWithPseudoknots;
+    private final boolean reuseSingleStrandsFromLoops;
 
-    private String value;
-
-    StructuralElementsHandling(String value) {
-        this.value = value;
+    StructuralElementsHandling(boolean canElementsEndWithPseudoknots,
+                               boolean reuseSingleStrandsFromLoops) {
+        this.canElementsEndWithPseudoknots = canElementsEndWithPseudoknots;
+        this.reuseSingleStrandsFromLoops = reuseSingleStrandsFromLoops;
     }
 
-    @Override
-    public String toString() {
-        return String.valueOf(value);
+    public boolean canElementsEndWithPseudoknots() {
+        return canElementsEndWithPseudoknots;
+    }
+
+    public boolean isReuseSingleStrandsFromLoopsEnabled() {
+        return reuseSingleStrandsFromLoops;
     }
 
 }
