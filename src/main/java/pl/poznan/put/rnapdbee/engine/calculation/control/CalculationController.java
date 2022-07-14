@@ -19,9 +19,6 @@ import pl.poznan.put.rnapdbee.engine.calculation.model.DotBracketToImageAnalysis
 import pl.poznan.put.rnapdbee.engine.model.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.model.ModelSelection;
 import pl.poznan.put.rnapdbee.engine.model.NonCanonicalHandling;
-import pl.poznan.put.rnapdbee.engine.model.Output2D;
-import pl.poznan.put.rnapdbee.engine.model.Output3D;
-import pl.poznan.put.rnapdbee.engine.model.OutputMulti;
 import pl.poznan.put.rnapdbee.engine.model.StructuralElementsHandling;
 import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
 
@@ -41,7 +38,7 @@ public class CalculationController {
     private DotBracketToImageService dotBracketToImageService;
 
     @PostMapping(path = "/3d", produces = "application/json", consumes = "text/plain")
-    public ResponseEntity<Output3D> calculate3dToDotBracket(
+    public ResponseEntity<Object> calculateTertiaryToDotBracket(
             @RequestParam("modelSelection") ModelSelection modelSelection,
             @RequestParam("analysisTool") AnalysisTool analysisTool,
             @RequestParam("nonCanonicalHandling") NonCanonicalHandling nonCanonicalHandling,
@@ -54,7 +51,7 @@ public class CalculationController {
 
 
     @PostMapping(path = "/2d", produces = "application/json", consumes = "text/plain")
-    public ResponseEntity<Output2D> calculate2dToDotBracket(
+    public ResponseEntity<Object> calculateSecondaryToDotBracket(
             @RequestParam("removeIsolated") boolean removeIsolated,
             @RequestParam("structuralElementsHandling") StructuralElementsHandling structuralElementsHandling,
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
@@ -64,7 +61,7 @@ public class CalculationController {
 
 
     @PostMapping(path = "/multi", produces = "application/json", consumes = "text/plain")
-    public ResponseEntity<OutputMulti> calculate2dToMulti2d(
+    public ResponseEntity<Object> calculateTertiaryToMultiSecondary(
             @RequestParam("modelSelection") ModelSelection modelSelection,
             @RequestParam("includeNonCanonical") boolean includeNonCanonical,
             @RequestParam("removeIsolated") boolean removeIsolated,
