@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pl.poznan.put.rnapdbee.engine.calculation.logic.EncodingUtils;
-import pl.poznan.put.rnapdbee.engine.calculation.logic.TertiaryToImageService;
-import pl.poznan.put.rnapdbee.engine.calculation.model.TertiaryAnalysisOutput;
+import pl.poznan.put.rnapdbee.engine.calculation.logic.DotBracketToImageService;
+import pl.poznan.put.rnapdbee.engine.calculation.model.DotBracketToImageAnalysisOutput;
 import pl.poznan.put.rnapdbee.engine.model.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.model.ModelSelection;
 import pl.poznan.put.rnapdbee.engine.model.NonCanonicalHandling;
@@ -36,10 +36,10 @@ public class CalculationController {
 
     // TODO eventually put Autowired in constructor
     @Autowired
-    private TertiaryToImageService tertiaryToImageService;
+    private DotBracketToImageService dotBracketToImageService;
 
     @PostMapping(path = "/3d", produces = "application/json", consumes = "text/plain")
-    public ResponseEntity<Output3D> calculate3dToTertiary(
+    public ResponseEntity<Output3D> calculate3dToDotBracket(
             @RequestParam("modelSelection") ModelSelection modelSelection,
             @RequestParam("analysisTool") AnalysisTool analysisTool,
             @RequestParam("nonCanonicalHandling") NonCanonicalHandling nonCanonicalHandling,
@@ -52,7 +52,7 @@ public class CalculationController {
 
 
     @PostMapping(path = "/2d", produces = "application/json", consumes = "text/plain")
-    public ResponseEntity<Output2D> calculate2dToTertiary(
+    public ResponseEntity<Output2D> calculate2dToDotBracket(
             @RequestParam("removeIsolated") boolean removeIsolated,
             @RequestParam("structuralElementsHandling") StructuralElementsHandling structuralElementsHandling,
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
@@ -80,18 +80,18 @@ public class CalculationController {
      * @param encodedContent             base64 encoded content of the uploaded file
      * @return wrapped in an object list of image outputs
      */
-    // TODO add content-disposition
+    /* TODO add content-disposition header */
     @PostMapping(path = "/image", produces = "application/json", consumes = "text/plain")
-    public ResponseEntity<TertiaryAnalysisOutput> calculateTertiaryToImage(
+    public ResponseEntity<DotBracketToImageAnalysisOutput> calculateDotBracketToImage(
             @RequestParam("structuralElementsHandling") StructuralElementsHandling structuralElementsHandling,
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
             @RequestBody String encodedContent) {
 
         String decodedContent = EncodingUtils.decodeBase64StringToString(encodedContent);
-        var result = tertiaryToImageService
-                .performTertiaryToImageCalculation(structuralElementsHandling, visualizationTool, decodedContent);
-        // TODO add ImageURL to the TertiaryAnalysisOutput
-        return new ResponseEntity<>(new TertiaryAnalysisOutput(result), HttpStatus.OK);
+        var analysisResult = dotBracketToImageService
+                .performDotBracketToImageCalculation(structuralElementsHandling, visualizationTool, decodedContent);
+        var outputAnalysis = new DotBracketToImageAnalysisOutput(analysisResult);
+        return new ResponseEntity<>(outputAnalysis, HttpStatus.OK);
 
     }
 }

@@ -36,22 +36,23 @@ import java.util.stream.Collectors;
  * Service class handling (...) -> Image calculation
  */
 @Component
-public class TertiaryToImageService {
+public class DotBracketToImageService {
 
+    // TODO put in autowired constructor
     @Autowired
     ImageService imageService;
 
     /**
-     * performs calculation of tertiary RNA structure (...) -> Image
+     * performs calculation of Dot Bracket RNA structures to Images (...) -> Image
      *
      * @param structuralElementsHandling enum determining if pseudoknots should be considered or not
      * @param visualizationTool          enum for Visualization Tool
      * @param content                    content of the uploaded file
      * @return List of {@link AnalysisOutput}
      */
-    public List<AnalysisOutput> performTertiaryToImageCalculation(StructuralElementsHandling structuralElementsHandling,
-                                                                  VisualizationTool visualizationTool,
-                                                                  String content) {
+    public List<AnalysisOutput> performDotBracketToImageCalculation(StructuralElementsHandling structuralElementsHandling,
+                                                                    VisualizationTool visualizationTool,
+                                                                    String content) {
         var dotBracket = DefaultDotBracket.fromString(content);
         return dotBracket.combineStrands().stream().map(combinedStrand -> {
 

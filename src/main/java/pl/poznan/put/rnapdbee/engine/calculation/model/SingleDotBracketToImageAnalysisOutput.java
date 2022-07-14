@@ -10,21 +10,21 @@ import java.util.stream.Collectors;
 /**
  * DTO class representing structure of single (...) -> image output
  */
-public class SingleTertiaryAnalysisOutput {
-
+public class SingleDotBracketToImageAnalysisOutput {
 
     private final List<SingleStrandOutput> strands;
     private final List<String> bpseq;
     private final List<String> ct;
     private final List<String> interactions;
     private final StructuralElementOutput structuralElements;
+    private final ImageInformationOutput imageInformation;
 
     /**
-     * Maps {@link AnalysisOutput} into {@link SingleTertiaryAnalysisOutput}
+     * Maps {@link AnalysisOutput} into {@link SingleDotBracketToImageAnalysisOutput}
      *
-     * @param analysisOutput analysis output which is mapped to SingleTertiaryAnalysisOutput
+     * @param analysisOutput analysis output which is mapped to SingleDotBracketToImageAnalysisOutput object
      */
-    public SingleTertiaryAnalysisOutput(AnalysisOutput analysisOutput) {
+    public SingleDotBracketToImageAnalysisOutput(AnalysisOutput analysisOutput) {
         strands = analysisOutput
                 .dotBracket().strands().stream()
                 .map(strand -> new SingleStrandOutput(
@@ -42,6 +42,7 @@ public class SingleTertiaryAnalysisOutput {
                 .getInterStrand().stream()
                 .map(interStrand -> interStrand.basePair().toString()).collect(Collectors.toList());
         structuralElements = new StructuralElementOutput(analysisOutput.structuralElementFinder());
+        imageInformation = new ImageInformationOutput(analysisOutput.image());
     }
 
     public List<SingleStrandOutput> getStrands() {
@@ -62,5 +63,9 @@ public class SingleTertiaryAnalysisOutput {
 
     public StructuralElementOutput getStructuralElements() {
         return structuralElements;
+    }
+
+    public ImageInformationOutput getImageInformation() {
+        return imageInformation;
     }
 }
