@@ -52,43 +52,53 @@ public class DotBracketToImageService {
      */
     public List<AnalysisOutput> performDotBracketToImageCalculation(StructuralElementsHandling structuralElementsHandling,
                                                                     VisualizationTool visualizationTool,
-                                                                    String content) {
+                                                                    String content,
+                                                                    String fileName) {
         var dotBracket = DefaultDotBracket.fromString(content);
-        return dotBracket.combineStrands().stream().map(combinedStrand -> {
+        // Assuming the fileName is full name of file and prefix is the name without file extension
+        InputStructureName source = new InputStructureName(fileName, fileName.split("\\.")[0]);
 
-            SecondaryStructureImage image = imageService.provideVisualization(visualizationTool, combinedStrand);
+        return dotBracket.combineStrands().stream()
+                .map(combinedStrand ->
+                        analyseSingleCombinedStrand(combinedStrand, structuralElementsHandling, visualizationTool, source))
+                .collect(Collectors.toList());
+    }
 
-            // TODO source should be taken from Content-Disposition header
-            //final InputStructureName source = inputContent.getSource();
+    private AnalysisOutput analyseSingleCombinedStrand(DotBracket combinedStrand,
+                                                       StructuralElementsHandling structuralElementsHandling,
+                                                       VisualizationTool visualizationTool,
+                                                       InputStructureName source) {
 
-            final BpSeq bpseqFromCombined = BpSeq.fromDotBracket(combinedStrand);
-            final Ct ctFromCombined = Ct.fromDotBracket(combinedStrand);
+        final BpSeq bpseqFromCombined = BpSeq.fromDotBracket(combinedStrand);
+        final Ct ctFromCombined = Ct.fromDotBracket(combinedStrand);
 
-            final List<String> messages = Collections.emptyList();
+        SecondaryStructureImage image = imageService.provideVisualization(visualizationTool, combinedStrand);
 
-            final StructuralElementFinder structuralElementFinder =
-                    new StructuralElementFinder(
-                            combinedStrand,
-                            structuralElementsHandling.canElementsEndWithPseudoknots(),
-                            structuralElementsHandling.isReuseSingleStrandsFromLoopsEnabled());
+        final StructuralElementFinder structuralElementFinder =
+                new StructuralElementFinder(
+                        combinedStrand,
+                        structuralElementsHandling.canElementsEndWithPseudoknots(),
+                        structuralElementsHandling.isReuseSingleStrandsFromLoopsEnabled());
 
-            final List<AnalyzedBasePair> interStrand = analyzeInterStrandPairs(combinedStrand);
-            final AnalysisResult analysisResult =
-                    AnalysisResultBuilder.builder().interStrand(interStrand).build();
+        final List<AnalyzedBasePair> interStrand = analyzeInterStrandPairs(combinedStrand);
+        final AnalysisResult analysisResult =
+                AnalysisResultBuilder.builder().interStrand(interStrand).build();
 
-            return ImmutableAnalysisOutput.builder()
-                    .modelNumber(1)
-                    .source(/* TODO remove hardcoded value */new InputStructureName("temp1", "temp2"))
-                    .bpSeq(bpseqFromCombined)
-                    .ct(ctFromCombined)
-                    .dotBracket(combinedStrand)
-                    .image(image)
-                    .messages(messages)
-                    .structuralElementFinder(structuralElementFinder)
-                    .analysisResult(analysisResult)
-                    .title("")
-                    .build();
-        }).collect(Collectors.toList());
+        return ImmutableAnalysisOutput.builder()
+                // setting 1 based on rnapdbee-web implementation
+                .modelNumber(1)
+                .source(source)
+                .bpSeq(bpseqFromCombined)
+                .ct(ctFromCombined)
+                .dotBracket(combinedStrand)
+                .image(image)
+                // setting empty list based on rnapdbee-web implementation
+                .messages(Collections.emptyList())
+                .structuralElementFinder(structuralElementFinder)
+                .analysisResult(analysisResult)
+                // setting empty String based on rnapdbee-web implementation
+                .title("")
+                .build();
     }
 
     // TODO put in a service class - AnalysisService? -> analyze if needed when there are more similar methods

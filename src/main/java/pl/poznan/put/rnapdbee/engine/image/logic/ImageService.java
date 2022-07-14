@@ -20,7 +20,6 @@ import java.io.IOException;
 @Component
 public class ImageService {
 
-
     @Autowired
     private ServletContext servletContext;
 
