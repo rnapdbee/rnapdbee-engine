@@ -1,0 +1,527 @@
+openapi: 3.0.0
+
+info:
+  description: "This is API of the engine service of RNApdbee v3.0."
+  version: "1.0.5"
+  title: "RNApdbee Engine API"
+
+
+tags:
+  - name: "Calculations"
+    description: "RNApdbee engine API which is able to perform sequential calculations"
+
+servers:
+  - url: '{protocol}://{URL}/api/v1/calculation'
+    variables:
+      port:
+        enum:
+          - '8080'
+          - '8081'
+        default: '8080'
+      protocol:
+        enum:
+          - http
+          - https
+        default: http
+
+paths:
+  /3d/:
+    post:
+      tags:
+        - "Calculations"
+      summary: "Perform a 3D to Dot-Bracket calculation"
+      description: ""
+      parameters:
+        - $ref: "#/components/parameters/modelSelection"
+        - $ref: "#/components/parameters/analysisTool"
+        - $ref: "#/components/parameters/nonCanonicalHandling"
+        - $ref: "#/components/parameters/removeIsolated"
+        - $ref: "#/components/parameters/structuralElementsHandling"
+        - $ref: "#/components/parameters/visualizationTool"
+        - $ref: "#/components/parameters/contentDispositionHeader"
+      requestBody:
+        description: ""
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: "string"
+              example: "content of the file"
+      responses:
+        "400":
+          description: "Bad request"
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Output3D"
+
+  /2d/:
+    post:
+      tags:
+        - "Calculations"
+      summary: "Perform a 2D to Dot-Bracket calculation"
+      description: ""
+      parameters:
+        - $ref: "#/components/parameters/removeIsolated"
+        - $ref: "#/components/parameters/structuralElementsHandling"
+        - $ref: "#/components/parameters/visualizationTool"
+        - $ref: "#/components/parameters/contentDispositionHeader"
+      requestBody:
+        description: ""
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: "string"
+              example: "content of the file"
+      responses:
+        "400":
+          description: "Bad request"
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Output2D"
+
+  /image/:
+    post:
+      tags:
+        - "Calculations"
+      summary: "Perform a Dot-Bracket to Image calculation"
+      description: ""
+      parameters:
+        - $ref: "#/components/parameters/structuralElementsHandling"
+        - $ref: "#/components/parameters/visualizationTool"
+        - $ref: "#/components/parameters/contentDispositionHeader"
+      requestBody:
+        description: ""
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: "string"
+              example: "content of the file"
+      responses:
+        "400":
+          description: "Bad request"
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OutputImage"
+
+  /multi/:
+    post:
+      tags:
+        - "Calculations"
+      summary: "Perform a 3D to multi 2D calculation"
+      description: ""
+      parameters:
+        - $ref: "#/components/parameters/modelSelection"
+        - $ref: "#/components/parameters/includeNonCanonical"
+        - $ref: "#/components/parameters/removeIsolated"
+        - $ref: "#/components/parameters/visualizationTool"
+        - $ref: "#/components/parameters/contentDispositionHeader"
+      requestBody:
+        description: ""
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: "string"
+              example: "content of the file"
+      responses:
+        "400":
+          description: "Bad request"
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OutputMulti"
+
+components:
+  parameters:
+    modelSelection:
+      in: query
+      name: modelSelection
+      required: true
+      schema:
+        type: "string"
+        enum: ["FIRST", "ALL"]
+    analysisTool:
+      in: query
+      name: analysisTool
+      required: true
+      schema:
+        type: "string"
+        enum:
+          - "FR3D_PYTHON"
+          - "BPNET"
+          - "BARNABA"
+          - "RNAVIEW"
+          - "MC_ANNOTATE"
+    nonCanonicalHandling:
+      in: query
+      name: nonCanonicalHandling
+      required: true
+      schema:
+        type: "string"
+        enum:
+          - "VISUALIZATION_ONLY"
+          - "TEXT_AND_VISUALIZATION"
+          - "IGNORE"
+    removeIsolated:
+      in: query
+      name: removeIsolated
+      required: true
+      schema:
+        type: "boolean"
+        enum: [true, false]
+    includeNonCanonical:
+      in: query
+      name: includeNonCanonical
+      required: true
+      schema:
+        type: "boolean"
+        enum: [true, false]
+    structuralElementsHandling:
+      in: query
+      name: structuralElementsHandling
+      required: true
+      schema:
+        type: "string"
+        enum: ["USE_PSEUDOKNOTS", "IGNORE_PSEUDOKNOTS"]
+    visualizationTool:
+      in: query
+      name: visualizationTool
+      required: true
+      schema:
+        type: "string"
+        enum: ["VARNA", "PSEUDO_VIEWER", "R_CHIE", "RNA_GLIB", "FORNA", "RNA_PUZZLER", "RNA_TURTLE", "RNA_TRAVELER", "BARNABA", "NONE"]
+    contentDispositionHeader:
+      in: header
+      name: Content-Disposition
+      required: true
+      schema:
+        type: string
+        description: Used only with `application/pdf` responses
+        example: attachment; filename="name.pdf"
+
+  schemas:
+    Output3D:
+      type: object
+      properties:
+        analysisOutput:
+          $ref: "#/components/schemas/AnalysisOutput"
+        output2D:
+          $ref: "#/components/schemas/Output2D"
+      required:
+        - analysisOutput
+        - output2D
+
+    OutputMulti:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/OutputMultiEntry"
+      required:
+        - entries
+
+    OutputMultiEntry:
+      type: object
+      properties:
+        output2D:
+          $ref: "#/components/schemas/Output2D"
+        consensusVisualization:
+          $ref: "#/components/schemas/ConsensusVisualization"
+      required:
+        - output2D
+        - consensusVisualization
+
+    ConsensusVisualization:
+      type: object
+
+    Output2D:
+      type: object
+      properties:
+        bpseq:
+          $ref: "#/components/schemas/BPSEQ"
+        ct:
+          $ref: "#/components/schemas/CT"
+        dotBarcket:
+          $ref: "#/components/schemas/DotBracket"
+        structuralElements:
+          $ref: "#/components/schemas/StructuralElements"
+        outputImage:
+          $ref: "#/components/schemas/OutputImage"
+      required:
+        - bpseq
+        - ct
+        - dotBarcket
+        - structuralElements
+        - outputImage
+
+    BPSEQ:
+      type: object
+
+    CT:
+      type: object
+
+    DotBracket:
+      type: object
+
+    StructuralElements:
+      type: object
+
+    OutputImage:
+      type: object
+      properties:
+        visualization:
+          $ref: "#/components/schemas/Visualization"
+      required:
+        - visualization
+
+    Visualization:
+      type: object
+
+    AnalysisOutput:
+      type: object
+      properties:
+        basePairs:
+          type: array
+          items:
+            $ref: "#/components/schemas/BasePair"
+        stackings:
+          type: array
+          items:
+            $ref: "#/components/schemas/Stacking"
+        baseRiboseInteractions:
+          type: array
+          items:
+            $ref: "#/components/schemas/BaseRibose"
+        basePhosphateInteractions:
+          type: array
+          items:
+            $ref: "#/components/schemas/BasePhosphate"
+        other:
+          type: array
+          items:
+            $ref: "#/components/schemas/Other"
+      required:
+        - basePairs
+        - stackings
+        - baseRiboseInteractions
+        - basePhosphateInteractions
+        - other
+
+    BasePair:
+      type: object
+      properties:
+        nt1:
+          $ref: "#/components/schemas/Residue"
+        nt2:
+          $ref: "#/components/schemas/Residue"
+        leontisWesthof:
+          $ref: "#/components/schemas/LeontisWesthof"
+        saenger:
+          $ref: "#/components/schemas/Saenger"
+      required:
+        - leontisWesthof
+        - nt1
+        - nt2
+
+    BaseRibose:
+      type: object
+      properties:
+        nt1:
+          $ref: "#/components/schemas/Residue"
+        nt2:
+          $ref: "#/components/schemas/Residue"
+        br:
+          $ref: "#/components/schemas/BR"
+      required:
+        - nt1
+        - nt2
+
+    BasePhosphate:
+      type: object
+      properties:
+        nt1:
+          $ref: "#/components/schemas/Residue"
+        nt2:
+          $ref: "#/components/schemas/Residue"
+        bph:
+          $ref: "#/components/schemas/BPh"
+      required:
+        - nt1
+        - nt2
+
+    Stacking:
+      type: object
+      properties:
+        nt1:
+          $ref: "#/components/schemas/Residue"
+        nt2:
+          $ref: "#/components/schemas/Residue"
+        topology:
+          $ref: "#/components/schemas/StackingTopology"
+      required:
+        - nt1
+        - nt2
+
+    Other:
+      type: object
+      properties:
+        nt1:
+          $ref: "#/components/schemas/Residue"
+        nt2:
+          $ref: "#/components/schemas/Residue"
+      required:
+        - nt1
+        - nt2
+
+    Residue:
+      type: object
+      properties:
+        label:
+          $ref: "#/components/schemas/ResidueLabel"
+        auth:
+          $ref: "#/components/schemas/ResidueAuth"
+        atoms:
+          type: array
+          items:
+            $ref: "#/components/schemas/Atom"
+      required:
+        - atoms
+
+    Atom:
+      type: object
+
+    ResidueAuth:
+      type: object
+      properties:
+        chain:
+          type: string
+        number:
+          type: integer
+        icode:
+          type: string
+        name:
+          type: string
+      required:
+        - chain
+        - number
+        - icode
+        - name
+
+    ResidueLabel:
+      type: object
+      properties:
+        chain:
+          type: string
+        number:
+          type: integer
+        name:
+          type: string
+      required:
+        - chain
+        - number
+        - name
+
+    LeontisWesthof:
+      type: "string"
+      enum:
+        - "cWW"
+        - "cWH"
+        - "cWS"
+        - "cHW"
+        - "cHH"
+        - "cHS"
+        - "cSW"
+        - "cSH"
+        - "cSS"
+        - "tWW"
+        - "tWH"
+        - "tWS"
+        - "tHW"
+        - "tHH"
+        - "tHS"
+        - "tSW"
+        - "tSH"
+        - "tSS"
+
+    Saenger:
+      type: "string"
+      enum:
+        - "I"
+        - "II"
+        - "III"
+        - "IV"
+        - "V"
+        - "VI"
+        - "VII"
+        - "VIII"
+        - "IX"
+        - "X"
+        - "XI"
+        - "XII"
+        - "XIII"
+        - "XIV"
+        - "XV"
+        - "XVI"
+        - "XVII"
+        - "XVIII"
+        - "XIX"
+        - "XX"
+        - "XXI"
+        - "XXII"
+        - "XXIII"
+        - "XXIV"
+        - "XXV"
+        - "XXVI"
+        - "XXVII"
+        - "XXVIII"
+
+    BR:
+      type: integer
+      enum:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+
+    BPh:
+      type: integer
+      enum:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+
+    StackingTopology:
+      type: string
+      enum:
+        - upward
+        - downward
+        - inward
+        - outward
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"
