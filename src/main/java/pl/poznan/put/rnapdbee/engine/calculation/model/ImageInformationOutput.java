@@ -1,29 +1,16 @@
 package pl.poznan.put.rnapdbee.engine.calculation.model;
 
 import edu.put.rnapdbee.enums.DrawerEnum;
-import edu.put.rnapdbee.visualization.SecondaryStructureImage;
 
 /**
  * DTO class representing structure of information about image output
  */
 public class ImageInformationOutput {
 
-    private final String pathToPNGImage;
-    private final String pathToSVGImage;
-    private final DrawerEnum successfulDrawer;
-    private final DrawerEnum failedDrawer;
-
-    /**
-     * Maps gotten image to the output one used in REST response
-     *
-     * @param image {@link SecondaryStructureImage} image
-     */
-    public ImageInformationOutput(SecondaryStructureImage image) {
-        pathToPNGImage = image.getPngUrl();
-        pathToSVGImage = image.getSvgUrl();
-        successfulDrawer = image.getSuccessfulDrawer();
-        failedDrawer = image.getFailedDrawer();
-    }
+    private String pathToPNGImage;
+    private String pathToSVGImage;
+    private DrawerEnum successfulDrawer;
+    private DrawerEnum failedDrawer;
 
     public String getPathToPNGImage() {
         return pathToPNGImage;
@@ -39,5 +26,25 @@ public class ImageInformationOutput {
 
     public DrawerEnum getFailedDrawer() {
         return failedDrawer;
+    }
+
+    public ImageInformationOutput withPathToPNGImage(String pathToPNGImage) {
+        this.pathToPNGImage = pathToPNGImage;
+        return this;
+    }
+
+    public ImageInformationOutput withPathToSVGImage(String pathToSVGImage) {
+        this.pathToSVGImage = pathToSVGImage;
+        return this;
+    }
+
+    public ImageInformationOutput withSuccessfulDrawer(DrawerEnum successfulDrawer) {
+        this.successfulDrawer = successfulDrawer;
+        return this;
+    }
+
+    public ImageInformationOutput withFailedDrawer(DrawerEnum failedDrawer) {
+        this.failedDrawer = failedDrawer;
+        return this;
     }
 }

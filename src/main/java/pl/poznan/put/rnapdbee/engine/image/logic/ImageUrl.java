@@ -15,7 +15,7 @@ import java.io.Serializable;
 /**
  * Class extending SecondaryStructureImage with svgUrl and pngUrl fields, containing URLs to PNG and SVG picture
  */
-// TODO analyse what is needed here
+// TODO: analyse what is actually needed here. The class is copied from rnapdbee-web.
 public class ImageUrl extends SecondaryStructureImage implements Serializable {
     private static final long serialVersionUID = -2570661455312387449L;
 

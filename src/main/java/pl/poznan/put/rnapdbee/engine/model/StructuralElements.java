@@ -6,8 +6,8 @@ package pl.poznan.put.rnapdbee.engine.model;
  */
 public enum StructuralElements {
 
-    //TODO is it the same as StructuralElementsHandling?
-    // if yes - probably could be deleted
+    // TODO: is it the same as StructuralElementsHandling?
+    //  if yes - probably could be deleted
     PSEUDOKNOTS_AS_PAIRED_RESIDUES(
             "Structural elements identified treating pseudoknots as paired residues",
             "pseudoknots_as_paired_residues",

@@ -1,39 +1,17 @@
 package pl.poznan.put.rnapdbee.engine.calculation.model;
 
-import edu.put.rnapdbee.analysis.elements.StructuralElement;
-import edu.put.rnapdbee.analysis.elements.StructuralElementFinder;
-
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * DTO class representing single Structural Element output
  */
 public class StructuralElementOutput {
 
-    private final List<String> stems;
-    private final List<String> loops;
-    private final List<String> singleStrands;
-    private final List<String> singleStrands5p;
-    private final List<String> singleStrands3p;
-
-    /**
-     * Maps {@link StructuralElementFinder} into {@link StructuralElementOutput}
-     *
-     * @param structuralElementFinder structural element finder from analysis output
-     */
-    public StructuralElementOutput(StructuralElementFinder structuralElementFinder) {
-        stems = structuralElementFinder.getStems().stream()
-                .map(StructuralElement::toString).collect(Collectors.toList());
-        loops = structuralElementFinder.getLoops().stream()
-                .map(StructuralElement::toString).collect(Collectors.toList());
-        singleStrands = structuralElementFinder.getSingleStrands().stream()
-                .map(StructuralElement::toString).collect(Collectors.toList());
-        singleStrands5p = structuralElementFinder.getSingleStrands5p().stream()
-                .map(StructuralElement::toString).collect(Collectors.toList());
-        singleStrands3p = structuralElementFinder.getSingleStrands3p().stream()
-                .map(StructuralElement::toString).collect(Collectors.toList());
-    }
+    private List<String> stems;
+    private List<String> loops;
+    private List<String> singleStrands;
+    private List<String> singleStrands5p;
+    private List<String> singleStrands3p;
 
     public List<String> getStems() {
         return stems;
@@ -53,5 +31,30 @@ public class StructuralElementOutput {
 
     public List<String> getSingleStrands3p() {
         return singleStrands3p;
+    }
+
+    public StructuralElementOutput withStems(List<String> stems) {
+        this.stems = stems;
+        return this;
+    }
+
+    public StructuralElementOutput withLoops(List<String> loops) {
+        this.loops = loops;
+        return this;
+    }
+
+    public StructuralElementOutput withSingleStrands(List<String> singleStrands) {
+        this.singleStrands = singleStrands;
+        return this;
+    }
+
+    public StructuralElementOutput withSingleStrands5p(List<String> singleStrands5p) {
+        this.singleStrands5p = singleStrands5p;
+        return this;
+    }
+
+    public StructuralElementOutput withSingleStrands3p(List<String> singleStrands3p) {
+        this.singleStrands3p = singleStrands3p;
+        return this;
     }
 }

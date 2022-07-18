@@ -16,7 +16,7 @@ import java.io.IOException;
 /**
  * Service class responsible for handling loading the drawers
  */
-// TODO remove non-needed drawers / scoop out non-drawers
+// TODO: remove non-needed drawers / scoop out non-drawers
 @Component
 public class DrawerService {
 

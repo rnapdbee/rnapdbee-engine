@@ -36,7 +36,7 @@ public class ImageService {
         final SecondaryStructureDrawer backupDrawer = drawerService
                 .loadDrawer(visualizationTool.getBackupVisualizationTool());
 
-        // TODO restore the cache
+        // TODO: restore the cache
         final ImageCache imageCache = new ImageCacheImpl();
 
         try {

@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 @Component
 public class DotBracketToImageService {
 
-    // TODO put in autowired constructor
+    // TODO: put in autowired constructor
     @Autowired
     ImageService imageService;
 
@@ -101,7 +101,7 @@ public class DotBracketToImageService {
                 .build();
     }
 
-    // TODO put in a service class - AnalysisService? -> analyze if needed when there are more similar methods
+    // TODO: put in a service class - AnalysisService? -> analyze if needed when there are more similar methods
     private List<AnalyzedBasePair> analyzeInterStrandPairs(final DotBracket combinedStrand) {
         final List<AnalyzedBasePair> interStrand = new ArrayList<>();
         final Map<DotBracketSymbol, DotBracketSymbol> pairs = combinedStrand.pairs();

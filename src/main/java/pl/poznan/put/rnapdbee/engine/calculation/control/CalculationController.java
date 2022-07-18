@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pl.poznan.put.rnapdbee.engine.calculation.logic.EncodingUtils;
 import pl.poznan.put.rnapdbee.engine.calculation.logic.DotBracketToImageService;
+import pl.poznan.put.rnapdbee.engine.calculation.mapper.AnalysisOutputsMapper;
 import pl.poznan.put.rnapdbee.engine.calculation.model.DotBracketToImageAnalysisOutput;
 import pl.poznan.put.rnapdbee.engine.model.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.model.ModelSelection;
@@ -30,12 +31,16 @@ import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
 @RequestMapping("api/v1/calculation")
 public class CalculationController {
 
-    // TODO make Autowired
+    // TODO: make Autowired
     private static final Logger logger = LoggerFactory.getLogger(CalculationController.class);
 
-    // TODO eventually put Autowired in constructor
+    // TODO: eventually put Autowired in constructor
     @Autowired
     private DotBracketToImageService dotBracketToImageService;
+
+    // TODO: eventually put Autowired in constructor
+    @Autowired
+    private AnalysisOutputsMapper analysisOutputsMapper;
 
     @PostMapping(path = "/3d", produces = "application/json", consumes = "text/plain")
     public ResponseEntity<Object> calculateTertiaryToDotBracket(
@@ -89,8 +94,9 @@ public class CalculationController {
         ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
         String decodedContent = EncodingUtils.decodeBase64StringToString(encodedContent);
         var analysisResult = dotBracketToImageService
-                .performDotBracketToImageCalculation(structuralElementsHandling, visualizationTool, decodedContent, contentDisposition.getFilename());
-        var outputAnalysis = new DotBracketToImageAnalysisOutput(analysisResult);
+                .performDotBracketToImageCalculation(structuralElementsHandling, visualizationTool, decodedContent,
+                        contentDisposition.getFilename());
+        var outputAnalysis = analysisOutputsMapper.mapToImageAnalysisOutput(analysisResult);
         return new ResponseEntity<>(outputAnalysis, HttpStatus.OK);
 
     }

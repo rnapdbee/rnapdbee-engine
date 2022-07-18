@@ -5,9 +5,9 @@ package pl.poznan.put.rnapdbee.engine.calculation.model;
  */
 public class SingleStrandOutput {
 
-    private final String name;
-    private final String sequence;
-    private final String structure;
+    private String name;
+    private String sequence;
+    private String structure;
 
     public String getName() {
         return name;
@@ -21,9 +21,18 @@ public class SingleStrandOutput {
         return structure;
     }
 
-    public SingleStrandOutput(String name, String sequence, String structure) {
+    public SingleStrandOutput withName(String name) {
         this.name = name;
+        return this;
+    }
+
+    public SingleStrandOutput withSequence(String sequence) {
         this.sequence = sequence;
+        return this;
+    }
+
+    public SingleStrandOutput withStructure(String structure) {
         this.structure = structure;
+        return this;
     }
 }
