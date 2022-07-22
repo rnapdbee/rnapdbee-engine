@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 class EncodingUtilsTest {
 
     @ParameterizedTest
-    @CsvFileSource(resources = "/base64cases/base64testcases.csv")
+    @CsvFileSource(resources = "/base64testcases.csv")
     public void shouldDecodeBase64DecodeProvidedInput(String input, String expected) {
         String actual = EncodingUtils.decodeBase64StringToString(input);
         Assertions.assertEquals(expected, actual);
