@@ -85,7 +85,6 @@ public class DrawerService {
                     return new DrawerVarnaTz(true);
                 case R_CHIE:
                     return new RChieDrawer(rscript, rchie.getFile(), inkscape);
-
                 case NONE:
                 default:
                     return new EmptyDrawer();
@@ -94,5 +93,4 @@ public class DrawerService {
             throw new RuntimeException(e);
         }
     }
-
 }

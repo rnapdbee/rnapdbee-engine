@@ -106,33 +106,37 @@ public class DotBracketToImageService {
         final List<AnalyzedBasePair> interStrand = new ArrayList<>();
         final Map<DotBracketSymbol, DotBracketSymbol> pairs = combinedStrand.pairs();
 
-        for (final DotBracketSymbol symbolMine : combinedStrand.symbols()) {
-            if (pairs.containsKey(symbolMine)) {
-                final DotBracketSymbol symbolPair = pairs.get(symbolMine);
-
-                if (symbolMine.index() < symbolPair.index()) {
-                    final Strand strandMine = combinedStrand.findStrand(symbolMine);
-                    final Strand strandPair = combinedStrand.findStrand(symbolPair);
-
-                    if (!strandMine.equals(strandPair)) {
-                        final PdbNamedResidueIdentifier left =
-                                ImmutablePdbNamedResidueIdentifier.of(
-                                        strandMine.name().replaceFirst("strand_", ""),
-                                        symbolMine.index() + 1,
-                                        "",
-                                        symbolMine.sequence());
-                        final PdbNamedResidueIdentifier right =
-                                ImmutablePdbNamedResidueIdentifier.of(
-                                        strandPair.name().replaceFirst("strand_", ""),
-                                        symbolPair.index() + 1,
-                                        "",
-                                        symbolPair.sequence());
-                        final BasePair basePair = ImmutableBasePair.of(left, right);
-                        interStrand.add(ImmutableAnalyzedBasePair.of(basePair));
-                    }
-                }
+        combinedStrand.symbols().forEach(symbolMine -> {
+            if (!pairs.containsKey(symbolMine)) {
+                return;
             }
-        }
+
+            final DotBracketSymbol symbolPair = pairs.get(symbolMine);
+            if (symbolMine.index() >= symbolPair.index()) {
+                return;
+            }
+
+            final Strand strandMine = combinedStrand.findStrand(symbolMine);
+            final Strand strandPair = combinedStrand.findStrand(symbolPair);
+            if (strandMine.equals(strandPair)) {
+                return;
+            }
+
+            final PdbNamedResidueIdentifier left =
+                    ImmutablePdbNamedResidueIdentifier.of(
+                            strandMine.name().replaceFirst("strand_", ""),
+                            symbolMine.index() + 1,
+                            "",
+                            symbolMine.sequence());
+            final PdbNamedResidueIdentifier right =
+                    ImmutablePdbNamedResidueIdentifier.of(
+                            strandPair.name().replaceFirst("strand_", ""),
+                            symbolPair.index() + 1,
+                            "",
+                            symbolPair.sequence());
+            final BasePair basePair = ImmutableBasePair.of(left, right);
+            interStrand.add(ImmutableAnalyzedBasePair.of(basePair));
+        });
         return interStrand;
     }
 
