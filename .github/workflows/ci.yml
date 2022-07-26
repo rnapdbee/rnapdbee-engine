@@ -52,4 +52,5 @@ jobs:
       - name: Lint Code Base
         uses: axel-op/googlejavaformat-action@v3
         with:
+          args: "--skip-javadoc-formatting"
           githubToken: ${{ secrets.GITHUB_TOKEN }}
