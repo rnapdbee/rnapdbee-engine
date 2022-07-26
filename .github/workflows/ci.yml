@@ -32,14 +32,6 @@ jobs:
           mvn test
           mvn --batch-mode --update-snapshots verify
 
-      - name: Lint Code Base
-        uses: github/super-linter@v4
-        env:
-          VALIDATE_GOOGLE_JAVA_FORMAT: true
-#          VALIDATE_ALL_CODEBASE: false
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Upload package
         uses: actions/upload-artifact@v3
         with:
@@ -49,3 +41,15 @@ jobs:
 
       - name: Docker Build
         run: DOCKER_BUILDKIT=1 docker-compose up -d
+
+  lint:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Lint Code Base
+        uses: axel-op/googlejavaformat-action@v3
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}

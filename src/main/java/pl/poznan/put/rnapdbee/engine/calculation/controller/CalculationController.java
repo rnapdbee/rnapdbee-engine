@@ -22,7 +22,10 @@ import pl.poznan.put.rnapdbee.engine.model.VisualizationTool;
 
 @RestController
 @RequestMapping("api/v1/calculation")
-public class CalculationController {
+public class CalculationController
+{
+
+
 
     private static final Logger logger = LoggerFactory.getLogger(CalculationController.class);
 
@@ -35,8 +38,8 @@ public class CalculationController {
             @RequestParam("removeIsolated") boolean removeIsolated,
             @RequestParam("structuralElementsHandling") StructuralElementsHandling structuralElementsHandling,
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
-            @RequestBody String content) {
-        return new ResponseEntity<>(new Output3D(), HttpStatus.OK);
+            @RequestBody String content)
+    {return new ResponseEntity<>(new Output3D(), HttpStatus.OK);
     }
 
 
@@ -44,8 +47,7 @@ public class CalculationController {
     public ResponseEntity<Output2D> calculate2dToTertiary(
             @RequestParam("removeIsolated") boolean removeIsolated,
             @RequestParam("structuralElementsHandling") StructuralElementsHandling structuralElementsHandling,
-            @RequestParam("visualizationTool") VisualizationTool visualizationTool,
-            @RequestBody String content) {
+            @RequestParam("visualizationTool") VisualizationTool visualizationTool, @RequestBody String content) {
         return new ResponseEntity<>(new Output2D(), HttpStatus.OK);
     }
 
@@ -62,7 +64,9 @@ public class CalculationController {
 
 
     @PostMapping(path = "/image", produces = "application/json", consumes = "text/plain")
-    public ResponseEntity<OutputImage> calculateTertiaryToImage(
+    public ResponseEntity<OutputImage>
+    calculateTertiaryToImage
+            (
             @RequestParam("structuralElementsHandling") StructuralElementsHandling structuralElementsHandling,
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
             @RequestBody String content) {
