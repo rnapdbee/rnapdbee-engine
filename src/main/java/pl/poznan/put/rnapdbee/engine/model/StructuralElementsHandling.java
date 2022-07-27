@@ -6,8 +6,8 @@ package pl.poznan.put.rnapdbee.engine.model;
  */
 public enum StructuralElementsHandling {
 
-    USE_PSEUDOKNOTS( true, true),
-    IGNORE_PSEUDOKNOTS( false, false);
+    USE_PSEUDOKNOTS(true, true),
+    IGNORE_PSEUDOKNOTS(false, false);
 
     private final boolean canElementsEndWithPseudoknots;
     private final boolean reuseSingleStrandsFromLoops;
@@ -25,5 +25,4 @@ public enum StructuralElementsHandling {
     public boolean isReuseSingleStrandsFromLoopsEnabled() {
         return reuseSingleStrandsFromLoops;
     }
-
 }

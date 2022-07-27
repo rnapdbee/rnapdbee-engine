@@ -18,5 +18,4 @@ public class AnalysisOutputTestUtils {
         Assertions.assertEquals(expectedInformationAboutAnalysis.getStructuralElementSingleStrands5pSize(), analysisOutput.structuralElementFinder().getSingleStrands5p().size());
         Assertions.assertEquals(expectedInformationAboutAnalysis.getStructuralElementSingleStrands3pSize(), analysisOutput.structuralElementFinder().getSingleStrands3p().size());
     }
-
 }

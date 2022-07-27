@@ -53,10 +53,10 @@ public class DotBracketToImageService {
     public List<AnalysisOutput> performDotBracketToImageCalculation(StructuralElementsHandling structuralElementsHandling,
                                                                     VisualizationTool visualizationTool,
                                                                     String content,
-                                                                    String fileName) {
+                                                                    String filename) {
         var dotBracket = DefaultDotBracket.fromString(content);
-        // Assuming the fileName is full name of file and prefix is the name without file extension
-        InputStructureName source = new InputStructureName(fileName, fileName.split("\\.")[0]);
+        // Assuming the filename is full name of file and prefix is the name without file extension
+        InputStructureName source = new InputStructureName(filename, filename.split("\\.")[0]);
 
         return dotBracket.combineStrands().stream()
                 .map(combinedStrand ->
@@ -69,7 +69,7 @@ public class DotBracketToImageService {
                                                        VisualizationTool visualizationTool,
                                                        InputStructureName source) {
 
-        final BpSeq bpseqFromCombined = BpSeq.fromDotBracket(combinedStrand);
+        final BpSeq bpSeqFromCombined = BpSeq.fromDotBracket(combinedStrand);
         final Ct ctFromCombined = Ct.fromDotBracket(combinedStrand);
 
         SecondaryStructureImage image = imageService.provideVisualization(visualizationTool, combinedStrand);
@@ -85,18 +85,18 @@ public class DotBracketToImageService {
                 AnalysisResultBuilder.builder().interStrand(interStrand).build();
 
         return ImmutableAnalysisOutput.builder()
-                // setting 1 based on rnapdbee-web implementation
+                // setting 1 based on rnapdbee-web implementation TODO: analyze how to do it better
                 .modelNumber(1)
                 .source(source)
-                .bpSeq(bpseqFromCombined)
+                .bpSeq(bpSeqFromCombined)
                 .ct(ctFromCombined)
                 .dotBracket(combinedStrand)
                 .image(image)
-                // setting empty list based on rnapdbee-web implementation
+                // setting empty list based on rnapdbee-web implementation TODO: analyze how to do it better
                 .messages(Collections.emptyList())
                 .structuralElementFinder(structuralElementFinder)
                 .analysisResult(analysisResult)
-                // setting empty String based on rnapdbee-web implementation
+                // setting empty String based on rnapdbee-web implementation TODO: analyze how to do it better
                 .title("")
                 .build();
     }
@@ -139,5 +139,4 @@ public class DotBracketToImageService {
         });
         return interStrand;
     }
-
 }

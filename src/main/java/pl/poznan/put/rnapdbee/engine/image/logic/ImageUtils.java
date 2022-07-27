@@ -16,30 +16,29 @@ import java.io.IOException;
 // TODO: analyse what is actually needed here. The class is copied from rnapdbee-web's ImageHelper class.
 public final class ImageUtils {
 
-  public static Pair<File, String> generateSvgUrl(final ServletContext context, final SVGDocument image)
-          throws IOException {
-    final File imageFile = ImageUtils.exportImage(context, image, Format.SVG);
-    return Pair.of(
-        imageFile,
-        String.format("%s/resources/tmp/%s", context.getContextPath(), imageFile.getName()));
-  }
+    public static Pair<File, String> generateSvgUrl(final ServletContext context, final SVGDocument image)
+            throws IOException {
+        final File imageFile = ImageUtils.exportImage(context, image, Format.SVG);
+        return Pair.of(
+                imageFile,
+                String.format("%s/resources/tmp/%s", context.getContextPath(), imageFile.getName()));
+    }
 
-  public static Pair<File, String> generatePngUrl(final ServletContext context, final SVGDocument image)
-          throws IOException {
-    final File imageFile = ImageUtils.exportImage(context, image, Format.PNG);
-    return Pair.of(
-        imageFile,
-        String.format("%s/resources/tmp/%s", context.getContextPath(), imageFile.getName()));
-  }
+    public static Pair<File, String> generatePngUrl(final ServletContext context, final SVGDocument image)
+            throws IOException {
+        final File imageFile = ImageUtils.exportImage(context, image, Format.PNG);
+        return Pair.of(
+                imageFile,
+                String.format("%s/resources/tmp/%s", context.getContextPath(), imageFile.getName()));
+    }
 
-  private static File exportImage(final ServletContext context, final SVGDocument image, final Format format)
-      throws IOException {
-    final File directory = new File(context.getRealPath("resources/tmp"));
-    FileUtils.forceMkdir(directory);
-    final File imageFile = File.createTempFile("RNApdbee", '.' + format.getExtension(), directory);
-    final byte[] bytes = SVGHelper.export(image, format);
-    FileUtils.writeByteArrayToFile(imageFile, bytes);
-    return imageFile;
-  }
-
+    private static File exportImage(final ServletContext context, final SVGDocument image, final Format format)
+            throws IOException {
+        final File directory = new File(context.getRealPath("resources/tmp"));
+        FileUtils.forceMkdir(directory);
+        final File imageFile = File.createTempFile("RNApdbee", '.' + format.getExtension(), directory);
+        final byte[] bytes = SVGHelper.export(image, format);
+        FileUtils.writeByteArrayToFile(imageFile, bytes);
+        return imageFile;
+    }
 }

@@ -8,7 +8,7 @@ import java.util.List;
 public class SingleDotBracketToImageAnalysisOutput {
 
     private List<SingleStrandOutput> strands;
-    private List<String> bpseq;
+    private List<String> bpSeq;
     private List<String> ct;
     private List<String> interactions;
     private StructuralElementOutput structuralElement;
@@ -18,8 +18,8 @@ public class SingleDotBracketToImageAnalysisOutput {
         return strands;
     }
 
-    public List<String> getBpseq() {
-        return bpseq;
+    public List<String> getBpSeq() {
+        return bpSeq;
     }
 
     public List<String> getCt() {
@@ -43,8 +43,8 @@ public class SingleDotBracketToImageAnalysisOutput {
         return this;
     }
 
-    public SingleDotBracketToImageAnalysisOutput withBpseq(List<String> bpseq) {
-        this.bpseq = bpseq;
+    public SingleDotBracketToImageAnalysisOutput withBpSeq(List<String> bpSeq) {
+        this.bpSeq = bpSeq;
         return this;
     }
 

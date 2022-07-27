@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+
 @SpringBootTest
 class CalculationControllerTest {
 
@@ -69,7 +70,7 @@ class CalculationControllerTest {
             var analysisOutput = provideMockedDotBracketToImageAnalysisOutput();
             var expectedSingleAnalysis = analysisOutput.getAnalysis().get(0);
             // mocked
-            mockedEncodingUtils.when(() -> EncodingUtils.decodeBase64StringToString(Mockito.any())).
+            mockedEncodingUtils.when(() -> EncodingUtils.decodeBase64ToString(Mockito.any())).
                     thenReturn(mockedContent);
             Mockito.when(dotBracketToImageService.performDotBracketToImageCalculation(Mockito.any(),
                             Mockito.any(), Mockito.eq(mockedContent), Mockito.eq(mockedFilename)))
@@ -80,11 +81,11 @@ class CalculationControllerTest {
             // when
             ResponseEntity<DotBracketToImageAnalysisOutput> response = cut
                     .calculateDotBracketToImage(null, null,
-                            "Attachment; filename=\"" + mockedFilename + "\"", "mocked content");
+                            "Attachment; filename=\"" + mockedFilename + "\"", mockedContent);
             // then
             var actualSingleAnalysis = Objects.requireNonNull(response.getBody()).getAnalysis().get(0);
             Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-            Assertions.assertEquals(expectedSingleAnalysis.getBpseq(), actualSingleAnalysis.getBpseq());
+            Assertions.assertEquals(expectedSingleAnalysis.getBpSeq(), actualSingleAnalysis.getBpSeq());
             Assertions.assertEquals(expectedSingleAnalysis.getCt(), actualSingleAnalysis.getCt());
             Assertions.assertEquals(expectedSingleAnalysis.getInteractions(), actualSingleAnalysis.getInteractions());
 
@@ -105,9 +106,10 @@ class CalculationControllerTest {
         }
     }
 
+
     private DotBracketToImageAnalysisOutput provideMockedDotBracketToImageAnalysisOutput() {
         var mockedAnalysis = Collections.singletonList(new SingleDotBracketToImageAnalysisOutput()
-                .withBpseq(MOCKED_BP_SEQ)
+                .withBpSeq(MOCKED_BP_SEQ)
                 .withCt(MOCKED_CT)
                 .withImageInformation(new ImageInformationOutput()
                         .withPathToPNGImage(MOCKED_PATH_TO_PNG)

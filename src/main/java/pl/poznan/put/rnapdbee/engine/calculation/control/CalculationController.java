@@ -92,12 +92,11 @@ public class CalculationController {
             @RequestBody String encodedContent) {
 
         ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
-        String decodedContent = EncodingUtils.decodeBase64StringToString(encodedContent);
+        String decodedContent = EncodingUtils.decodeBase64ToString(encodedContent);
         var analysisResult = dotBracketToImageService
                 .performDotBracketToImageCalculation(structuralElementsHandling, visualizationTool, decodedContent,
                         contentDisposition.getFilename());
         var outputAnalysis = analysisOutputsMapper.mapToImageAnalysisOutput(analysisResult);
         return new ResponseEntity<>(outputAnalysis, HttpStatus.OK);
-
     }
 }

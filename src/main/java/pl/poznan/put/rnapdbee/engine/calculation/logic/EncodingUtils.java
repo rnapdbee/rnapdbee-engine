@@ -20,7 +20,7 @@ public class EncodingUtils {
      * @param encodedString String encoded in base64
      * @return decoded string
      */
-    public static String decodeBase64StringToString(String encodedString) {
+    public static String decodeBase64ToString(String encodedString) {
         final byte[] base64 = Base64.decodeBase64(encodedString);
         final InflaterInputStream stream =
                 new InflaterInputStream(new ByteArrayInputStream(base64), new Inflater(true));

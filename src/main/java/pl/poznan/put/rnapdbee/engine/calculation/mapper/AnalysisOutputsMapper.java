@@ -39,7 +39,7 @@ public class AnalysisOutputsMapper {
      */
     private SingleDotBracketToImageAnalysisOutput mapSingleAnalysisOutputToImage(AnalysisOutput analysisOutput) {
         return new SingleDotBracketToImageAnalysisOutput()
-                .withBpseq(analysisOutput
+                .withBpSeq(analysisOutput
                         .bpSeq().entries().stream()
                         .map(BpSeq.Entry::toString)
                         .collect(Collectors.toList()))

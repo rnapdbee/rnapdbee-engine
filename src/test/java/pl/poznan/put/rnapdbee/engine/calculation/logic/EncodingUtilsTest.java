@@ -11,7 +11,7 @@ class EncodingUtilsTest {
     @ParameterizedTest
     @CsvFileSource(resources = "/base64testcases.csv")
     public void shouldDecodeBase64DecodeProvidedInput(String input, String expected) {
-        String actual = EncodingUtils.decodeBase64StringToString(input);
+        String actual = EncodingUtils.decodeBase64ToString(input);
         Assertions.assertEquals(expected, actual);
     }
 }
