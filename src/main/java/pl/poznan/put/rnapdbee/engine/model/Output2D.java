@@ -3,19 +3,21 @@ package pl.poznan.put.rnapdbee.engine.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
+
 /**
  * Output2D
  */
 public class Output2D {
 
     @JsonProperty("bpseq")
-    private BpSeq bpseq;
+    private List<String> bpSeq;
 
     @JsonProperty("ct")
-    private Ct ct;
+    private List<String> ct;
 
-    @JsonProperty("dotBarcket")
-    private DotBracket dotBarcket;
+    @JsonProperty("dotBracket")
+    private String dotBracket;
 
     @JsonProperty("structuralElements")
     private StructuralElements structuralElements;
@@ -23,16 +25,16 @@ public class Output2D {
     @JsonProperty("outputImage")
     private OutputImage outputImage;
 
-    public BpSeq getBpseq() {
-        return bpseq;
+    public List<String> getBpseq() {
+        return bpSeq;
     }
 
-    public Ct getCt() {
+    public List<String> getCt() {
         return ct;
     }
 
-    public DotBracket getDotBarcket() {
-        return dotBarcket;
+    public String getDotBracket() {
+        return dotBracket;
     }
 
     public StructuralElements getStructuralElements() {
