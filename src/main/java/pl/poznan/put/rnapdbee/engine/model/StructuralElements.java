@@ -5,6 +5,9 @@ package pl.poznan.put.rnapdbee.engine.model;
  * DTO enum for Structural Elements - implementation taken from rnapdbee-common StructuralElementsIdentificationModeEnum
  */
 public enum StructuralElements {
+
+    // TODO: is it the same as StructuralElementsHandling?
+    //  if yes - probably could be deleted
     PSEUDOKNOTS_AS_PAIRED_RESIDUES(
             "Structural elements identified treating pseudoknots as paired residues",
             "pseudoknots_as_paired_residues",

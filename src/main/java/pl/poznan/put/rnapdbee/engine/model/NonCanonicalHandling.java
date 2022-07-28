@@ -6,18 +6,8 @@ package pl.poznan.put.rnapdbee.engine.model;
  */
 public enum NonCanonicalHandling {
 
-    VISUALIZATION_ONLY("VisualizationOnly"),
-    TEXT_AND_VISUALIZATION("TextAndVisualization"),
-    IGNORE("Ignore");
+    VISUALIZATION_ONLY,
+    TEXT_AND_VISUALIZATION,
+    IGNORE
 
-    private String value;
-
-    NonCanonicalHandling(String value) {
-        this.value = value;
-    }
-
-    @Override
-    public String toString() {
-        return String.valueOf(value);
-    }
 }

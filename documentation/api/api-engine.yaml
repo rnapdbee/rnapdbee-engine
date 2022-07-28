@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   description: "This is API of the engine service of RNApdbee v3.0."
-  version: "1.0.5"
+  version: "1.0.6"
   title: "RNApdbee Engine API"
 
 
@@ -251,20 +251,20 @@ components:
     Output2D:
       type: object
       properties:
-        bpseq:
+        bpSeq:
           $ref: "#/components/schemas/BPSEQ"
         ct:
           $ref: "#/components/schemas/CT"
-        dotBarcket:
+        dotBracket:
           $ref: "#/components/schemas/DotBracket"
         structuralElements:
           $ref: "#/components/schemas/StructuralElements"
         outputImage:
           $ref: "#/components/schemas/OutputImage"
       required:
-        - bpseq
+        - bpSeq
         - ct
-        - dotBarcket
+        - dotBracket
         - structuralElements
         - outputImage
 
