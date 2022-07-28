@@ -2,6 +2,7 @@ package pl.poznan.put.rnapdbee.engine.model;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
 
 /**
  * Payload object of 3D -> multi 2D calculation
