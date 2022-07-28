@@ -1,7 +1,8 @@
 package pl.poznan.put.rnapdbee.engine.model;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+import pl.poznan.put.notation.LeontisWesthof;
+import pl.poznan.put.notation.Saenger;
 
 /**
  * DTO class for BasePair
