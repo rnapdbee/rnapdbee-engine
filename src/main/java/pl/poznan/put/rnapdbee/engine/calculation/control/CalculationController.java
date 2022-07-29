@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pl.poznan.put.rnapdbee.engine.calculation.logic.EncodingUtils;
-import pl.poznan.put.rnapdbee.engine.calculation.logic.DotBracketToImageService;
+import pl.poznan.put.rnapdbee.engine.calculation.logic.SecondaryStructureAnalysisService;
 import pl.poznan.put.rnapdbee.engine.calculation.mapper.AnalysisOutputsMapper;
-import pl.poznan.put.rnapdbee.engine.calculation.model.DotBracketToImageAnalysisOutput;
+import pl.poznan.put.rnapdbee.engine.calculation.model.Output2D;
 import pl.poznan.put.rnapdbee.engine.model.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.model.ModelSelection;
 import pl.poznan.put.rnapdbee.engine.model.NonCanonicalHandling;
@@ -36,7 +36,7 @@ public class CalculationController {
 
     // TODO: eventually put Autowired in constructor
     @Autowired
-    private DotBracketToImageService dotBracketToImageService;
+    private SecondaryStructureAnalysisService secondaryStructureAnalysisService;
 
     // TODO: eventually put Autowired in constructor
     @Autowired
@@ -56,12 +56,24 @@ public class CalculationController {
 
 
     @PostMapping(path = "/2d", produces = "application/json", consumes = "text/plain")
-    public ResponseEntity<Object> calculateSecondaryToDotBracket(
-            @RequestParam("removeIsolated") boolean removeIsolated,
+    public ResponseEntity<Output2D> calculateSecondaryToDotBracket(
             @RequestParam("structuralElementsHandling") StructuralElementsHandling structuralElementsHandling,
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
-            @RequestBody String content) {
-        throw new UnsupportedOperationException();
+            @RequestParam("removeIsolated") boolean removeIsolated,
+            @RequestHeader("Content-Disposition") String contentDispositionHeader,
+            @RequestBody String encodedContent) {
+
+        ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
+        String decodedContent = EncodingUtils.decodeBase64ToString(encodedContent);
+        var analysisResult = secondaryStructureAnalysisService
+                .analyseSecondaryStructureFile(
+                        structuralElementsHandling,
+                        visualizationTool,
+                        removeIsolated,
+                        decodedContent,
+                        contentDisposition.getFilename());
+        var outputAnalysis = analysisOutputsMapper.mapToImageAnalysisOutput(analysisResult);
+        return new ResponseEntity<>(outputAnalysis, HttpStatus.OK);
     }
 
 
@@ -85,7 +97,7 @@ public class CalculationController {
      * @return wrapped in an object list of image outputs
      */
     @PostMapping(path = "/image", produces = "application/json", consumes = "text/plain")
-    public ResponseEntity<DotBracketToImageAnalysisOutput> calculateDotBracketToImage(
+    public ResponseEntity<Output2D> calculateDotBracketToImage(
             @RequestParam("structuralElementsHandling") StructuralElementsHandling structuralElementsHandling,
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
             @RequestHeader("Content-Disposition") String contentDispositionHeader,
@@ -93,8 +105,11 @@ public class CalculationController {
 
         ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
         String decodedContent = EncodingUtils.decodeBase64ToString(encodedContent);
-        var analysisResult = dotBracketToImageService
-                .performDotBracketToImageCalculation(structuralElementsHandling, visualizationTool, decodedContent,
+        var analysisResult = secondaryStructureAnalysisService
+                .analyseDotBracketNotationFile(
+                        structuralElementsHandling,
+                        visualizationTool,
+                        decodedContent,
                         contentDisposition.getFilename());
         var outputAnalysis = analysisOutputsMapper.mapToImageAnalysisOutput(analysisResult);
         return new ResponseEntity<>(outputAnalysis, HttpStatus.OK);

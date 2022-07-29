@@ -1,7 +1,6 @@
 package pl.poznan.put.rnapdbee.engine.calculation.logic;
 
 import edu.put.rnapdbee.visualization.SecondaryStructureImage;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -20,13 +19,13 @@ import java.util.stream.Stream;
 
 
 @SpringBootTest
-class DotBracketToImageServiceTest {
+class SecondaryStructureAnalysisServiceTest {
 
     @MockBean
     ImageService imageService;
 
     @Autowired
-    DotBracketToImageService cut;
+    SecondaryStructureAnalysisService cut;
 
     @BeforeEach
     void provideMocks() {
@@ -41,7 +40,7 @@ class DotBracketToImageServiceTest {
                                              VisualizationTool visualizationTool,
                                              String content,
                                              AnalysisOutputTestInformation expectedInformation) {
-        var actual = cut.performDotBracketToImageCalculation(structuralElementsHandling,
+        var actual = cut.analyseDotBracketNotationFile(structuralElementsHandling,
                 visualizationTool,
                 content,
                 "test.pdb");

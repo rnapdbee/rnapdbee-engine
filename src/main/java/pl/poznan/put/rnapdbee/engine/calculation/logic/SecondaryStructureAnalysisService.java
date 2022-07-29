@@ -7,11 +7,13 @@ import edu.put.rnapdbee.analysis.ImmutableAnalysisOutput;
 import edu.put.rnapdbee.analysis.InputStructureName;
 import edu.put.rnapdbee.analysis.elements.StructuralElementFinder;
 import edu.put.rnapdbee.analysis.proxies.AnalysisResultBuilder;
+import edu.put.rnapdbee.enums.ConverterEnum;
 import edu.put.rnapdbee.visualization.SecondaryStructureImage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.poznan.put.pdb.ImmutablePdbNamedResidueIdentifier;
 import pl.poznan.put.pdb.PdbNamedResidueIdentifier;
+import pl.poznan.put.rnapdbee.engine.calculation.model.SecondaryFileExtensionEnum;
 import pl.poznan.put.rnapdbee.engine.image.logic.ImageService;
 import pl.poznan.put.rnapdbee.engine.model.StructuralElementsHandling;
 import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
@@ -21,6 +23,7 @@ import pl.poznan.put.structure.DotBracketSymbol;
 import pl.poznan.put.structure.ImmutableAnalyzedBasePair;
 import pl.poznan.put.structure.ImmutableBasePair;
 import pl.poznan.put.structure.formats.BpSeq;
+import pl.poznan.put.structure.formats.Converter;
 import pl.poznan.put.structure.formats.Ct;
 import pl.poznan.put.structure.formats.DefaultDotBracket;
 import pl.poznan.put.structure.formats.DotBracket;
@@ -36,11 +39,15 @@ import java.util.stream.Collectors;
  * Service class handling (...) -> Image calculation
  */
 @Component
-public class DotBracketToImageService {
+public class SecondaryStructureAnalysisService {
 
     // TODO: put in autowired constructor
     @Autowired
     ImageService imageService;
+
+    // TODO: replace converter method with Mixed-Integer Linear Programming (separate Task)
+    final Converter CONVERTER = ConverterEnum.DPNEW;
+
 
     /**
      * performs calculation of Dot Bracket RNA structures to Images (...) -> Image
@@ -50,11 +57,28 @@ public class DotBracketToImageService {
      * @param content                    content of the uploaded file
      * @return List of {@link AnalysisOutput}
      */
-    public List<AnalysisOutput> performDotBracketToImageCalculation(StructuralElementsHandling structuralElementsHandling,
-                                                                    VisualizationTool visualizationTool,
-                                                                    String content,
-                                                                    String filename) {
+    public List<AnalysisOutput> analyseDotBracketNotationFile(StructuralElementsHandling structuralElementsHandling,
+                                                              VisualizationTool visualizationTool,
+                                                              String content,
+                                                              String filename) {
         var dotBracket = DefaultDotBracket.fromString(content);
+        return analyseDotBracket(dotBracket, filename, structuralElementsHandling, visualizationTool);
+    }
+
+
+    public List<AnalysisOutput> analyseSecondaryStructureFile(StructuralElementsHandling structuralElementsHandling,
+                                                              VisualizationTool visualizationTool,
+                                                              boolean removeIsolated,
+                                                              String content,
+                                                              String filename) {
+        DotBracket dotBracket = convertSecondaryFileIntoDbnFormat(filename.split("\\.")[1], removeIsolated, content);
+        return analyseDotBracket(dotBracket, filename, structuralElementsHandling, visualizationTool);
+    }
+
+    private List<AnalysisOutput> analyseDotBracket(DotBracket dotBracket,
+                                                   String filename,
+                                                   StructuralElementsHandling structuralElementsHandling,
+                                                   VisualizationTool visualizationTool) {
         // Assuming the filename is full name of file and prefix is the name without file extension
         InputStructureName source = new InputStructureName(filename, filename.split("\\.")[0]);
 
@@ -63,6 +87,35 @@ public class DotBracketToImageService {
                         analyseSingleCombinedStrand(combinedStrand, structuralElementsHandling, visualizationTool, source))
                 .collect(Collectors.toList());
     }
+
+    private DotBracket convertSecondaryFileIntoDbnFormat(String fileExtension, boolean removeIsolated, String content) {
+        if (fileExtension.equals(SecondaryFileExtensionEnum.BP_SEQ.fileExtension)) {
+            return convertBpSeqIntoDotBracket(content, removeIsolated);
+        } else if (fileExtension.equals(SecondaryFileExtensionEnum.CT.fileExtension)) {
+            return convertCtIntoDotBracket(content, removeIsolated);
+        } else {
+            throw new IllegalArgumentException(
+                    "Invalid attempt to analyze secondary structure for input type: " + fileExtension);
+        }
+    }
+
+    private DotBracket convertBpSeqIntoDotBracket(String content, boolean removeIsolated) {
+        BpSeq bpSeq = removeIsolated
+                ? BpSeq.fromString(content).withoutIsolatedPairs()
+                : BpSeq.fromString(content);
+        Ct ct = Ct.fromBpSeq(bpSeq);
+        return DefaultDotBracket.copyWithStrands(CONVERTER.convert(bpSeq), ct);
+    }
+
+    private DotBracket convertCtIntoDotBracket(String content, boolean removeIsolated) {
+        Ct ct = removeIsolated
+                ? Ct.fromString(content).withoutIsolatedPairs()
+                : Ct.fromString(content);
+        BpSeq bpSeq = BpSeq.fromCt(ct);
+        return DefaultDotBracket.copyWithStrands(CONVERTER.convert(bpSeq), ct);
+    }
+
+    // public List<AnalysisOutput> analyseSecondaryStructure
 
     private AnalysisOutput analyseSingleCombinedStrand(DotBracket combinedStrand,
                                                        StructuralElementsHandling structuralElementsHandling,

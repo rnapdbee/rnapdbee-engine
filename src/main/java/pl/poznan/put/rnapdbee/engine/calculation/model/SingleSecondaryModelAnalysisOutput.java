@@ -3,9 +3,10 @@ package pl.poznan.put.rnapdbee.engine.calculation.model;
 import java.util.List;
 
 /**
- * DTO class representing structure of single (...) -> image output
+ * DTO class representing structure of single secondary analysis output.
+ * Relevant for "(...) -> image" and "2D -> (...)" scenarios.
  */
-public class SingleDotBracketToImageAnalysisOutput {
+public class SingleSecondaryModelAnalysisOutput {
 
     private List<SingleStrandOutput> strands;
     private List<String> bpSeq;
@@ -38,32 +39,32 @@ public class SingleDotBracketToImageAnalysisOutput {
         return imageInformation;
     }
 
-    public SingleDotBracketToImageAnalysisOutput withStrands(List<SingleStrandOutput> strands) {
+    public SingleSecondaryModelAnalysisOutput withStrands(List<SingleStrandOutput> strands) {
         this.strands = strands;
         return this;
     }
 
-    public SingleDotBracketToImageAnalysisOutput withBpSeq(List<String> bpSeq) {
+    public SingleSecondaryModelAnalysisOutput withBpSeq(List<String> bpSeq) {
         this.bpSeq = bpSeq;
         return this;
     }
 
-    public SingleDotBracketToImageAnalysisOutput withCt(List<String> ct) {
+    public SingleSecondaryModelAnalysisOutput withCt(List<String> ct) {
         this.ct = ct;
         return this;
     }
 
-    public SingleDotBracketToImageAnalysisOutput withInteractions(List<String> interactions) {
+    public SingleSecondaryModelAnalysisOutput withInteractions(List<String> interactions) {
         this.interactions = interactions;
         return this;
     }
 
-    public SingleDotBracketToImageAnalysisOutput withStructuralElement(StructuralElementOutput structuralElement) {
+    public SingleSecondaryModelAnalysisOutput withStructuralElement(StructuralElementOutput structuralElement) {
         this.structuralElement = structuralElement;
         return this;
     }
 
-    public SingleDotBracketToImageAnalysisOutput withImageInformation(ImageInformationOutput imageInformation) {
+    public SingleSecondaryModelAnalysisOutput withImageInformation(ImageInformationOutput imageInformation) {
         this.imageInformation = imageInformation;
         return this;
     }
