@@ -75,7 +75,7 @@ class CalculationControllerTest {
             Mockito.when(secondaryStructureAnalysisService.analyseDotBracketNotationFile(Mockito.any(),
                             Mockito.any(), Mockito.eq(mockedContent), Mockito.eq(mockedFilename)))
                     .thenReturn(Collections.emptyList());
-            Mockito.when(analysisOutputsMapper.mapToImageAnalysisOutput(Mockito.any()))
+            Mockito.when(analysisOutputsMapper.mapToOutput2D(Mockito.any()))
                     .thenReturn(analysisOutput);
 
             // when

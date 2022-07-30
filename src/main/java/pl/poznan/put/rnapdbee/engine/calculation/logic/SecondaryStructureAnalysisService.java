@@ -88,35 +88,6 @@ public class SecondaryStructureAnalysisService {
                 .collect(Collectors.toList());
     }
 
-    private DotBracket convertSecondaryFileIntoDbnFormat(String fileExtension, boolean removeIsolated, String content) {
-        if (fileExtension.equals(SecondaryFileExtensionEnum.BP_SEQ.fileExtension)) {
-            return convertBpSeqIntoDotBracket(content, removeIsolated);
-        } else if (fileExtension.equals(SecondaryFileExtensionEnum.CT.fileExtension)) {
-            return convertCtIntoDotBracket(content, removeIsolated);
-        } else {
-            throw new IllegalArgumentException(
-                    "Invalid attempt to analyze secondary structure for input type: " + fileExtension);
-        }
-    }
-
-    private DotBracket convertBpSeqIntoDotBracket(String content, boolean removeIsolated) {
-        BpSeq bpSeq = removeIsolated
-                ? BpSeq.fromString(content).withoutIsolatedPairs()
-                : BpSeq.fromString(content);
-        Ct ct = Ct.fromBpSeq(bpSeq);
-        return DefaultDotBracket.copyWithStrands(CONVERTER.convert(bpSeq), ct);
-    }
-
-    private DotBracket convertCtIntoDotBracket(String content, boolean removeIsolated) {
-        Ct ct = removeIsolated
-                ? Ct.fromString(content).withoutIsolatedPairs()
-                : Ct.fromString(content);
-        BpSeq bpSeq = BpSeq.fromCt(ct);
-        return DefaultDotBracket.copyWithStrands(CONVERTER.convert(bpSeq), ct);
-    }
-
-    // public List<AnalysisOutput> analyseSecondaryStructure
-
     private AnalysisOutput analyseSingleCombinedStrand(DotBracket combinedStrand,
                                                        StructuralElementsHandling structuralElementsHandling,
                                                        VisualizationTool visualizationTool,
@@ -154,7 +125,6 @@ public class SecondaryStructureAnalysisService {
                 .build();
     }
 
-    // TODO: put in a service class - AnalysisService? -> analyze if needed when there are more similar methods
     private List<AnalyzedBasePair> analyzeInterStrandPairs(final DotBracket combinedStrand) {
         final List<AnalyzedBasePair> interStrand = new ArrayList<>();
         final Map<DotBracketSymbol, DotBracketSymbol> pairs = combinedStrand.pairs();
@@ -191,5 +161,32 @@ public class SecondaryStructureAnalysisService {
             interStrand.add(ImmutableAnalyzedBasePair.of(basePair));
         });
         return interStrand;
+    }
+
+    private DotBracket convertSecondaryFileIntoDbnFormat(String fileExtension, boolean removeIsolated, String content) {
+        if (fileExtension.equals(SecondaryFileExtensionEnum.BP_SEQ.fileExtension)) {
+            return convertBpSeqIntoDotBracket(content, removeIsolated);
+        } else if (fileExtension.equals(SecondaryFileExtensionEnum.CT.fileExtension)) {
+            return convertCtIntoDotBracket(content, removeIsolated);
+        } else {
+            throw new IllegalArgumentException(
+                    "Invalid attempt to analyze secondary structure for input type: " + fileExtension);
+        }
+    }
+
+    private DotBracket convertBpSeqIntoDotBracket(String content, boolean removeIsolated) {
+        BpSeq bpSeq = removeIsolated
+                ? BpSeq.fromString(content).withoutIsolatedPairs()
+                : BpSeq.fromString(content);
+        Ct ct = Ct.fromBpSeq(bpSeq);
+        return DefaultDotBracket.copyWithStrands(CONVERTER.convert(bpSeq), ct);
+    }
+
+    private DotBracket convertCtIntoDotBracket(String content, boolean removeIsolated) {
+        Ct ct = removeIsolated
+                ? Ct.fromString(content).withoutIsolatedPairs()
+                : Ct.fromString(content);
+        BpSeq bpSeq = BpSeq.fromCt(ct);
+        return DefaultDotBracket.copyWithStrands(CONVERTER.convert(bpSeq), ct);
     }
 }

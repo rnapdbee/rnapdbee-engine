@@ -2,7 +2,6 @@ package pl.poznan.put.rnapdbee.engine.calculation.control;
 
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpStatus;
@@ -31,16 +30,11 @@ import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
 @RequestMapping("api/v1/calculation")
 public class CalculationController {
 
-    // TODO: make Autowired
-    private static final Logger logger = LoggerFactory.getLogger(CalculationController.class);
+    private final Logger logger;
 
-    // TODO: eventually put Autowired in constructor
-    @Autowired
-    private SecondaryStructureAnalysisService secondaryStructureAnalysisService;
+    private final SecondaryStructureAnalysisService secondaryStructureAnalysisService;
 
-    // TODO: eventually put Autowired in constructor
-    @Autowired
-    private AnalysisOutputsMapper analysisOutputsMapper;
+    private final AnalysisOutputsMapper analysisOutputsMapper;
 
     @PostMapping(path = "/3d", produces = "application/json", consumes = "text/plain")
     public ResponseEntity<Object> calculateTertiaryToDotBracket(
@@ -63,7 +57,8 @@ public class CalculationController {
             @RequestHeader("Content-Disposition") String contentDispositionHeader,
             @RequestBody String encodedContent) {
 
-        ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
+        logger.info(String.format("Analysis of scenario 2D -> (...) started for content-disposition header %s",
+                contentDispositionHeader));ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
         String decodedContent = EncodingUtils.decodeBase64ToString(encodedContent);
         var analysisResult = secondaryStructureAnalysisService
                 .analyseSecondaryStructureFile(
@@ -72,7 +67,7 @@ public class CalculationController {
                         removeIsolated,
                         decodedContent,
                         contentDisposition.getFilename());
-        var outputAnalysis = analysisOutputsMapper.mapToImageAnalysisOutput(analysisResult);
+        var outputAnalysis = analysisOutputsMapper.mapToOutput2D(analysisResult);
         return new ResponseEntity<>(outputAnalysis, HttpStatus.OK);
     }
 
@@ -103,6 +98,8 @@ public class CalculationController {
             @RequestHeader("Content-Disposition") String contentDispositionHeader,
             @RequestBody String encodedContent) {
 
+        logger.info(String.format("Analysis of scenario (...) -> Image started for content-disposition header %s",
+                contentDispositionHeader));
         ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
         String decodedContent = EncodingUtils.decodeBase64ToString(encodedContent);
         var analysisResult = secondaryStructureAnalysisService
@@ -111,7 +108,16 @@ public class CalculationController {
                         visualizationTool,
                         decodedContent,
                         contentDisposition.getFilename());
-        var outputAnalysis = analysisOutputsMapper.mapToImageAnalysisOutput(analysisResult);
+        var outputAnalysis = analysisOutputsMapper.mapToOutput2D(analysisResult);
         return new ResponseEntity<>(outputAnalysis, HttpStatus.OK);
+    }
+
+    @Autowired
+    private CalculationController(SecondaryStructureAnalysisService secondaryStructureAnalysisService,
+                                  AnalysisOutputsMapper analysisOutputsMapper,
+                                  Logger logger) {
+        this.secondaryStructureAnalysisService = secondaryStructureAnalysisService;
+        this.analysisOutputsMapper = analysisOutputsMapper;
+        this.logger = logger;
     }
 }

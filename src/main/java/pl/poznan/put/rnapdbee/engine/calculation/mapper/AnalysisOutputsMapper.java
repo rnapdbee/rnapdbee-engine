@@ -26,8 +26,9 @@ public class AnalysisOutputsMapper {
      * @param analysisOutputs - output of analysis
      * @return {@link Output2D} result object
      */
-    public Output2D mapToImageAnalysisOutput(List<AnalysisOutput> analysisOutputs) {
-        var singleAnalysisOutputs = analysisOutputs.stream().map(this::mapSingleAnalysisOutputToImage).collect(Collectors.toList());
+    public Output2D mapToOutput2D(List<AnalysisOutput> analysisOutputs) {
+        var singleAnalysisOutputs = analysisOutputs.stream()
+                .map(this::mapSingleAnalysisOutputToSecondaryModelAnalysisOutput).collect(Collectors.toList());
         return new Output2D()
                 .withAnalysis(singleAnalysisOutputs);
     }
@@ -37,7 +38,7 @@ public class AnalysisOutputsMapper {
      *
      * @param analysisOutput analysis output which is mapped to SingleSecondaryModelAnalysisOutput object
      */
-    private SingleSecondaryModelAnalysisOutput mapSingleAnalysisOutputToImage(AnalysisOutput analysisOutput) {
+    private SingleSecondaryModelAnalysisOutput mapSingleAnalysisOutputToSecondaryModelAnalysisOutput(AnalysisOutput analysisOutput) {
         return new SingleSecondaryModelAnalysisOutput()
                 .withBpSeq(analysisOutput
                         .bpSeq().entries().stream()
