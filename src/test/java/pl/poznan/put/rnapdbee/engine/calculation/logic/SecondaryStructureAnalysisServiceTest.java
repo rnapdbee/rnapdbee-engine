@@ -36,14 +36,31 @@ class SecondaryStructureAnalysisServiceTest {
 
     @ParameterizedTest
     @CsvFileSource(resources = "/dotBracketToImageTestCases.csv")
-    public void testDotBracketToImageService(StructuralElementsHandling structuralElementsHandling,
-                                             VisualizationTool visualizationTool,
-                                             String filename,
-                                             String content,
-                                             @AggregateWith(AnalysisOutputTestInformationAggregator.class)
-                                             List<AnalysisOutputTestInformation> expectedInformationList) {
+    public void testDotBracketNotationFileAnalysis(StructuralElementsHandling structuralElementsHandling,
+                                                   VisualizationTool visualizationTool,
+                                                   String filename,
+                                                   String content,
+                                                   @AggregateWith(AnalysisOutputTestInformationAggregator.class)
+                                                   List<AnalysisOutputTestInformation> expectedInformationList) {
         var actual = cut.analyseDotBracketNotationFile(structuralElementsHandling,
                 visualizationTool,
+                content,
+                filename);
+        AnalysisOutputTestUtils.assertAnalysisOutputs(actual, expectedInformationList);
+    }
+
+    @ParameterizedTest
+    @CsvFileSource(resources = "/secondaryToDotBracketTestCases.csv")
+    public void testSecondaryStructureFileAnalysis(StructuralElementsHandling structuralElementsHandling,
+                                                   VisualizationTool visualizationTool,
+                                                   String filename,
+                                                   boolean shouldRemoveIsolated,
+                                                   String content,
+                                                   @AggregateWith(AnalysisOutputTestInformationAggregator.class)
+                                                   List<AnalysisOutputTestInformation> expectedInformationList) {
+        var actual = cut.analyseSecondaryStructureFile(structuralElementsHandling,
+                visualizationTool,
+                shouldRemoveIsolated,
                 content,
                 filename);
         AnalysisOutputTestUtils.assertAnalysisOutputs(actual, expectedInformationList);
