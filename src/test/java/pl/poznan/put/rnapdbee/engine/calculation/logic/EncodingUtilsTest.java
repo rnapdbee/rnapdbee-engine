@@ -12,6 +12,6 @@ class EncodingUtilsTest {
     @CsvFileSource(resources = "/base64testcases.csv")
     public void shouldDecodeBase64DecodeProvidedInput(String input, String expected) {
         String actual = EncodingUtils.decodeBase64ToString(input);
-        Assertions.assertEquals(expected, actual);
+        Assertions.assertEquals(expected.replaceAll("(\r\n|\n)", "\n"), actual);
     }
 }
