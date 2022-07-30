@@ -1,10 +1,12 @@
-### File containing test cases for base64 tests.
+### File containing test cases for (...) -> Image.
+### Currently the tests are checking if length of analysis's lists with parameters (bpseq, interactions...) is equal to expected lengths.
+### It is possible to assert multiple analysis outputs - just provide new set of sizes (bpseq size, ct size etc.) at the end. The test is flexible and will assert sizes of multiple analysis outputs.
 # First test case
-bVPLasQwDLznS5LD+gvKgtBBX6BLl6UUeu6h7Z5C/r0zI9ukSwW2NXqMHiTX75+v98+PN1viERnuHuGWEQQW6WlpQhaE8Jt5Ehsj+SQsuBHnTh3mSkE47kCKKM1Apzwc1DHVQoJnQpWTPrcqksgy2Zw9QEc0eWjLZIMqbXWxHKzOKQSTOa6+jYmsCgR7AdYCdhEhD8EcP1iRNCFiTegWU0vyIRLzJWdVhtU46oSdcmq5ayeYgCWdkG6rPapBHe4p+5Y1HSK5fF25XNp+ayvlpdVb0oRaybZt3Qmw77uOzN0xohUyCSqgR7X7tRP1+1ysCk2r0G3QDsbBf79R2jbJtnYch05xT89zC0/KQIeUWW2QVkOtz7YO5byTEdjO/Z3y9a5nmal/Orj8K8u1/0Ovy4N/Ab7BXNqdgpzlFw==,">strand_A
+USE_PSEUDOKNOTS,VARNA,3G78.dbn,">strand_A
 GuGUGCCCGGCAUGGGUGCAGUCUAUAGGGUGAGAGUCCCGAACUGUGAAGGCAGAAGUAACAGUUAGCCUAACGCAAGGGUGUCCGUGGCGACAUGGAAUCUGAAGGAAGCGGACGGCAAACCUUCGGUCUGAGGAACACGAACUUCAUAUGAGGCUAGGUAUCAAUGGAUGAGUUUGCAUAACAAAACAAAGUCCUUUCUGCCAAAGUUGGUACAGAGUAAAUGAAGCAGAUUGAUGAAGGGAAAGACUGCAUUCUUACCCGGGGAGGUCUGGAAACAGAAGUCAGCAGAAGUCAUAGUACCCUGUUCGCAGGGGAAGGACGGAACAAGUAUGGCGUUCGCGCCUAAGCUUGAACCGCCGUAUACCGAACGGUACGUACGGUGGUGUGAGAGGAGUUCGCUCUACUCUAU
 -.{[.(((((<..(((((((((((...(((.......)))..(((((...{{{.{{{...)))))..(((...(((..((((.((((((....))))))))))...]>..)))...)))...(((((((((((.(.....)...(((((.....[((...((((.(((((((..((((.][[[[[.))))...)))).}}}.}}}...))).))))...))...))))))))))...))))))...)))))))))))...})))))(...((((....))))...).......(((.(....(((........)))...))))....(((((..((((....))))...))))).(((((((((((((....)))..))))))))))...----------------------
 >strand_Z
 uGUUAUUUU
 .]]]]]...
-"
+",421,421,5,421,2,26,49,29,2,3
 # Add each new test case with hash at the beginning so we don't get lost in this file.
