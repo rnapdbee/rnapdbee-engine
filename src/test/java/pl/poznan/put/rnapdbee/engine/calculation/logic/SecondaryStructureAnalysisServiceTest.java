@@ -1,7 +1,9 @@
 package pl.poznan.put.rnapdbee.engine.calculation.logic;
 
 import edu.put.rnapdbee.visualization.SecondaryStructureImage;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.aggregator.AggregateWith;
 import org.junit.jupiter.params.provider.CsvFileSource;
@@ -49,8 +51,9 @@ class SecondaryStructureAnalysisServiceTest {
         AnalysisOutputTestUtils.assertAnalysisOutputs(actual, expectedInformationList);
     }
 
+
     @ParameterizedTest
-    @CsvFileSource(resources = "/secondaryToDotBracketTestCases.csv")
+    @CsvFileSource(resources = "/secondaryToDotBracketTestCases.csv", maxCharsPerColumn = 16384)
     public void testSecondaryStructureFileAnalysis(StructuralElementsHandling structuralElementsHandling,
                                                    VisualizationTool visualizationTool,
                                                    String filename,
@@ -64,5 +67,15 @@ class SecondaryStructureAnalysisServiceTest {
                 content,
                 filename);
         AnalysisOutputTestUtils.assertAnalysisOutputs(actual, expectedInformationList);
+    }
+
+    @Test
+    public void testSecondaryStructureFileAnalysisForWrongFileFormat() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> cut.analyseSecondaryStructureFile(StructuralElementsHandling.USE_PSEUDOKNOTS,
+                        VisualizationTool.VARNA,
+                        true,
+                        "Mocked content",
+                        "thisIsWrong.dbn"));
     }
 }
