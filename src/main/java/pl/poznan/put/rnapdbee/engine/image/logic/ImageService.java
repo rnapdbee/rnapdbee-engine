@@ -37,6 +37,7 @@ public class ImageService {
                 .loadDrawer(visualizationTool.getBackupVisualizationTool());
 
         // TODO: restore the cache
+        //  probably it would be best to use Spring cache mechanism since we're embedding rnapdbee-common into engine
         final ImageCache imageCache = new ImageCacheImpl();
 
         try {

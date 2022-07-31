@@ -12,9 +12,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import pl.poznan.put.rnapdbee.engine.calculation.logic.CalculationService;
 import pl.poznan.put.rnapdbee.engine.calculation.logic.EncodingUtils;
-import pl.poznan.put.rnapdbee.engine.calculation.logic.SecondaryStructureAnalysisService;
-import pl.poznan.put.rnapdbee.engine.calculation.mapper.AnalysisOutputsMapper;
 import pl.poznan.put.rnapdbee.engine.calculation.model.Output2D;
 import pl.poznan.put.rnapdbee.engine.model.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.model.ModelSelection;
@@ -32,9 +31,7 @@ public class CalculationController {
 
     private final Logger logger;
 
-    private final SecondaryStructureAnalysisService secondaryStructureAnalysisService;
-
-    private final AnalysisOutputsMapper analysisOutputsMapper;
+    private final CalculationService calculationService;
 
     @PostMapping(path = "/3d", produces = "application/json", consumes = "text/plain")
     public ResponseEntity<Object> calculateTertiaryToDotBracket(
@@ -58,16 +55,16 @@ public class CalculationController {
             @RequestBody String encodedContent) {
 
         logger.info(String.format("Analysis of scenario 2D -> (...) started for content-disposition header %s",
-                contentDispositionHeader));ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
+                contentDispositionHeader));
+        ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
         String decodedContent = EncodingUtils.decodeBase64ToString(encodedContent);
-        var analysisResult = secondaryStructureAnalysisService
-                .analyseSecondaryStructureFile(
+        var outputAnalysis = calculationService
+                .handleSecondaryToDotBracketCalculation(
                         structuralElementsHandling,
                         visualizationTool,
                         removeIsolated,
                         decodedContent,
                         contentDisposition.getFilename());
-        var outputAnalysis = analysisOutputsMapper.mapToOutput2D(analysisResult);
         return new ResponseEntity<>(outputAnalysis, HttpStatus.OK);
     }
 
@@ -102,22 +99,18 @@ public class CalculationController {
                 contentDispositionHeader));
         ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
         String decodedContent = EncodingUtils.decodeBase64ToString(encodedContent);
-        var analysisResult = secondaryStructureAnalysisService
-                .analyseDotBracketNotationFile(
+        var outputAnalysis = calculationService
+                .handleDotBracketToImageCalculation(
                         structuralElementsHandling,
                         visualizationTool,
                         decodedContent,
                         contentDisposition.getFilename());
-        var outputAnalysis = analysisOutputsMapper.mapToOutput2D(analysisResult);
         return new ResponseEntity<>(outputAnalysis, HttpStatus.OK);
     }
 
     @Autowired
-    private CalculationController(SecondaryStructureAnalysisService secondaryStructureAnalysisService,
-                                  AnalysisOutputsMapper analysisOutputsMapper,
-                                  Logger logger) {
-        this.secondaryStructureAnalysisService = secondaryStructureAnalysisService;
-        this.analysisOutputsMapper = analysisOutputsMapper;
+    private CalculationController(CalculationService calculationService, Logger logger) {
+        this.calculationService = calculationService;
         this.logger = logger;
     }
 }

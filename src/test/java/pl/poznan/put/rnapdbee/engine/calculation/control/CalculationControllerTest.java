@@ -10,9 +10,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import pl.poznan.put.rnapdbee.engine.calculation.logic.SecondaryStructureAnalysisService;
+import pl.poznan.put.rnapdbee.engine.calculation.logic.CalculationService;
 import pl.poznan.put.rnapdbee.engine.calculation.logic.EncodingUtils;
-import pl.poznan.put.rnapdbee.engine.calculation.mapper.AnalysisOutputsMapper;
 import pl.poznan.put.rnapdbee.engine.calculation.model.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.calculation.model.Output2D;
 import pl.poznan.put.rnapdbee.engine.calculation.model.SingleSecondaryModelAnalysisOutput;
@@ -28,10 +27,7 @@ import java.util.Objects;
 class CalculationControllerTest {
 
     @MockBean
-    SecondaryStructureAnalysisService secondaryStructureAnalysisService;
-
-    @MockBean
-    AnalysisOutputsMapper analysisOutputsMapper;
+    CalculationService calculationService;
 
     @Autowired
     CalculationController cut;
@@ -72,10 +68,9 @@ class CalculationControllerTest {
             // mocked
             mockedEncodingUtils.when(() -> EncodingUtils.decodeBase64ToString(Mockito.any())).
                     thenReturn(mockedContent);
-            Mockito.when(secondaryStructureAnalysisService.analyseDotBracketNotationFile(Mockito.any(),
+
+            Mockito.when(calculationService.handleDotBracketToImageCalculation(Mockito.any(),
                             Mockito.any(), Mockito.eq(mockedContent), Mockito.eq(mockedFilename)))
-                    .thenReturn(Collections.emptyList());
-            Mockito.when(analysisOutputsMapper.mapToOutput2D(Mockito.any()))
                     .thenReturn(analysisOutput);
 
             // when
@@ -116,10 +111,8 @@ class CalculationControllerTest {
             // mocked
             mockedEncodingUtils.when(() -> EncodingUtils.decodeBase64ToString(Mockito.any())).
                     thenReturn(mockedContent);
-            Mockito.when(secondaryStructureAnalysisService.analyseDotBracketNotationFile(Mockito.any(),
-                            Mockito.any(), Mockito.eq(mockedContent), Mockito.eq(mockedFilename)))
-                    .thenReturn(Collections.emptyList());
-            Mockito.when(analysisOutputsMapper.mapToOutput2D(Mockito.any()))
+            Mockito.when(calculationService.handleSecondaryToDotBracketCalculation(Mockito.any(),
+                            Mockito.any(), Mockito.eq(true), Mockito.eq(mockedContent), Mockito.eq(mockedFilename)))
                     .thenReturn(analysisOutput);
 
             // when
