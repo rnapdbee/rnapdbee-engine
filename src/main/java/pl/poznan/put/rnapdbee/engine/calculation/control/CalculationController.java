@@ -91,7 +91,16 @@ public class CalculationController {
             @RequestParam("includeNonCanonical") boolean includeNonCanonical,
             @RequestParam("removeIsolated") boolean removeIsolated,
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
-            @RequestBody String content) {
-        throw new UnsupportedOperationException();
+            @RequestHeader("Content-Disposition") String contentDispositionHeader,
+            @RequestBody String encodedContent) {
+        logger.info(String.format("Analysis of scenario 3D -> multi 2D started for content-disposition header %s",
+                contentDispositionHeader));
+        ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
+        // TODO: restore base64 decoding (development purpose)
+        //String decodedContent = EncodingUtils.decodeBase64ToString(encodedContent);
+        var result = calculationService.handleTertiaryToMultiSecondaryCalculation(modelSelection,
+                includeNonCanonical, removeIsolated, visualizationTool, contentDisposition.getFilename(), encodedContent);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }
