@@ -2,7 +2,6 @@ package pl.poznan.put.rnapdbee.engine.calculation.control;
 
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpStatus;
@@ -13,10 +12,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import pl.poznan.put.rnapdbee.engine.calculation.logic.CalculationService;
 import pl.poznan.put.rnapdbee.engine.calculation.logic.EncodingUtils;
-import pl.poznan.put.rnapdbee.engine.calculation.logic.DotBracketToImageService;
-import pl.poznan.put.rnapdbee.engine.calculation.mapper.AnalysisOutputsMapper;
-import pl.poznan.put.rnapdbee.engine.calculation.model.DotBracketToImageAnalysisOutput;
+import pl.poznan.put.rnapdbee.engine.calculation.model.Output2D;
 import pl.poznan.put.rnapdbee.engine.model.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.model.ModelSelection;
 import pl.poznan.put.rnapdbee.engine.model.NonCanonicalHandling;
@@ -31,16 +29,9 @@ import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
 @RequestMapping("api/v1/calculation")
 public class CalculationController {
 
-    // TODO: make Autowired
-    private static final Logger logger = LoggerFactory.getLogger(CalculationController.class);
+    private final Logger logger;
 
-    // TODO: eventually put Autowired in constructor
-    @Autowired
-    private DotBracketToImageService dotBracketToImageService;
-
-    // TODO: eventually put Autowired in constructor
-    @Autowired
-    private AnalysisOutputsMapper analysisOutputsMapper;
+    private final CalculationService calculationService;
 
     @PostMapping(path = "/3d", produces = "application/json", consumes = "text/plain")
     public ResponseEntity<Object> calculateTertiaryToDotBracket(
@@ -56,12 +47,25 @@ public class CalculationController {
 
 
     @PostMapping(path = "/2d", produces = "application/json", consumes = "text/plain")
-    public ResponseEntity<Object> calculateSecondaryToDotBracket(
-            @RequestParam("removeIsolated") boolean removeIsolated,
+    public ResponseEntity<Output2D> calculateSecondaryToDotBracket(
             @RequestParam("structuralElementsHandling") StructuralElementsHandling structuralElementsHandling,
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
-            @RequestBody String content) {
-        throw new UnsupportedOperationException();
+            @RequestParam("removeIsolated") boolean removeIsolated,
+            @RequestHeader("Content-Disposition") String contentDispositionHeader,
+            @RequestBody String encodedContent) {
+
+        logger.info(String.format("Analysis of scenario 2D -> (...) started for content-disposition header %s",
+                contentDispositionHeader));
+        ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
+        String decodedContent = EncodingUtils.decodeBase64ToString(encodedContent);
+        var outputAnalysis = calculationService
+                .handleSecondaryToDotBracketCalculation(
+                        structuralElementsHandling,
+                        visualizationTool,
+                        removeIsolated,
+                        decodedContent,
+                        contentDisposition.getFilename());
+        return new ResponseEntity<>(outputAnalysis, HttpStatus.OK);
     }
 
 
@@ -85,18 +89,28 @@ public class CalculationController {
      * @return wrapped in an object list of image outputs
      */
     @PostMapping(path = "/image", produces = "application/json", consumes = "text/plain")
-    public ResponseEntity<DotBracketToImageAnalysisOutput> calculateDotBracketToImage(
+    public ResponseEntity<Output2D> calculateDotBracketToImage(
             @RequestParam("structuralElementsHandling") StructuralElementsHandling structuralElementsHandling,
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
             @RequestHeader("Content-Disposition") String contentDispositionHeader,
             @RequestBody String encodedContent) {
 
+        logger.info(String.format("Analysis of scenario (...) -> Image started for content-disposition header %s",
+                contentDispositionHeader));
         ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
         String decodedContent = EncodingUtils.decodeBase64ToString(encodedContent);
-        var analysisResult = dotBracketToImageService
-                .performDotBracketToImageCalculation(structuralElementsHandling, visualizationTool, decodedContent,
+        var outputAnalysis = calculationService
+                .handleDotBracketToImageCalculation(
+                        structuralElementsHandling,
+                        visualizationTool,
+                        decodedContent,
                         contentDisposition.getFilename());
-        var outputAnalysis = analysisOutputsMapper.mapToImageAnalysisOutput(analysisResult);
         return new ResponseEntity<>(outputAnalysis, HttpStatus.OK);
+    }
+
+    @Autowired
+    private CalculationController(CalculationService calculationService, Logger logger) {
+        this.calculationService = calculationService;
+        this.logger = logger;
     }
 }
