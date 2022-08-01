@@ -16,33 +16,8 @@ import java.io.IOException;
 /**
  * Service class responsible for handling loading the drawers
  */
-// TODO: remove non-needed drawers / scoop out non-drawers
 @Component
-public class DrawerService {
-
-    @Value("${path.ebi.mirror}")
-    private String ebiMirrorPath;
-
-    @Value("${rcsb.ftp.hostname}")
-    private String rcsbFtpHostname;
-
-    @Value("${rcsb.ftp.path}")
-    private String rcsbFtpPath;
-
-    @Value("${tools.dssr}")
-    private Resource dssr;
-
-    @Value("${tools.fr3d}")
-    private File fr3d;
-
-    @Value("${tools.fr3d-python}")
-    private File fr3dPython;
-
-    @Value("${tools.mcannotate}")
-    private Resource mcAnnotate;
-
-    @Value("${tools.pdbx}")
-    private Resource pdbx;
+public class DrawerLoader {
 
     @Value("${tools.pseudoviewer}")
     private Resource pseudoviewer;
@@ -50,26 +25,11 @@ public class DrawerService {
     @Value("${tools.rchie}")
     private Resource rchie;
 
-    @Value("${tools.rnaview}")
-    private Resource rnaView;
-
-    @Value("${tools.rnaview.basepars}")
-    private Resource rnaViewBaseParameters;
-
     @Value("${system.inkscape}")
     private File inkscape;
 
-    @Value("${system.octave}")
-    private File octave;
-
-    @Value("${system.python2}")
-    private File python2;
-
     @Value("${system.rscript}")
     private File rscript;
-
-    @Value("${web.examples}")
-    private Resource examples;
 
     /**
      * Loads the drawer
