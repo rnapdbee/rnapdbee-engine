@@ -5,9 +5,9 @@ import edu.put.rnapdbee.analysis.elements.StructuralElement;
 import edu.put.rnapdbee.analysis.elements.StructuralElementFinder;
 import edu.put.rnapdbee.visualization.SecondaryStructureImage;
 import org.springframework.stereotype.Service;
-import pl.poznan.put.rnapdbee.engine.calculation.model.DotBracketToImageAnalysisOutput;
 import pl.poznan.put.rnapdbee.engine.calculation.model.ImageInformationOutput;
-import pl.poznan.put.rnapdbee.engine.calculation.model.SingleDotBracketToImageAnalysisOutput;
+import pl.poznan.put.rnapdbee.engine.calculation.model.Output2D;
+import pl.poznan.put.rnapdbee.engine.calculation.model.SingleSecondaryModelAnalysisOutput;
 import pl.poznan.put.rnapdbee.engine.calculation.model.SingleStrandOutput;
 import pl.poznan.put.rnapdbee.engine.calculation.model.StructuralElementOutput;
 import pl.poznan.put.structure.formats.BpSeq;
@@ -21,24 +21,25 @@ import java.util.stream.Collectors;
 public class AnalysisOutputsMapper {
 
     /**
-     * Maps List of {@link AnalysisOutput} to {@link DotBracketToImageAnalysisOutput} object
+     * Maps List of {@link AnalysisOutput} to {@link Output2D} object
      *
      * @param analysisOutputs - output of analysis
-     * @return {@link DotBracketToImageAnalysisOutput} result object
+     * @return {@link Output2D} result object
      */
-    public DotBracketToImageAnalysisOutput mapToImageAnalysisOutput(List<AnalysisOutput> analysisOutputs) {
-        var singleAnalysisOutputs = analysisOutputs.stream().map(this::mapSingleAnalysisOutputToImage).collect(Collectors.toList());
-        return new DotBracketToImageAnalysisOutput()
+    public Output2D mapToOutput2D(List<AnalysisOutput> analysisOutputs) {
+        var singleAnalysisOutputs = analysisOutputs.stream()
+                .map(this::mapSingleAnalysisOutputToSecondaryModelAnalysisOutput).collect(Collectors.toList());
+        return new Output2D()
                 .withAnalysis(singleAnalysisOutputs);
     }
 
     /**
-     * Maps {@link AnalysisOutput} into {@link SingleDotBracketToImageAnalysisOutput}
+     * Maps {@link AnalysisOutput} into {@link SingleSecondaryModelAnalysisOutput}
      *
-     * @param analysisOutput analysis output which is mapped to SingleDotBracketToImageAnalysisOutput object
+     * @param analysisOutput analysis output which is mapped to SingleSecondaryModelAnalysisOutput object
      */
-    private SingleDotBracketToImageAnalysisOutput mapSingleAnalysisOutputToImage(AnalysisOutput analysisOutput) {
-        return new SingleDotBracketToImageAnalysisOutput()
+    private SingleSecondaryModelAnalysisOutput mapSingleAnalysisOutputToSecondaryModelAnalysisOutput(AnalysisOutput analysisOutput) {
+        return new SingleSecondaryModelAnalysisOutput()
                 .withBpSeq(analysisOutput
                         .bpSeq().entries().stream()
                         .map(BpSeq.Entry::toString)
