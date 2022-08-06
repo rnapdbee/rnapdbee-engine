@@ -16,6 +16,7 @@ import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.consensus.BpSeqInfo;
 import pl.poznan.put.consensus.ConsensusInput;
 import pl.poznan.put.consensus.ConsensusOutput;
+import pl.poznan.put.rnapdbee.engine.basepair.boundary.MCAnnotateBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.image.logic.ImageService;
 import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.model.ModelSelection;
@@ -28,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 public class ConsensualStructureAnalysisService {
@@ -54,19 +54,20 @@ public class ConsensualStructureAnalysisService {
                                String content) {
         // TODO: when incorporating adapters into engine, this should be done using rnapdbee-adapters.
         final Collection<Pair<BasePairAnalyzerEnum, BasePairAnalyzer>> analyzerPairs =
-                basePairAnalyzers.stream().map(analyzerEnum -> {
+               /* basePairAnalyzers.stream().map(analyzerEnum -> {
                     try {
                         return Pair.of(analyzerEnum, basePairAnalyserLoader.loadBasePairAnalyzer(analyzerEnum, false));
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                }).collect(Collectors.toList());
+                }).collect(Collectors.toList());*/
+                List.of(Pair.of(BasePairAnalyzerEnum.MCANNOTATE, new MCAnnotateBasePairAnalyzer()));
 
         final Pair<ConsensusInput, ConsensusOutput> consensus;
         try {
             consensus = RNApdbee.findConsensus(
                     filename,
-                    InputType.valueOf(filename.split("\\.")[1]),
+                    InputType.valueOf(filename.split("\\.")[1].toUpperCase()),
                     content,
                     analyzerPairs,
                     List.of(CONVERTER),

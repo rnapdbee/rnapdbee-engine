@@ -1,12 +1,12 @@
-package pl.poznan.put.rnapdbee.engine.model;
+package pl.poznan.put.rnapdbee.engine.basepair.model;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * DTO class for BaseRibose
+ * DTO class for Other
  */
-public class BaseRibose {
+public class Other {
 
     @JsonProperty("nt1")
     private Residue nt1;
@@ -14,18 +14,11 @@ public class BaseRibose {
     @JsonProperty("nt2")
     private Residue nt2;
 
-    @JsonProperty("br")
-    private BR br;
-
     public Residue getNt1() {
         return nt1;
     }
 
     public Residue getNt2() {
         return nt2;
-    }
-
-    public BR getBr() {
-        return br;
     }
 }
