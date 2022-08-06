@@ -1,10 +1,7 @@
-package pl.poznan.put.rnapdbee.engine.model;
+package pl.poznan.put.rnapdbee.engine.basepair.model;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**

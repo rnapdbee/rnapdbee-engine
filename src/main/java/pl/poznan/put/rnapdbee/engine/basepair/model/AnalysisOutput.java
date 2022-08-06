@@ -1,4 +1,4 @@
-package pl.poznan.put.rnapdbee.engine.model;
+package pl.poznan.put.rnapdbee.engine.basepair.model;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -22,7 +22,7 @@ public class AnalysisOutput {
     @JsonProperty("basePhosphateInteractions")
     private List<BasePhosphate> basePhosphateInteractions;
 
-    @JsonProperty("other")
+    @JsonProperty("otherInteractions")
     private List<Other> other;
 
     public List<BasePair> getBasePairs() {

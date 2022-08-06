@@ -1,4 +1,4 @@
-package pl.poznan.put.rnapdbee.engine.model;
+package pl.poznan.put.rnapdbee.engine.basepair.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import pl.poznan.put.notation.LeontisWesthof;
@@ -15,7 +15,7 @@ public class BasePair {
     @JsonProperty("nt2")
     private Residue nt2;
 
-    @JsonProperty("leontisWesthof")
+    @JsonProperty("lw")
     private LeontisWesthof leontisWesthof;
 
     @JsonProperty("saenger")

@@ -1,11 +1,12 @@
-package pl.poznan.put.rnapdbee.engine.model;
+package pl.poznan.put.rnapdbee.engine.basepair.model;
 
 
 /**
- * enum for BPh
+ * enum for BR
  */
-public enum BPh {
+public enum BR {
 
+    // TODO instead of value probably @JsonProperty would do the trick.
     ONE("1"),
     TWO("2"),
     THREE("3"),
@@ -18,8 +19,7 @@ public enum BPh {
 
     private final String value;
 
-    BPh(String value) {
+    BR(String value) {
         this.value = value;
     }
-
 }

@@ -1,22 +1,20 @@
-package pl.poznan.put.rnapdbee.engine.model;
+package pl.poznan.put.rnapdbee.engine.basepair.model;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * DTO class for Stacking
+ * DTO class for BasePhosphate
  */
-
-public class Stacking {
-
+public class BasePhosphate {
     @JsonProperty("nt1")
     private Residue nt1;
 
     @JsonProperty("nt2")
     private Residue nt2;
 
-    @JsonProperty("topology")
-    private StackingTopology topology;
+    @JsonProperty("bph")
+    private BPh bph;
 
     public Residue getNt1() {
         return nt1;
@@ -26,8 +24,8 @@ public class Stacking {
         return nt2;
     }
 
-    public StackingTopology getTopology() {
-        return topology;
+    public BPh getBph() {
+        return bph;
     }
 
 }
