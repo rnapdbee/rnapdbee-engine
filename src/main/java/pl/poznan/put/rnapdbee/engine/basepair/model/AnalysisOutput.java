@@ -11,37 +11,37 @@ import java.util.List;
 public class AnalysisOutput {
 
     @JsonProperty("basePairs")
-    private List<BasePair> basePairs;
+    private List<BasePairDTO> basePairs;
 
     @JsonProperty("stackings")
-    private List<Stacking> stackings;
+    private List<BasePairDTO> stackings;
 
     @JsonProperty("baseRiboseInteractions")
-    private List<BaseRibose> baseRiboseInteractions;
+    private List<BasePairDTO> baseRiboseInteractions;
 
     @JsonProperty("basePhosphateInteractions")
-    private List<BasePhosphate> basePhosphateInteractions;
+    private List<BasePairDTO> basePhosphateInteractions;
 
     @JsonProperty("otherInteractions")
-    private List<Other> other;
+    private List<BasePairDTO> other;
 
-    public List<BasePair> getBasePairs() {
+    public List<BasePairDTO> getBasePairs() {
         return basePairs;
     }
 
-    public List<Stacking> getStackings() {
+    public List<BasePairDTO> getStackings() {
         return stackings;
     }
 
-    public List<BaseRibose> getBaseRiboseInteractions() {
+    public List<BasePairDTO> getBaseRiboseInteractions() {
         return baseRiboseInteractions;
     }
 
-    public List<BasePhosphate> getBasePhosphateInteractions() {
+    public List<BasePairDTO> getBasePhosphateInteractions() {
         return basePhosphateInteractions;
     }
 
-    public List<Other> getOther() {
+    public List<BasePairDTO> getOther() {
         return other;
     }
 

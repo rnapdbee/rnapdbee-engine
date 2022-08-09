@@ -11,6 +11,7 @@ import edu.put.rnapdbee.enums.NonCanonicalHandling;
 import edu.put.rnapdbee.visualization.SecondaryStructureImage;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.consensus.BpSeqInfo;
@@ -39,12 +40,15 @@ public class ConsensualStructureAnalysisService {
     @Autowired
     BasePairAnalyserLoader basePairAnalyserLoader;
 
+    @Autowired
+    private ApplicationContext context;
+
     // TODO: when embedding RNAPDBEE-common code, replace with calls to rnapdbee-adapters
     List<BasePairAnalyzerEnum> basePairAnalyzers = List.of(BasePairAnalyzerEnum.RNAVIEW, BasePairAnalyzerEnum.MCANNOTATE,
             BasePairAnalyzerEnum.DSSR, BasePairAnalyzerEnum.FR3D);
 
     // TODO: replace converter method with Mixed-Integer Linear Programming (separate Task)
-    final ConverterEnum CONVERTER = ConverterEnum.DPNEW;
+    final List<ConverterEnum> CONVERTERS = List.of(ConverterEnum.DPNEW, ConverterEnum.EG);
 
     public OutputMulti analyse(ModelSelection modelSelection,
                                boolean includeNonCanonical,
@@ -61,7 +65,7 @@ public class ConsensualStructureAnalysisService {
                         throw new RuntimeException(e);
                     }
                 }).collect(Collectors.toList());*/
-                List.of(Pair.of(BasePairAnalyzerEnum.MCANNOTATE, new MCAnnotateBasePairAnalyzer()));
+                List.of(Pair.of(BasePairAnalyzerEnum.MCANNOTATE, context.getBean(MCAnnotateBasePairAnalyzer.class)));
 
         final Pair<ConsensusInput, ConsensusOutput> consensus;
         try {
@@ -70,7 +74,7 @@ public class ConsensualStructureAnalysisService {
                     InputType.valueOf(filename.split("\\.")[1].toUpperCase()),
                     content,
                     analyzerPairs,
-                    List.of(CONVERTER),
+                    CONVERTERS,
                     includeNonCanonical ? NonCanonicalHandling.ANALYZE_VISUALIZE : NonCanonicalHandling.IGNORE,
                     removeIsolated,
                     // TODO: restore cache (best would be using Spring mechanisms)
