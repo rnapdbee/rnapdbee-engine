@@ -99,7 +99,14 @@ public class MCAnnotateBasePairAnalyzer implements BasePairAnalyzer {
                         .withLeontisWesthof(LeontisWesthof.UNKNOWN)
                         .withBph(BPh.UNKNOWN)
                         .withBr(BR.UNKNOWN)).collect(Collectors.toList());
-        List<AnalyzedBasePair> interStrand = Collections.emptyList();
+        List<AnalyzedBasePair> interStrand = responseFromAdapter.getBasePairs().stream()
+                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.BASE_BASE)
+                        .withSaenger(basePair.getSaenger())
+                        .withLeontisWesthof(basePair.getLeontisWesthof())
+                        .withBph(BPh.UNKNOWN)
+                        .withBr(BR.UNKNOWN))
+                .filter(basePair -> !basePair.basePair().left().chainIdentifier().equals(basePair.basePair().right().chainIdentifier()))
+                .collect(Collectors.toList());
         List<String> messages = Collections.emptyList();
 
         /*
