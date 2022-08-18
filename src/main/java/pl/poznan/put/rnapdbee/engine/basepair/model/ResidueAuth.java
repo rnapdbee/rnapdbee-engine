@@ -49,7 +49,7 @@ public class ResidueAuth extends PdbNamedResidueIdentifier {
 
     @Override
     public String insertionCode() {
-        return insertionCode;
+        return insertionCode == null ? " " : insertionCode;
     }
 
     @Override
