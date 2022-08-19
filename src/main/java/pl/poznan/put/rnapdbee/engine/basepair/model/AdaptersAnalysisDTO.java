@@ -6,9 +6,9 @@ import java.util.List;
 
 
 /**
- * DTO class for AnalysisOutput
+ * DTO class for AdaptersAnalysisDTO
  */
-public class AnalysisOutput {
+public class AdaptersAnalysisDTO {
 
     @JsonProperty("basePairs")
     private List<BasePairDTO> basePairs;
