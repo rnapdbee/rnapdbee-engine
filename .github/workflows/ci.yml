@@ -51,5 +51,5 @@ jobs:
         uses: axel-op/googlejavaformat-action@v3
         with:
           skipCommit: true
-          args: "--dry-run --set-exit-if-changed --skip-javadoc-formatting --aosp"
+          args: "--dry-run --assume-filename --skip-javadoc-formatting --aosp"
           version: v1.15.0
