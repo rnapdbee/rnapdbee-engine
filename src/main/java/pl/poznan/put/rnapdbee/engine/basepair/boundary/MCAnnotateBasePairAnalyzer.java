@@ -25,9 +25,11 @@ import pl.poznan.put.structure.AnalyzedBasePair;
 import pl.poznan.put.structure.ImmutableAnalyzedBasePair;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 // TODO tidy up the abstraction hierarchy when the rnapdbee-common code is incorporated into engine's
@@ -47,10 +49,8 @@ public class MCAnnotateBasePairAnalyzer implements BasePairAnalyzer {
     public AnalysisResult analyze(InputType inputType,
                                   PdbModel pdbModel,
                                   String fileContent,
-                                  NonCanonicalHandling nonCanonicalHandling) throws PdbParsingException, IOException {
+                                  NonCanonicalHandling nonCanonicalHandling) throws PdbParsingException {
         // TODO put somewhere this MapperFeature not to have it at every place.
-
-
         AnalysisOutput responseFromAdapter = adaptersWebClient
                 .post()
                 // TODO take from configuration
@@ -62,7 +62,6 @@ public class MCAnnotateBasePairAnalyzer implements BasePairAnalyzer {
                 .block();
         assert responseFromAdapter != null;
 
-        List<AnalyzedBasePair> represented =  Collections.emptyList();
         List<AnalyzedBasePair> canonical = responseFromAdapter.getBasePairs().stream().filter(basePair -> basePair.getSaenger().isCanonical())
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.BASE_BASE)
                         .withSaenger(basePair.getSaenger())
@@ -109,11 +108,24 @@ public class MCAnnotateBasePairAnalyzer implements BasePairAnalyzer {
                 .collect(Collectors.toList());
         List<String> messages = Collections.emptyList();
 
-        /*
-        List<AnalyzedBasePair> represented = Stream.of(canonical, nonCanonical, stackings, basePhosphate, baseRibose, otherInteractions)
+        //List<AnalyzedBasePair> represented =  Collections.emptyList();
+        /*Map<PdbNamedResidueIdentifier, PdbNamedResidueIdentifier> uniqueBasePairs = new HashMap<>();
+        Stream.of(canonical, nonCanonical, stackings, basePhosphate, baseRibose, otherInteractions)
                 .flatMap(Collection::stream)
-                .map(basePair -> Pair.of(basePair.basePair()));
-                */
+                .flatMap(analyzedBasePair -> Stream.of(analyzedBasePair.basePair(), analyzedBasePair.basePair().invert()))
+                .forEach(analyzedBasePair -> uniqueBasePairs.put(analyzedBasePair.left(), analyzedBasePair.right()));*/
+        // TODO: this is wrong. With this approach, in further analysis there is pair 0 - 0, which throws an error
+        //  inside bioCommons method. Change approach when calculation of represented list is clarified.
+        List<AnalyzedBasePair> represented =
+                nonCanonicalHandling == NonCanonicalHandling.IGNORE
+                        ?
+                        Stream.of(canonical, stackings, basePhosphate, baseRibose, otherInteractions)
+                                .flatMap(Collection::stream)
+                                .collect(Collectors.toList())
+                        :
+                        Stream.of(canonical, nonCanonical, stackings, basePhosphate, baseRibose, otherInteractions)
+                                .flatMap(Collection::stream)
+                                .collect(Collectors.toList());
 
         return new TertiaryAnalysisResult(
                 nonCanonicalHandling,
@@ -130,7 +142,7 @@ public class MCAnnotateBasePairAnalyzer implements BasePairAnalyzer {
     }
 
     /*
-    TODO For represented, we need to have this behaviour: (copied from common)
+    TODO: For represented, we need to have this behaviour: (copied from common)
     private List<AnalyzedBasePair> remapBasePairsToClassified() {
         final Map<BasePair, AnalyzedBasePair> pairClassification = new HashMap<>();
         for (final AnalyzedBasePair classifiedBasePair : anyBasePair) {
