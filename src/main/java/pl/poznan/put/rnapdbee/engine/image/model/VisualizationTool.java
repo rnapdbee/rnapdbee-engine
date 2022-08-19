@@ -1,11 +1,9 @@
 package pl.poznan.put.rnapdbee.engine.image.model;
 
-
 /**
  * enum for VisualizationTools
  */
 public enum VisualizationTool {
-
     VARNA,
     PSEUDO_VIEWER,
     R_CHIE,

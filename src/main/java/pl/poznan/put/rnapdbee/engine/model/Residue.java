@@ -1,11 +1,6 @@
 package pl.poznan.put.rnapdbee.engine.model;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.ArrayList;
-import java.util.List;
-
 
 /**
  * DTO class for Residue
@@ -25,5 +20,4 @@ public class Residue {
     public ResidueAuth getAuth() {
         return auth;
     }
-
 }

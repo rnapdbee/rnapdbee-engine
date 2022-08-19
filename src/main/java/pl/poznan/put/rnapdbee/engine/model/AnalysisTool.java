@@ -1,6 +1,5 @@
 package pl.poznan.put.rnapdbee.engine.model;
 
-
 /**
  * AnalysisTool enum
  */

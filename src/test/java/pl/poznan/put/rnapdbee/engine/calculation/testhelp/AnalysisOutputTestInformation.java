@@ -1,7 +1,7 @@
 package pl.poznan.put.rnapdbee.engine.calculation.testhelp;
 
 public class AnalysisOutputTestInformation {
-    
+
     private int bpSeqSize;
     private int ctEntriesSize;
     private int dotBracketLength;
@@ -78,27 +78,32 @@ public class AnalysisOutputTestInformation {
         return this;
     }
 
-    public AnalysisOutputTestInformation withStructuralElementStemsSize(int structuralElementStemsSize) {
+    public AnalysisOutputTestInformation withStructuralElementStemsSize(
+            int structuralElementStemsSize) {
         this.structuralElementStemsSize = structuralElementStemsSize;
         return this;
     }
 
-    public AnalysisOutputTestInformation withStructuralElementSLoopsSize(int structuralElementSLoopsSize) {
+    public AnalysisOutputTestInformation withStructuralElementSLoopsSize(
+            int structuralElementSLoopsSize) {
         this.structuralElementSLoopsSize = structuralElementSLoopsSize;
         return this;
     }
 
-    public AnalysisOutputTestInformation withStructuralElementSingleStrandsSize(int structuralElementSingleStrandsSize) {
+    public AnalysisOutputTestInformation withStructuralElementSingleStrandsSize(
+            int structuralElementSingleStrandsSize) {
         this.structuralElementSingleStrandsSize = structuralElementSingleStrandsSize;
         return this;
     }
 
-    public AnalysisOutputTestInformation withStructuralElementSingleStrands5pSize(int structuralElementSingleStrands5pSize) {
+    public AnalysisOutputTestInformation withStructuralElementSingleStrands5pSize(
+            int structuralElementSingleStrands5pSize) {
         this.structuralElementSingleStrands5pSize = structuralElementSingleStrands5pSize;
         return this;
     }
 
-    public AnalysisOutputTestInformation withStructuralElementSingleStrands3pSize(int structuralElementSingleStrands3pSize) {
+    public AnalysisOutputTestInformation withStructuralElementSingleStrands3pSize(
+            int structuralElementSingleStrands3pSize) {
         this.structuralElementSingleStrands3pSize = structuralElementSingleStrands3pSize;
         return this;
     }

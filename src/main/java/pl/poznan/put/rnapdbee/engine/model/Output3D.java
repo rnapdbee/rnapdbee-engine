@@ -1,7 +1,7 @@
 package pl.poznan.put.rnapdbee.engine.model;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import pl.poznan.put.rnapdbee.engine.calculation.model.Output2D;
 
 /**

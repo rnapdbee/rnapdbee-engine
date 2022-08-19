@@ -5,9 +5,11 @@ import edu.put.rnapdbee.visualization.DrawerVarnaTz;
 import edu.put.rnapdbee.visualization.EmptyDrawer;
 import edu.put.rnapdbee.visualization.RChieDrawer;
 import edu.put.rnapdbee.visualization.SecondaryStructureDrawer;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
+
 import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
 
 import java.io.File;

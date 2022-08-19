@@ -1,6 +1,5 @@
 package pl.poznan.put.rnapdbee.engine.calculation.model;
 
-
 import java.util.List;
 
 /**

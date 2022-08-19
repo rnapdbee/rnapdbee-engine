@@ -1,9 +1,8 @@
 package pl.poznan.put.rnapdbee.engine.model;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.List;
 
+import java.util.List;
 
 /**
  * DTO class for AnalysisOutput
@@ -44,5 +43,4 @@ public class AnalysisOutput {
     public List<Other> getOther() {
         return other;
     }
-
 }

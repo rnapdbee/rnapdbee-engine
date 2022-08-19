@@ -3,14 +3,17 @@ package pl.poznan.put.rnapdbee.engine.image.logic;
 import edu.put.rnapdbee.enums.DrawerEnum;
 import edu.put.rnapdbee.enums.DrawingResult;
 import edu.put.rnapdbee.visualization.SecondaryStructureImage;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.w3c.dom.svg.SVGDocument;
+
 import pl.poznan.put.structure.formats.DotBracket;
 
-import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+
+import javax.servlet.ServletContext;
 
 /**
  * Class extending SecondaryStructureImage with svgUrl and pngUrl fields, containing URLs to PNG and SVG picture

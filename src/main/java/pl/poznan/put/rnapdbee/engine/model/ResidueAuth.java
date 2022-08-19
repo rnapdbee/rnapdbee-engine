@@ -1,6 +1,5 @@
 package pl.poznan.put.rnapdbee.engine.model;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -35,5 +34,4 @@ public class ResidueAuth {
     public String getName() {
         return name;
     }
-
 }

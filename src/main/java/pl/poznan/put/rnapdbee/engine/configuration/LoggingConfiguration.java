@@ -15,6 +15,7 @@ public class LoggingConfiguration {
     @Bean
     @Scope("prototype")
     public Logger logger(final InjectionPoint injectionPoint) {
-        return LoggerFactory.getLogger(Objects.requireNonNull(injectionPoint.getMethodParameter()).getDeclaringClass());
+        return LoggerFactory.getLogger(
+                Objects.requireNonNull(injectionPoint.getMethodParameter()).getDeclaringClass());
     }
 }

@@ -1,6 +1,5 @@
 package pl.poznan.put.rnapdbee.engine.model;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -28,5 +27,4 @@ public class ResidueLabel {
     public String getName() {
         return name;
     }
-
 }

@@ -1,6 +1,5 @@
 package pl.poznan.put.rnapdbee.engine.model;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -27,5 +26,4 @@ public class BasePhosphate {
     public BPh getBph() {
         return bph;
     }
-
 }

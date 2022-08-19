@@ -1,12 +1,10 @@
 package pl.poznan.put.rnapdbee.engine.model;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * DTO class for Stacking
  */
-
 public class Stacking {
 
     @JsonProperty("nt1")
@@ -29,5 +27,4 @@ public class Stacking {
     public StackingTopology getTopology() {
         return topology;
     }
-
 }

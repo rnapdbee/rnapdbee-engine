@@ -1,6 +1,5 @@
 package pl.poznan.put.rnapdbee.engine.model;
 
-
 /**
  * DTO enum for Structural Elements - implementation taken from rnapdbee-common StructuralElementsIdentificationModeEnum
  */

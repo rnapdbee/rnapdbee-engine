@@ -1,11 +1,9 @@
 package pl.poznan.put.rnapdbee.engine.model;
 
-
 /**
  * enum for BPh
  */
 public enum BPh {
-
     ONE("1"),
     TWO("2"),
     THREE("3"),
@@ -21,5 +19,4 @@ public enum BPh {
     BPh(String value) {
         this.value = value;
     }
-
 }

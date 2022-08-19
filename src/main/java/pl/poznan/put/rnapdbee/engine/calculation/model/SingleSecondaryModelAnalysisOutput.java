@@ -59,12 +59,14 @@ public class SingleSecondaryModelAnalysisOutput {
         return this;
     }
 
-    public SingleSecondaryModelAnalysisOutput withStructuralElement(StructuralElementOutput structuralElement) {
+    public SingleSecondaryModelAnalysisOutput withStructuralElement(
+            StructuralElementOutput structuralElement) {
         this.structuralElement = structuralElement;
         return this;
     }
 
-    public SingleSecondaryModelAnalysisOutput withImageInformation(ImageInformationOutput imageInformation) {
+    public SingleSecondaryModelAnalysisOutput withImageInformation(
+            ImageInformationOutput imageInformation) {
         this.imageInformation = imageInformation;
         return this;
     }

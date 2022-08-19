@@ -1,11 +1,9 @@
 package pl.poznan.put.rnapdbee.engine.model;
 
-
 /**
  * enum for BR
  */
 public enum BR {
-
     ONE("1"),
     TWO("2"),
     THREE("3"),

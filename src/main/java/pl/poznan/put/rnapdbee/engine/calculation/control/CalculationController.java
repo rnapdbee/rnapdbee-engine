@@ -1,6 +1,5 @@
 package pl.poznan.put.rnapdbee.engine.calculation.control;
 
-
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ContentDisposition;
@@ -12,15 +11,15 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 import pl.poznan.put.rnapdbee.engine.calculation.logic.CalculationService;
 import pl.poznan.put.rnapdbee.engine.calculation.logic.EncodingUtils;
 import pl.poznan.put.rnapdbee.engine.calculation.model.Output2D;
+import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.model.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.model.ModelSelection;
 import pl.poznan.put.rnapdbee.engine.model.NonCanonicalHandling;
 import pl.poznan.put.rnapdbee.engine.model.StructuralElementsHandling;
-import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
-
 
 /**
  * Controller class for the Calculation API.
@@ -39,27 +38,30 @@ public class CalculationController {
             @RequestParam("analysisTool") AnalysisTool analysisTool,
             @RequestParam("nonCanonicalHandling") NonCanonicalHandling nonCanonicalHandling,
             @RequestParam("removeIsolated") boolean removeIsolated,
-            @RequestParam("structuralElementsHandling") StructuralElementsHandling structuralElementsHandling,
+            @RequestParam("structuralElementsHandling")
+                    StructuralElementsHandling structuralElementsHandling,
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
             @RequestBody String content) {
         throw new UnsupportedOperationException();
     }
 
-
     @PostMapping(path = "/2d", produces = "application/json", consumes = "text/plain")
     public ResponseEntity<Output2D> calculateSecondaryToDotBracket(
-            @RequestParam("structuralElementsHandling") StructuralElementsHandling structuralElementsHandling,
+            @RequestParam("structuralElementsHandling")
+                    StructuralElementsHandling structuralElementsHandling,
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
             @RequestParam("removeIsolated") boolean removeIsolated,
             @RequestHeader("Content-Disposition") String contentDispositionHeader,
             @RequestBody String encodedContent) {
 
-        logger.info(String.format("Analysis of scenario 2D -> (...) started for content-disposition header %s",
-                contentDispositionHeader));
+        logger.info(
+                String.format(
+                        "Analysis of scenario 2D -> (...) started for content-disposition header %s",
+                        contentDispositionHeader));
         ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
         String decodedContent = EncodingUtils.decodeBase64ToString(encodedContent);
-        var outputAnalysis = calculationService
-                .handleSecondaryToDotBracketCalculation(
+        var outputAnalysis =
+                calculationService.handleSecondaryToDotBracketCalculation(
                         structuralElementsHandling,
                         visualizationTool,
                         removeIsolated,
@@ -67,7 +69,6 @@ public class CalculationController {
                         contentDisposition.getFilename());
         return new ResponseEntity<>(outputAnalysis, HttpStatus.OK);
     }
-
 
     @PostMapping(path = "/multi", produces = "application/json", consumes = "text/plain")
     public ResponseEntity<Object> calculateTertiaryToMultiSecondary(
@@ -79,7 +80,6 @@ public class CalculationController {
         throw new UnsupportedOperationException();
     }
 
-
     /**
      * Endpoint responsible for (...) -> Image analysis.
      *
@@ -90,17 +90,20 @@ public class CalculationController {
      */
     @PostMapping(path = "/image", produces = "application/json", consumes = "text/plain")
     public ResponseEntity<Output2D> calculateDotBracketToImage(
-            @RequestParam("structuralElementsHandling") StructuralElementsHandling structuralElementsHandling,
+            @RequestParam("structuralElementsHandling")
+                    StructuralElementsHandling structuralElementsHandling,
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
             @RequestHeader("Content-Disposition") String contentDispositionHeader,
             @RequestBody String encodedContent) {
 
-        logger.info(String.format("Analysis of scenario (...) -> Image started for content-disposition header %s",
-                contentDispositionHeader));
+        logger.info(
+                String.format(
+                        "Analysis of scenario (...) -> Image started for content-disposition header %s",
+                        contentDispositionHeader));
         ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
         String decodedContent = EncodingUtils.decodeBase64ToString(encodedContent);
-        var outputAnalysis = calculationService
-                .handleDotBracketToImageCalculation(
+        var outputAnalysis =
+                calculationService.handleDotBracketToImageCalculation(
                         structuralElementsHandling,
                         visualizationTool,
                         decodedContent,
