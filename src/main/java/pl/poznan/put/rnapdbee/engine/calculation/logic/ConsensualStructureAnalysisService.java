@@ -77,9 +77,9 @@ public class ConsensualStructureAnalysisService {
                     CONVERTERS,
                     includeNonCanonical ? NonCanonicalHandling.ANALYZE_VISUALIZE : NonCanonicalHandling.IGNORE,
                     removeIsolated,
-                    // TODO: restore cache (best would be using Spring mechanisms)
+                    // TODO: restore cache (best would be using Spring mechanisms) -> do with embedding of common codebase
                     new ParserCacheImpl(),
-                    // TODO: restore cache (best would be using Spring mechanisms)
+                    // TODO: restore cache (best would be using Spring mechanisms) -> do with embedding of common codebase
                     new AnalyzerCacheImpl(),
                     // TODO: ugly solution, but later will be better when rnapdbee-common code is embedded into engine
                     edu.put.rnapdbee.enums.ModelSelection.valueOf(modelSelection.toString()),
@@ -111,6 +111,8 @@ public class ConsensualStructureAnalysisService {
                             parameters, bpSeqInfo, imageUrls, image, svgUrl, pngUrl, bpSeqInfo.getTitle()));*/
         }
 
+        // TODO: after the analysis is working (represented pairs are now not calculated properly),
+        //  adjust the OutputMulti class with needed properties and populate it instead of returning an empty object.
         return new OutputMulti();
     }
 }
