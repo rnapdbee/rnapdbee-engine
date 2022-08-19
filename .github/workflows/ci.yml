@@ -12,47 +12,44 @@ on:
   workflow_dispatch:
 
 jobs:
-#  build:
-#    runs-on: ubuntu-20.04
-#    steps:
-#      - uses: actions/checkout@v3
-#
-#      - name: Set up JDK 11
-#        uses: actions/setup-java@v3
-#        with:
-#          java-version: '11'
-#          distribution: 'adopt'
-#          cache: maven
-#
-#      - name: Build with Maven
-#        run: mvn -B install -DskipTests
-#
-#      - name: Validate, build and run tests
-#        run: |
-#          mvn test
-#          mvn --batch-mode --update-snapshots verify
-#
-#      - name: Upload package
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: rnapdbee-engine-package
-#          path: ./target/*.jar
-#          retention-days: 5
-#
-#      - name: Docker Build
-#        run: DOCKER_BUILDKIT=1 docker-compose up -d
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          cache: maven
+
+      - name: Build with Maven
+        run: mvn -B install -DskipTests
+
+      - name: Validate, build and run tests
+        run: |
+          mvn test
+          mvn --batch-mode --update-snapshots verify
+
+      - name: Upload package
+        uses: actions/upload-artifact@v3
+        with:
+          name: rnapdbee-engine-package
+          path: ./target/*.jar
+          retention-days: 5
+
+      - name: Docker Build
+        run: DOCKER_BUILDKIT=1 docker-compose up -d
 
   lint:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
 
       - name: Lint Code Base
         uses: axel-op/googlejavaformat-action@v3
         with:
-#          skipCommit: true
-          args: "--skip-reflowing-long-strings --skip-javadoc-formatting --aosp --replace"
+          skipCommit: true
+          args: "--set-exit-if-changed --skip-reflowing-long-strings --skip-javadoc-formatting --aosp"
           version: v1.15.0
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
