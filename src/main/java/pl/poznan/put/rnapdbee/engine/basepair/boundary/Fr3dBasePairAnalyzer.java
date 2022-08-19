@@ -6,14 +6,13 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class MCAnnotateBasePairAnalyzer extends RNApdbeeAdapterBasePairAnalyzer {
+public class Fr3dBasePairAnalyzer extends RNApdbeeAdapterBasePairAnalyzer {
 
     @Autowired
-    public MCAnnotateBasePairAnalyzer(@Value("${rnapdbee.adapters.global.mcannotate.path}")
-                                      String pathToMCAnnotateAdapter) {
+    public Fr3dBasePairAnalyzer(@Value("${rnapdbee.adapters.global.fr3d.path}")
+                                String pathToMCAnnotateAdapter) {
         this.adapterURI = pathToMCAnnotateAdapter;
     }
 }
