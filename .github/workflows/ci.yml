@@ -51,5 +51,5 @@ jobs:
         uses: axel-op/googlejavaformat-action@v3
         with:
           skipCommit: true
-          args: "--set-exit-if-changed --skip-reflowing-long-strings --skip-javadoc-formatting --aosp"
+          args: "--set-exit-if-changed --skip-reflowing-long-strings --skip-javadoc-formatting --aosp -n"
           version: v1.15.0
