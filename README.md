@@ -16,4 +16,6 @@ mvn clean install
 docker compose up
 ```
 
-
+## Documentation
+When the project is working auto generated swagger endpoint documentation is available at the
+following [LINK](http://localhost:8081/swagger-ui.html).
