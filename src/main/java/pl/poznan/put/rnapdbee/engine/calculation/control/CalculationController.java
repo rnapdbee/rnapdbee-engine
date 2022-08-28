@@ -1,6 +1,7 @@
 package pl.poznan.put.rnapdbee.engine.calculation.control;
 
 
+import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ContentDisposition;
@@ -15,11 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.poznan.put.rnapdbee.engine.calculation.logic.CalculationService;
 import pl.poznan.put.rnapdbee.engine.calculation.logic.EncodingUtils;
 import pl.poznan.put.rnapdbee.engine.calculation.model.Output2D;
+import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.model.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.model.ModelSelection;
 import pl.poznan.put.rnapdbee.engine.model.NonCanonicalHandling;
 import pl.poznan.put.rnapdbee.engine.model.StructuralElementsHandling;
-import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
 
 
 /**
@@ -33,6 +34,13 @@ public class CalculationController {
 
     private final CalculationService calculationService;
 
+    @Autowired
+    private CalculationController(CalculationService calculationService, Logger logger) {
+        this.calculationService = calculationService;
+        this.logger = logger;
+    }
+
+    @Operation(summary = "Perform a 3D to Dot-Bracket calculation")
     @PostMapping(path = "/3d", produces = "application/json", consumes = "text/plain")
     public ResponseEntity<Object> calculateTertiaryToDotBracket(
             @RequestParam("modelSelection") ModelSelection modelSelection,
@@ -45,7 +53,7 @@ public class CalculationController {
         throw new UnsupportedOperationException();
     }
 
-
+    @Operation(summary = "Perform a 2D to Dot-Bracket calculation")
     @PostMapping(path = "/2d", produces = "application/json", consumes = "text/plain")
     public ResponseEntity<Output2D> calculateSecondaryToDotBracket(
             @RequestParam("structuralElementsHandling") StructuralElementsHandling structuralElementsHandling,
@@ -68,7 +76,7 @@ public class CalculationController {
         return new ResponseEntity<>(outputAnalysis, HttpStatus.OK);
     }
 
-
+    @Operation(summary = "Perform a 3D to multi 2D calculation")
     @PostMapping(path = "/multi", produces = "application/json", consumes = "text/plain")
     public ResponseEntity<Object> calculateTertiaryToMultiSecondary(
             @RequestParam("modelSelection") ModelSelection modelSelection,
@@ -79,7 +87,6 @@ public class CalculationController {
         throw new UnsupportedOperationException();
     }
 
-
     /**
      * Endpoint responsible for (...) -> Image analysis.
      *
@@ -88,6 +95,7 @@ public class CalculationController {
      * @param encodedContent             base64 encoded content of the uploaded file
      * @return wrapped in an object list of image outputs
      */
+    @Operation(summary = "Perform a Dot-Bracket to Image calculation")
     @PostMapping(path = "/image", produces = "application/json", consumes = "text/plain")
     public ResponseEntity<Output2D> calculateDotBracketToImage(
             @RequestParam("structuralElementsHandling") StructuralElementsHandling structuralElementsHandling,
@@ -106,11 +114,5 @@ public class CalculationController {
                         decodedContent,
                         contentDisposition.getFilename());
         return new ResponseEntity<>(outputAnalysis, HttpStatus.OK);
-    }
-
-    @Autowired
-    private CalculationController(CalculationService calculationService, Logger logger) {
-        this.calculationService = calculationService;
-        this.logger = logger;
     }
 }
