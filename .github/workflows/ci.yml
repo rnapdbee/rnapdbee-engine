@@ -33,11 +33,12 @@ jobs:
           mvn --batch-mode --update-snapshots verify
 
       - name: Upload package
+        if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
         uses: actions/upload-artifact@v3
         with:
           name: rnapdbee-engine-package
           path: ./target/*.jar
-          retention-days: 5
+          retention-days: 2
 
       - name: Docker Build
         run: DOCKER_BUILDKIT=1 docker-compose up -d
