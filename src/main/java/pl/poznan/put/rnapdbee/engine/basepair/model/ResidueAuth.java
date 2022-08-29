@@ -2,12 +2,11 @@ package pl.poznan.put.rnapdbee.engine.basepair.model;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import pl.poznan.put.pdb.PdbNamedResidueIdentifier;
 
 /**
  * DTO class for ResidueAuth
  */
-public class ResidueAuth extends PdbNamedResidueIdentifier {
+public class ResidueAuth {
 
     @JsonProperty("chain")
     private String chainIdentifier;
@@ -35,25 +34,5 @@ public class ResidueAuth extends PdbNamedResidueIdentifier {
 
     public String getName() {
         return name;
-    }
-
-    @Override
-    public String chainIdentifier() {
-        return chainIdentifier;
-    }
-
-    @Override
-    public int residueNumber() {
-        return residueNumber;
-    }
-
-    @Override
-    public String insertionCode() {
-        return insertionCode == null ? " " : insertionCode;
-    }
-
-    @Override
-    public char oneLetterName() {
-        return name.charAt(0);
     }
 }
