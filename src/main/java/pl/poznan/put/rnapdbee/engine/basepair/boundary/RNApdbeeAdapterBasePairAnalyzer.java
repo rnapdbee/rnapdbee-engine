@@ -3,6 +3,7 @@ package pl.poznan.put.rnapdbee.engine.basepair.boundary;
 import edu.put.rnapdbee.analysis.AnalysisResult;
 import edu.put.rnapdbee.analysis.BasePairAnalyzer;
 import edu.put.rnapdbee.analysis.TertiaryAnalysisResult;
+import edu.put.rnapdbee.analysis.multiplet.MultipletSet;
 import edu.put.rnapdbee.enums.InputType;
 import edu.put.rnapdbee.enums.NonCanonicalHandling;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import pl.poznan.put.notation.BPh;
 import pl.poznan.put.notation.BR;
 import pl.poznan.put.notation.LeontisWesthof;
 import pl.poznan.put.notation.Saenger;
+import pl.poznan.put.pdb.PdbNamedResidueIdentifier;
 import pl.poznan.put.pdb.PdbParsingException;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rna.InteractionType;
@@ -21,9 +23,11 @@ import pl.poznan.put.rnapdbee.engine.basepair.model.AdaptersAnalysisDTO;
 import pl.poznan.put.structure.AnalyzedBasePair;
 import pl.poznan.put.structure.ImmutableAnalyzedBasePair;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -57,17 +61,21 @@ public abstract class RNApdbeeAdapterBasePairAnalyzer implements BasePairAnalyze
     /**
      * performs post analysis on response from adapter.
      * Separates response into canonical, nonCanonical, stackings, basePhosphate, baseRibose, otherInteractions,
-     * interStrand and represented lists of base pairs.
+     * and interStrand lists of base pairs.
      *
-     * TODO: clarify how to retrieve represented and messages.
-     * @param responseFromAdapter   response from the adapter
-     * @param nonCanonicalHandling  enum specifying how should nonCanonical pairs be handled
-     * @return  {@link AnalysisResult} TertiaryAnalysisResult object with populated pairs lists.
+     * Calculates represented list of base pairs.
+     * Calculates messages list.
+     *
+     * @param responseFromAdapter  response from the adapter
+     * @param nonCanonicalHandling enum specifying how should nonCanonical pairs be handled
+     * @return {@link AnalysisResult} TertiaryAnalysisResult object with populated pairs lists.
      */
     private AnalysisResult performPostAnalysisOnResponseFromAdapter(AdaptersAnalysisDTO responseFromAdapter,
                                                                     NonCanonicalHandling nonCanonicalHandling) {
-        List<AnalyzedBasePair> canonical = responseFromAdapter.getBasePairs().stream().filter(basePair -> basePair.getSaenger().isCanonical())
-                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.BASE_BASE)
+        List<AnalyzedBasePair> canonical = responseFromAdapter.getBasePairs().stream()
+                .filter(basePair -> basePair.getSaenger().isCanonical())
+                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair)
+                        .withInteractionType(InteractionType.BASE_BASE)
                         .withSaenger(basePair.getSaenger())
                         .withLeontisWesthof(basePair.getLeontisWesthof())
                         .withBph(BPh.UNKNOWN)
@@ -110,26 +118,16 @@ public abstract class RNApdbeeAdapterBasePairAnalyzer implements BasePairAnalyze
                         .withBr(BR.UNKNOWN))
                 .filter(basePair -> !basePair.basePair().left().chainIdentifier().equals(basePair.basePair().right().chainIdentifier()))
                 .collect(Collectors.toList());
-        List<String> messages = Collections.emptyList();
+        List<AnalyzedBasePair> represented = determineRepresentedPairs(canonical, nonCanonical, nonCanonicalHandling);
 
-        //List<AnalyzedBasePair> represented =  Collections.emptyList();
-        /*Map<PdbNamedResidueIdentifier, PdbNamedResidueIdentifier> uniqueBasePairs = new HashMap<>();
-        Stream.of(canonical, nonCanonical, stackings, basePhosphate, baseRibose, otherInteractions)
-                .flatMap(Collection::stream)
-                .flatMap(analyzedBasePair -> Stream.of(analyzedBasePair.basePair(), analyzedBasePair.basePair().invert()))
-                .forEach(analyzedBasePair -> uniqueBasePairs.put(analyzedBasePair.left(), analyzedBasePair.right()));*/
-        // TODO: this is wrong. With this approach, in further analysis there is pair 0 - 0, which throws an error
-        //  inside bioCommons method. Change approach when calculation of represented list is clarified.
-        List<AnalyzedBasePair> represented =
-                nonCanonicalHandling == NonCanonicalHandling.IGNORE
-                        ?
-                        Stream.of(canonical, stackings, basePhosphate, baseRibose, otherInteractions)
-                                .flatMap(Collection::stream)
-                                .collect(Collectors.toList())
-                        :
-                        Stream.of(canonical, nonCanonical, stackings, basePhosphate, baseRibose, otherInteractions)
-                                .flatMap(Collection::stream)
-                                .collect(Collectors.toList());
+        final Iterable<AnalyzedBasePair> allBasePairs =
+                (nonCanonicalHandling == NonCanonicalHandling.ANALYZE_VISUALIZE
+                        ? Stream.of(canonical, nonCanonical, stackings, basePhosphate, baseRibose, otherInteractions)
+                        : Stream.of(canonical, stackings, basePhosphate, baseRibose, otherInteractions)
+                )
+                        .flatMap(Collection::stream)
+                        .collect(Collectors.toList());
+        List<String> messages = (new MultipletSet(allBasePairs)).generateMessages();
 
         return new TertiaryAnalysisResult(
                 nonCanonicalHandling,
@@ -162,21 +160,29 @@ public abstract class RNApdbeeAdapterBasePairAnalyzer implements BasePairAnalyze
                 .block();
     }
 
+    private List<AnalyzedBasePair> determineRepresentedPairs(List<AnalyzedBasePair> canonicalPairs,
+                                                             List<AnalyzedBasePair> nonCanonicalPairs,
+                                                             NonCanonicalHandling nonCanonicalHandling) {
+        List<AnalyzedBasePair> pairsClassifiedAsRepresented = new ArrayList<>();
+        final HashSet<PdbNamedResidueIdentifier> classifiedNucleotides = new HashSet<>();
 
-    /*
-    TODO: For represented, we need to have this behaviour: (copied from common)
-    private List<AnalyzedBasePair> remapBasePairsToClassified() {
-        final Map<BasePair, AnalyzedBasePair> pairClassification = new HashMap<>();
-        for (final AnalyzedBasePair classifiedBasePair : anyBasePair) {
-            final BasePair basePair = classifiedBasePair.basePair();
-            pairClassification.put(basePair, classifiedBasePair);
-            pairClassification.put(basePair.invert(), (AnalyzedBasePair) classifiedBasePair.invert());
+        Consumer<AnalyzedBasePair> classifyBasePair = pair -> {
+            if (!classifiedNucleotides.contains(pair.basePair().left()) &&
+                    !classifiedNucleotides.contains(pair.basePair().right())) {
+                pairsClassifiedAsRepresented.add(pair);
+                /*
+                TODO: ask if this should stay (2.0 version has inverted pairs, however it probably does not matter)
+                pairsClassifiedAsRepresented.add((AnalyzedBasePair) pair.invert());
+                 */
+                classifiedNucleotides.add(pair.basePair().left());
+                classifiedNucleotides.add(pair.basePair().right());
+            }
+        };
+
+        canonicalPairs.forEach(classifyBasePair);
+        if (nonCanonicalHandling == NonCanonicalHandling.ANALYZE_VISUALIZE) {
+            nonCanonicalPairs.forEach(classifyBasePair);
         }
-
-        return mapBasePairs.entrySet().stream()
-                .map(entry -> ImmutableBasePair.of(entry.getKey(), entry.getValue()))
-                .map(pairClassification::get)
-                .collect(Collectors.toList());
+        return pairsClassifiedAsRepresented;
     }
-    */
 }

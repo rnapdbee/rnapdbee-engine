@@ -3,6 +3,7 @@ package pl.poznan.put.rnapdbee.engine.basepair.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import pl.poznan.put.notation.LeontisWesthof;
 import pl.poznan.put.notation.Saenger;
+import pl.poznan.put.pdb.ImmutablePdbNamedResidueIdentifier;
 import pl.poznan.put.pdb.PdbNamedResidueIdentifier;
 import pl.poznan.put.structure.BasePair;
 
@@ -64,16 +65,26 @@ public class BasePairDTO extends BasePair {
 
     @Override
     public PdbNamedResidueIdentifier left() {
-        return nt1.getAuth() != null
-                ? nt1.getAuth()
-                : nt1.getLabel();
+        return mapResidueToPdbNamedResidueIdentifier(nt1);
     }
-
+    
     @Override
     public PdbNamedResidueIdentifier right() {
-        return nt2.getAuth() != null
-                ? nt2.getAuth()
-                : nt2.getLabel();
+        return mapResidueToPdbNamedResidueIdentifier(nt2);
+    }
+
+    private PdbNamedResidueIdentifier mapResidueToPdbNamedResidueIdentifier(Residue residue) {
+        return residue.getAuth() != null
+                ? ImmutablePdbNamedResidueIdentifier.of(
+                residue.getAuth().getChainIdentifier(),
+                residue.getAuth().getResidueNumber(),
+                residue.getAuth().getInsertionCode() != null ? residue.getAuth().getInsertionCode() : " ",
+                residue.getAuth().getName().charAt(0))
+                : ImmutablePdbNamedResidueIdentifier.of(
+                residue.getLabel().getChainIdentifier(),
+                residue.getLabel().getResidueNumber(),
+                " ",
+                residue.getLabel().getName().charAt(0));
     }
 }
 
