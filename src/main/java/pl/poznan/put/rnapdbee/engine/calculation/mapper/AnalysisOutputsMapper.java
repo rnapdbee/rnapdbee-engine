@@ -33,6 +33,26 @@ public class AnalysisOutputsMapper {
                 .withAnalysis(singleAnalysisOutputs);
     }
 
+    public List<String> mapBpSeqToListOfString(BpSeq bpSeq) {
+        return bpSeq.entries().stream()
+                .map(BpSeq.Entry::toString)
+                .collect(Collectors.toList());
+    }
+
+    public List<String> mapCtToListOfString(Ct ct) {
+        return ct.entries().stream()
+                .map(Ct.ExtendedEntry::toString)
+                .collect(Collectors.toList());
+    }
+
+    public ImageInformationOutput mapSecondaryStructureImageIntoImageInformationOutput(SecondaryStructureImage image) {
+        return new ImageInformationOutput()
+                .withSuccessfulDrawer(image.getSuccessfulDrawer())
+                .withFailedDrawer(image.getFailedDrawer())
+                .withPathToPNGImage(image.getPngUrl())
+                .withPathToSVGImage(image.getSvgUrl());
+    }
+
     /**
      * Maps {@link AnalysisOutput} into {@link SingleSecondaryModelAnalysisOutput}
      *
@@ -40,18 +60,12 @@ public class AnalysisOutputsMapper {
      */
     private SingleSecondaryModelAnalysisOutput mapSingleAnalysisOutputToSecondaryModelAnalysisOutput(AnalysisOutput analysisOutput) {
         return new SingleSecondaryModelAnalysisOutput()
-                .withBpSeq(analysisOutput
-                        .bpSeq().entries().stream()
-                        .map(BpSeq.Entry::toString)
-                        .collect(Collectors.toList()))
+                .withBpSeq(mapBpSeqToListOfString(analysisOutput.bpSeq()))
                 .withStrands(analysisOutput
                         .dotBracket().strands().stream()
                         .map(this::mapStrandIntoSingleStrandOutput)
                         .collect(Collectors.toList()))
-                .withCt(analysisOutput
-                        .ct().entries().stream()
-                        .map(Ct.ExtendedEntry::toString)
-                        .collect(Collectors.toList()))
+                .withCt(mapCtToListOfString(analysisOutput.ct()))
                 .withInteractions(analysisOutput
                         .getInterStrand().stream()
                         .map(interStrand -> interStrand.basePair().toString())
@@ -81,13 +95,5 @@ public class AnalysisOutputsMapper {
                         .map(StructuralElement::toString).collect(Collectors.toList()))
                 .withSingleStrands3p(structuralElementFinder.getSingleStrands3p().stream()
                         .map(StructuralElement::toString).collect(Collectors.toList()));
-    }
-
-    private ImageInformationOutput mapSecondaryStructureImageIntoImageInformationOutput(SecondaryStructureImage image) {
-        return new ImageInformationOutput()
-                .withSuccessfulDrawer(image.getSuccessfulDrawer())
-                .withFailedDrawer(image.getFailedDrawer())
-                .withPathToPNGImage(image.getPngUrl())
-                .withPathToSVGImage(image.getSvgUrl());
     }
 }

@@ -18,9 +18,13 @@ import pl.poznan.put.consensus.BpSeqInfo;
 import pl.poznan.put.consensus.ConsensusInput;
 import pl.poznan.put.consensus.ConsensusOutput;
 import pl.poznan.put.rnapdbee.engine.basepair.boundary.MCAnnotateBasePairAnalyzer;
+import pl.poznan.put.rnapdbee.engine.calculation.mapper.AnalysisOutputsMapper;
+import pl.poznan.put.rnapdbee.engine.calculation.model.Output2D;
+import pl.poznan.put.rnapdbee.engine.calculation.model.SingleSecondaryModelAnalysisOutput;
 import pl.poznan.put.rnapdbee.engine.image.logic.ImageService;
 import pl.poznan.put.rnapdbee.engine.image.logic.ImageUtils;
 import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
+import pl.poznan.put.rnapdbee.engine.model.ConsensusVisualization;
 import pl.poznan.put.rnapdbee.engine.model.ModelSelection;
 import pl.poznan.put.rnapdbee.engine.model.OutputMulti;
 import pl.poznan.put.rnapdbee.engine.model.OutputMultiEntry;
@@ -28,9 +32,10 @@ import pl.poznan.put.structure.formats.DotBracket;
 
 import javax.servlet.ServletContext;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Component
 public class ConsensusStructureAnalysisService {
@@ -38,8 +43,9 @@ public class ConsensusStructureAnalysisService {
     @Autowired
     private ImageService imageService;
 
+
     @Autowired
-    private BasePairAnalyserLoader basePairAnalyserLoader;
+    private AnalysisOutputsMapper analysisOutputsMapper;
 
     @Autowired
     private ApplicationContext context;
@@ -47,12 +53,8 @@ public class ConsensusStructureAnalysisService {
     @Autowired
     private ServletContext servletContext;
 
-    // TODO: when embedding RNAPDBEE-common code, replace with calls to rnapdbee-adapters
-    List<BasePairAnalyzerEnum> basePairAnalyzers = List.of(BasePairAnalyzerEnum.RNAVIEW, BasePairAnalyzerEnum.MCANNOTATE,
-            BasePairAnalyzerEnum.DSSR, BasePairAnalyzerEnum.FR3D);
-
     // TODO: replace converter method with Mixed-Integer Linear Programming (separate Task)
-    final List<ConverterEnum> CONVERTERS = List.of(ConverterEnum.DPNEW, ConverterEnum.EG);
+    final static List<ConverterEnum> CONVERTERS = List.of(ConverterEnum.DPNEW);
 
     public OutputMulti analyse(ModelSelection modelSelection,
                                boolean includeNonCanonical,
@@ -60,16 +62,20 @@ public class ConsensusStructureAnalysisService {
                                VisualizationTool visualizationTool,
                                String filename,
                                String content) {
-        // TODO: when incorporating adapters into engine, this should be done using rnapdbee-adapters.
         final Collection<Pair<BasePairAnalyzerEnum, BasePairAnalyzer>> analyzerPairs =
-               /* basePairAnalyzers.stream().map(analyzerEnum -> {
-                    try {
-                        return Pair.of(analyzerEnum, basePairAnalyserLoader.loadBasePairAnalyzer(analyzerEnum, false));
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }).collect(Collectors.toList());*/
-                List.of(Pair.of(BasePairAnalyzerEnum.MCANNOTATE, context.getBean(MCAnnotateBasePairAnalyzer.class)));
+                List.of(
+                        Pair.of(BasePairAnalyzerEnum.MCANNOTATE, context.getBean(MCAnnotateBasePairAnalyzer.class))
+                        // TODO: fr3d is not always working - saengers are null
+                        // Pair.of(BasePairAnalyzerEnum.FR3D, context.getBean(Fr3dBasePairAnalyzer.class)),
+                        // TODO: assuming DSSR means barnaba ->
+                        //  must to be refactored when common code is joined with engine's code
+                        // TODO: fr3d is not always working - saengers are null
+                        // Pair.of(BasePairAnalyzerEnum.DSSR, context.getBean(BarnabaBasePairAnalyzer.class))
+                        // TODO: assuming RNAVIEW means BPNet ->
+                        //  must to be refactored when common code is joined with engine's code
+                        // bpnet throws 500 for example4, commented out for now
+                        //Pair.of(BasePairAnalyzerEnum.RNAVIEW, context.getBean(BPNetBasePairAnalyzer.class))
+                );
 
         final Pair<ConsensusInput, ConsensusOutput> consensus;
         try {
@@ -97,34 +103,36 @@ public class ConsensusStructureAnalysisService {
         final int size = svgDocuments.size();
         assert bpSeqInfos.size() == svgDocuments.size();
 
-        final List<OutputMultiEntry> results = new ArrayList<>(size);
-        for (int i = 0; i < size; i++) {
-            // 2.0 version has multiple dotBrackets -> assuming we will have only one (thanks to usage of MILP algorithm)
-            /*
-            final BpSeqInfo bpSeqInfo = bpSeqInfos.get(i);
-            final Set<DotBracket> dotBrackets = bpSeqInfo.uniqueDotBrackets().keySet();
-            final List<SecondaryStructureImage> imageUrls = new ArrayList<>(dotBrackets.size());
-            for (final DotBracket dotBracket : dotBrackets) {
-                imageUrls.add(imageService.provideVisualization(visualizationTool, dotBracket));
-            }
-            */
-            final DotBracket dotBracket = bpSeqInfos.get(i).uniqueDotBrackets().keySet()
-                    .stream().findFirst()
-                    .orElseThrow(RuntimeException::new);
-            final SecondaryStructureImage secondaryVisualization = imageService.provideVisualization(visualizationTool, dotBracket);
+        List<OutputMultiEntry> outputMultiEntryList = IntStream
+                .range(0, size)
+                .mapToObj(i -> {
+                    final BpSeqInfo bpSeqInfo = bpSeqInfos.get(i);
+                    final DotBracket dotBracket = bpSeqInfo.uniqueDotBrackets().keySet()
+                            .stream().findFirst()
+                            .orElseThrow(RuntimeException::new);
+                    final SecondaryStructureImage secondaryVisualization = imageService.provideVisualization(visualizationTool, dotBracket);
 
-            final SVGDocument consensusImage = svgDocuments.get(i);
-            final String svgConsensusVisualizationUrl = getSvgUrl(servletContext, consensusImage);
-            final String pngConsensusVisualizationUrl = getPngUrl(servletContext, consensusImage);
+                    final SVGDocument consensusImage = svgDocuments.get(i);
+                    final String svgConsensusVisualizationUrl = getSvgUrl(servletContext, consensusImage);
+                    final String pngConsensusVisualizationUrl = getPngUrl(servletContext, consensusImage);
 
-            /*results.add(
-                    new ConsensusResult(
-                            parameters, bpSeqInfo, imageUrls, image, svgUrl, pngUrl, bpSeqInfo.getTitle()));*/
-        }
+                    SingleSecondaryModelAnalysisOutput secondaryAnalysisOutput = new SingleSecondaryModelAnalysisOutput()
+                            .withBpSeq(analysisOutputsMapper.mapBpSeqToListOfString(bpSeqInfo.getBpSeq()))
+                            .withCt(analysisOutputsMapper.mapCtToListOfString(bpSeqInfo.getCt()))
+                            .withImageInformation(analysisOutputsMapper.mapSecondaryStructureImageIntoImageInformationOutput(secondaryVisualization));
+                    Output2D output2D = new Output2D()
+                            .withAnalysis(List.of(secondaryAnalysisOutput));
+                    ConsensusVisualization consensusVisualization =
+                            new ConsensusVisualization(pngConsensusVisualizationUrl, svgConsensusVisualizationUrl);
 
-        // TODO: after the analysis is working (represented pairs are now not calculated properly),
-        //  adjust the OutputMulti class with needed properties and populate it instead of returning an empty object.
-        return new OutputMulti();
+                    return new OutputMultiEntry()
+                            .withOutput2D(output2D)
+                            .withConsensusVisualization(consensusVisualization);
+                })
+                .collect(Collectors.toList());
+
+        return new OutputMulti()
+                .withEntries(outputMultiEntryList);
     }
 
     private String getSvgUrl(ServletContext servletContext, SVGDocument image) {

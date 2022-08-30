@@ -22,4 +22,14 @@ public class OutputMultiEntry {
     public ConsensusVisualization getConsensusVisualization() {
         return consensusVisualization;
     }
+
+    public OutputMultiEntry withOutput2D(Output2D output2D) {
+        this.output2D = output2D;
+        return this;
+    }
+
+    public OutputMultiEntry withConsensusVisualization(ConsensusVisualization consensusVisualization) {
+        this.consensusVisualization = consensusVisualization;
+        return this;
+    }
 }
