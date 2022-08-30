@@ -40,18 +40,13 @@ import java.util.stream.IntStream;
 @Component
 public class ConsensusStructureAnalysisService {
 
-    @Autowired
-    private ImageService imageService;
+    private final ImageService imageService;
 
+    private final AnalysisOutputsMapper analysisOutputsMapper;
 
-    @Autowired
-    private AnalysisOutputsMapper analysisOutputsMapper;
+    private final ApplicationContext context;
 
-    @Autowired
-    private ApplicationContext context;
-
-    @Autowired
-    private ServletContext servletContext;
+    private final ServletContext servletContext;
 
     // TODO: replace converter method with Mixed-Integer Linear Programming (separate Task)
     final static List<ConverterEnum> CONVERTERS = List.of(ConverterEnum.DPNEW);
@@ -105,34 +100,41 @@ public class ConsensusStructureAnalysisService {
 
         List<OutputMultiEntry> outputMultiEntryList = IntStream
                 .range(0, size)
-                .mapToObj(i -> {
-                    final BpSeqInfo bpSeqInfo = bpSeqInfos.get(i);
-                    final DotBracket dotBracket = bpSeqInfo.uniqueDotBrackets().keySet()
-                            .stream().findFirst()
-                            .orElseThrow(RuntimeException::new);
-                    final SecondaryStructureImage secondaryVisualization = imageService.provideVisualization(visualizationTool, dotBracket);
-
-                    final SVGDocument consensusImage = svgDocuments.get(i);
-                    final String svgConsensusVisualizationUrl = getSvgUrl(servletContext, consensusImage);
-                    final String pngConsensusVisualizationUrl = getPngUrl(servletContext, consensusImage);
-
-                    SingleSecondaryModelAnalysisOutput secondaryAnalysisOutput = new SingleSecondaryModelAnalysisOutput()
-                            .withBpSeq(analysisOutputsMapper.mapBpSeqToListOfString(bpSeqInfo.getBpSeq()))
-                            .withCt(analysisOutputsMapper.mapCtToListOfString(bpSeqInfo.getCt()))
-                            .withImageInformation(analysisOutputsMapper.mapSecondaryStructureImageIntoImageInformationOutput(secondaryVisualization));
-                    Output2D output2D = new Output2D()
-                            .withAnalysis(List.of(secondaryAnalysisOutput));
-                    ConsensusVisualization consensusVisualization =
-                            new ConsensusVisualization(pngConsensusVisualizationUrl, svgConsensusVisualizationUrl);
-
-                    return new OutputMultiEntry()
-                            .withOutput2D(output2D)
-                            .withConsensusVisualization(consensusVisualization);
-                })
+                .mapToObj(i -> mapBpSeqInfoAndConsensusImageIntoOutputMultiEntry(
+                        visualizationTool,
+                        bpSeqInfos.get(i),
+                        svgDocuments.get(i)))
                 .collect(Collectors.toList());
 
         return new OutputMulti()
                 .withEntries(outputMultiEntryList);
+    }
+
+    private OutputMultiEntry mapBpSeqInfoAndConsensusImageIntoOutputMultiEntry(VisualizationTool visualizationTool,
+                                                                               BpSeqInfo bpSeqInfo,
+                                                                               SVGDocument consensusImage) {
+        // TODO: using findFirst, because in future implementation using MILP the bpSeqInfo will only contain 1 dotBracket
+        //  object, refactor when rnapdbee-common code is merged with the engine's code
+        final DotBracket dotBracket = bpSeqInfo.uniqueDotBrackets().keySet()
+                .stream().findFirst()
+                .orElseThrow(RuntimeException::new);
+        final SecondaryStructureImage secondaryVisualization = imageService.provideVisualization(visualizationTool, dotBracket);
+
+        final String svgConsensusVisualizationUrl = getSvgUrl(servletContext, consensusImage);
+        final String pngConsensusVisualizationUrl = getPngUrl(servletContext, consensusImage);
+
+        SingleSecondaryModelAnalysisOutput secondaryAnalysisOutput = new SingleSecondaryModelAnalysisOutput()
+                .withBpSeq(analysisOutputsMapper.mapBpSeqToListOfString(bpSeqInfo.getBpSeq()))
+                .withCt(analysisOutputsMapper.mapCtToListOfString(bpSeqInfo.getCt()))
+                .withImageInformation(analysisOutputsMapper.mapSecondaryStructureImageIntoImageInformationOutput(secondaryVisualization));
+        Output2D output2D = new Output2D()
+                .withAnalysis(List.of(secondaryAnalysisOutput));
+        ConsensusVisualization consensusVisualization =
+                new ConsensusVisualization(pngConsensusVisualizationUrl, svgConsensusVisualizationUrl);
+
+        return new OutputMultiEntry()
+                .withOutput2D(output2D)
+                .withConsensusVisualization(consensusVisualization);
     }
 
     private String getSvgUrl(ServletContext servletContext, SVGDocument image) {
@@ -149,5 +151,13 @@ public class ConsensusStructureAnalysisService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Autowired
+    public ConsensusStructureAnalysisService(ImageService imageService, AnalysisOutputsMapper analysisOutputsMapper, ApplicationContext context, ServletContext servletContext) {
+        this.imageService = imageService;
+        this.analysisOutputsMapper = analysisOutputsMapper;
+        this.context = context;
+        this.servletContext = servletContext;
     }
 }
