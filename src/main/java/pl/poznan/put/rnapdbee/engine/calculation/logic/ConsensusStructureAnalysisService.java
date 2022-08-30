@@ -19,29 +19,33 @@ import pl.poznan.put.consensus.ConsensusInput;
 import pl.poznan.put.consensus.ConsensusOutput;
 import pl.poznan.put.rnapdbee.engine.basepair.boundary.MCAnnotateBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.image.logic.ImageService;
+import pl.poznan.put.rnapdbee.engine.image.logic.ImageUtils;
 import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.model.ModelSelection;
 import pl.poznan.put.rnapdbee.engine.model.OutputMulti;
 import pl.poznan.put.rnapdbee.engine.model.OutputMultiEntry;
 import pl.poznan.put.structure.formats.DotBracket;
 
+import javax.servlet.ServletContext;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 @Component
-public class ConsensualStructureAnalysisService {
+public class ConsensusStructureAnalysisService {
 
     @Autowired
-    ImageService imageService;
+    private ImageService imageService;
 
     @Autowired
-    BasePairAnalyserLoader basePairAnalyserLoader;
+    private BasePairAnalyserLoader basePairAnalyserLoader;
 
     @Autowired
     private ApplicationContext context;
+
+    @Autowired
+    private ServletContext servletContext;
 
     // TODO: when embedding RNAPDBEE-common code, replace with calls to rnapdbee-adapters
     List<BasePairAnalyzerEnum> basePairAnalyzers = List.of(BasePairAnalyzerEnum.RNAVIEW, BasePairAnalyzerEnum.MCANNOTATE,
@@ -95,16 +99,23 @@ public class ConsensualStructureAnalysisService {
 
         final List<OutputMultiEntry> results = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            // probably not needed
-            /* final ConsensusParameters parameters = new ConsensusParameters();
-            parameters.copy(formData.getParameters()); */
+            // 2.0 version has multiple dotBrackets -> assuming we will have only one (thanks to usage of MILP algorithm)
+            /*
             final BpSeqInfo bpSeqInfo = bpSeqInfos.get(i);
-
             final Set<DotBracket> dotBrackets = bpSeqInfo.uniqueDotBrackets().keySet();
             final List<SecondaryStructureImage> imageUrls = new ArrayList<>(dotBrackets.size());
             for (final DotBracket dotBracket : dotBrackets) {
                 imageUrls.add(imageService.provideVisualization(visualizationTool, dotBracket));
             }
+            */
+            final DotBracket dotBracket = bpSeqInfos.get(i).uniqueDotBrackets().keySet()
+                    .stream().findFirst()
+                    .orElseThrow(RuntimeException::new);
+            final SecondaryStructureImage secondaryVisualization = imageService.provideVisualization(visualizationTool, dotBracket);
+
+            final SVGDocument consensusImage = svgDocuments.get(i);
+            final String svgConsensusVisualizationUrl = getSvgUrl(servletContext, consensusImage);
+            final String pngConsensusVisualizationUrl = getPngUrl(servletContext, consensusImage);
 
             /*results.add(
                     new ConsensusResult(
@@ -114,5 +125,21 @@ public class ConsensualStructureAnalysisService {
         // TODO: after the analysis is working (represented pairs are now not calculated properly),
         //  adjust the OutputMulti class with needed properties and populate it instead of returning an empty object.
         return new OutputMulti();
+    }
+
+    private String getSvgUrl(ServletContext servletContext, SVGDocument image) {
+        try {
+            return ImageUtils.generateSvgUrl(servletContext, image).getRight();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String getPngUrl(ServletContext servletContext, SVGDocument image) {
+        try {
+            return ImageUtils.generatePngUrl(servletContext, image).getRight();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

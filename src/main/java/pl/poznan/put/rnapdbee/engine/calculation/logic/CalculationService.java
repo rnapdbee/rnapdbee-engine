@@ -16,7 +16,7 @@ public class CalculationService {
 
     private final AnalysisOutputsMapper analysisOutputsMapper;
 
-    private final ConsensualStructureAnalysisService consensualStructureAnalysisService;
+    private final ConsensusStructureAnalysisService consensusStructureAnalysisService;
 
     public Output2D handleSecondaryToDotBracketCalculation(StructuralElementsHandling structuralElementsHandling,
                                                            VisualizationTool visualizationTool,
@@ -40,7 +40,7 @@ public class CalculationService {
                                                                  VisualizationTool visualizationTool,
                                                                  String filename,
                                                                  String content) {
-        return consensualStructureAnalysisService
+        return consensusStructureAnalysisService
                 .analyse(modelSelection,
                         includeNonCanonical,
                         removeIsolated,
@@ -52,9 +52,9 @@ public class CalculationService {
     @Autowired
     private CalculationService(SecondaryStructureAnalysisService secondaryStructureAnalysisService,
                                AnalysisOutputsMapper analysisOutputsMapper,
-                               ConsensualStructureAnalysisService consensualStructureAnalysisService) {
+                               ConsensusStructureAnalysisService consensusStructureAnalysisService) {
         this.secondaryStructureAnalysisService = secondaryStructureAnalysisService;
         this.analysisOutputsMapper = analysisOutputsMapper;
-        this.consensualStructureAnalysisService = consensualStructureAnalysisService;
+        this.consensusStructureAnalysisService = consensusStructureAnalysisService;
     }
 }
