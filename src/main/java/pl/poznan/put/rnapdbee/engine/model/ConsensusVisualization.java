@@ -13,20 +13,15 @@ public class ConsensusVisualization {
     @JsonProperty("pathToSvgImage")
     private String pathToSvgImage;
 
-    public String getPathToPNGImage() {
-        return pathToPngImage;
-    }
-
     public void setPathToPNGImage(String pathToPNGImage) {
         this.pathToPngImage = pathToPNGImage;
     }
 
-    public String getPathToSVGImage() {
-        return pathToSvgImage;
-    }
-
     public void setPathToSVGImage(String pathToSVGImage) {
         this.pathToSvgImage = pathToSVGImage;
+    }
+
+    public ConsensusVisualization() {
     }
 
     public ConsensusVisualization(String pathToPNGImage, String pathToSVGImage) {

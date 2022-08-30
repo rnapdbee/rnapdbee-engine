@@ -18,7 +18,9 @@ public class OutputMulti {
         return entries;
     }
 
-    public void setEntries(List<OutputMultiEntry> entries) {
+    public OutputMulti withEntries(List<OutputMultiEntry> entries) {
         this.entries = entries;
+        return this;
     }
+
 }
