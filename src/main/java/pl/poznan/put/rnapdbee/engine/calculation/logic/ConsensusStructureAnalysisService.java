@@ -64,12 +64,14 @@ public class ConsensusStructureAnalysisService {
                         // Pair.of(BasePairAnalyzerEnum.FR3D, context.getBean(Fr3dBasePairAnalyzer.class)),
                         // TODO: assuming DSSR means barnaba ->
                         //  must to be refactored when common code is joined with engine's code
-                        // TODO: fr3d is not always working - saengers are null
+                        // TODO: barnaba is not always working - saengers are null
                         // Pair.of(BasePairAnalyzerEnum.DSSR, context.getBean(BarnabaBasePairAnalyzer.class))
                         // TODO: assuming RNAVIEW means BPNet ->
                         //  must to be refactored when common code is joined with engine's code
-                        // bpnet throws 500 for example4, commented out for now
-                        //Pair.of(BasePairAnalyzerEnum.RNAVIEW, context.getBean(BPNetBasePairAnalyzer.class))
+                        // TODO: bpnet throws Inconsistent numbering in BPSEQ format: previous=0, current=0 for example4, commented out for now
+                        // Pair.of(BasePairAnalyzerEnum.RNAVIEW, context.getBean(BPNetBasePairAnalyzer.class))
+                        // TODO: rnaview throws Inconsistent numbering in BPSEQ format: previous=0, current=0 for example4, commented out for now
+                        // Pair.of(BasePairAnalyzerEnum.RNAVIEW, context.getBean(RnaViewBasePairAnalyzer.class))
                 );
 
         final Pair<ConsensusInput, ConsensusOutput> consensus;
