@@ -6,8 +6,6 @@ import edu.put.rnapdbee.analysis.TertiaryAnalysisResult;
 import edu.put.rnapdbee.analysis.multiplet.MultipletSet;
 import edu.put.rnapdbee.enums.InputType;
 import edu.put.rnapdbee.enums.NonCanonicalHandling;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -37,8 +35,6 @@ import java.util.stream.Stream;
 //  time with this approach if the adapters were scalable horizontally in the future.
 public abstract class RNApdbeeAdapterBasePairAnalyzer implements BasePairAnalyzer {
 
-    @Autowired
-    @Qualifier("adaptersWebClient")
     WebClient adaptersWebClient;
 
     /**
@@ -186,5 +182,9 @@ public abstract class RNApdbeeAdapterBasePairAnalyzer implements BasePairAnalyze
             nonCanonicalPairs.forEach(classifyBasePair);
         }
         return pairsClassifiedAsRepresented;
+    }
+
+    RNApdbeeAdapterBasePairAnalyzer(WebClient adaptersWebClient) {
+        this.adaptersWebClient = adaptersWebClient;
     }
 }
