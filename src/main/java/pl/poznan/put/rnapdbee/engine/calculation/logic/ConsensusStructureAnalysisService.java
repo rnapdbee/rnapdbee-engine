@@ -44,9 +44,9 @@ public class ConsensusStructureAnalysisService {
 
     private final AnalysisOutputsMapper analysisOutputsMapper;
 
-    private final ApplicationContext context;
-
     private final ServletContext servletContext;
+
+    private final MCAnnotateBasePairAnalyzer mcAnnotateBasePairAnalyzer;
 
     // TODO: replace converter method with Mixed-Integer Linear Programming (separate Task)
     final static List<ConverterEnum> CONVERTERS = List.of(ConverterEnum.DPNEW);
@@ -59,7 +59,7 @@ public class ConsensusStructureAnalysisService {
                                String content) {
         final Collection<Pair<BasePairAnalyzerEnum, BasePairAnalyzer>> analyzerPairs =
                 List.of(
-                        Pair.of(BasePairAnalyzerEnum.MCANNOTATE, context.getBean(MCAnnotateBasePairAnalyzer.class))
+                        Pair.of(BasePairAnalyzerEnum.MCANNOTATE, mcAnnotateBasePairAnalyzer)
                         // TODO: fr3d is not always working - saengers are null
                         // Pair.of(BasePairAnalyzerEnum.FR3D, context.getBean(Fr3dBasePairAnalyzer.class)),
                         // TODO: assuming DSSR means barnaba ->
@@ -156,10 +156,13 @@ public class ConsensusStructureAnalysisService {
     }
 
     @Autowired
-    public ConsensusStructureAnalysisService(ImageService imageService, AnalysisOutputsMapper analysisOutputsMapper, ApplicationContext context, ServletContext servletContext) {
+    public ConsensusStructureAnalysisService(ImageService imageService,
+                                             AnalysisOutputsMapper analysisOutputsMapper,
+                                             ServletContext servletContext,
+                                             MCAnnotateBasePairAnalyzer mcAnnotateBasePairAnalyzer) {
         this.imageService = imageService;
         this.analysisOutputsMapper = analysisOutputsMapper;
-        this.context = context;
         this.servletContext = servletContext;
+        this.mcAnnotateBasePairAnalyzer = mcAnnotateBasePairAnalyzer;
     }
 }
