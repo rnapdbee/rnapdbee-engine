@@ -11,19 +11,19 @@ import edu.put.rnapdbee.enums.NonCanonicalHandling;
 import edu.put.rnapdbee.visualization.SecondaryStructureImage;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.consensus.BpSeqInfo;
 import pl.poznan.put.consensus.ConsensusInput;
 import pl.poznan.put.consensus.ConsensusOutput;
-import pl.poznan.put.rnapdbee.engine.basepair.boundary.MCAnnotateBasePairAnalyzer;
+import pl.poznan.put.rnapdbee.engine.basepair.service.BasePairLoader;
 import pl.poznan.put.rnapdbee.engine.calculation.mapper.AnalysisOutputsMapper;
 import pl.poznan.put.rnapdbee.engine.calculation.model.Output2D;
 import pl.poznan.put.rnapdbee.engine.calculation.model.SingleSecondaryModelAnalysisOutput;
 import pl.poznan.put.rnapdbee.engine.image.logic.ImageService;
 import pl.poznan.put.rnapdbee.engine.image.logic.ImageUtils;
 import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
+import pl.poznan.put.rnapdbee.engine.model.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.model.ConsensusVisualization;
 import pl.poznan.put.rnapdbee.engine.model.ModelSelection;
 import pl.poznan.put.rnapdbee.engine.model.OutputMulti;
@@ -46,7 +46,7 @@ public class ConsensusStructureAnalysisService {
 
     private final ServletContext servletContext;
 
-    private final MCAnnotateBasePairAnalyzer mcAnnotateBasePairAnalyzer;
+    private final BasePairLoader basePairLoader;
 
     // TODO: replace converter method with Mixed-Integer Linear Programming (separate Task)
     final static List<ConverterEnum> CONVERTERS = List.of(ConverterEnum.DPNEW);
@@ -59,19 +59,24 @@ public class ConsensusStructureAnalysisService {
                                String content) {
         final Collection<Pair<BasePairAnalyzerEnum, BasePairAnalyzer>> analyzerPairs =
                 List.of(
-                        Pair.of(BasePairAnalyzerEnum.MCANNOTATE, mcAnnotateBasePairAnalyzer)
+                        Pair.of(BasePairAnalyzerEnum.MCANNOTATE,
+                                basePairLoader.provideBasePairAnalyzer(AnalysisTool.MC_ANNOTATE))
                         // TODO: fr3d is not always working - saengers are null
-                        // Pair.of(BasePairAnalyzerEnum.FR3D, context.getBean(Fr3dBasePairAnalyzer.class)),
+                        // Pair.of(BasePairAnalyzerEnum.FR3D,
+                        //      basePairLoader.provideBasePairAnalyzer(AnalysisTool.FR3D_PYTHON)),
                         // TODO: assuming DSSR means barnaba ->
                         //  must to be refactored when common code is joined with engine's code
                         // TODO: barnaba is not always working - saengers are null
-                        // Pair.of(BasePairAnalyzerEnum.DSSR, context.getBean(BarnabaBasePairAnalyzer.class))
+                        // Pair.of(BasePairAnalyzerEnum.DSSR,
+                        //      basePairLoader.provideBasePairAnalyzer(AnalysisTool.BARNABA))
                         // TODO: assuming RNAVIEW means BPNet ->
                         //  must to be refactored when common code is joined with engine's code
                         // TODO: bpnet throws Inconsistent numbering in BPSEQ format: previous=0, current=0 for example4, commented out for now
-                        // Pair.of(BasePairAnalyzerEnum.RNAVIEW, context.getBean(BPNetBasePairAnalyzer.class))
+                        // Pair.of(BasePairAnalyzerEnum.RNAVIEW,
+                        //      basePairLoader.provideBasePairAnalyzer(AnalysisTool.BPNET))
                         // TODO: rnaview throws Inconsistent numbering in BPSEQ format: previous=0, current=0 for example4, commented out for now
-                        // Pair.of(BasePairAnalyzerEnum.RNAVIEW, context.getBean(RnaViewBasePairAnalyzer.class))
+                        // Pair.of(BasePairAnalyzerEnum.RNAVIEW,
+                        //      basePairLoader.provideBasePairAnalyzer(AnalysisTool.RNAVIEW))
                 );
 
         final Pair<ConsensusInput, ConsensusOutput> consensus;
@@ -159,10 +164,10 @@ public class ConsensusStructureAnalysisService {
     public ConsensusStructureAnalysisService(ImageService imageService,
                                              AnalysisOutputsMapper analysisOutputsMapper,
                                              ServletContext servletContext,
-                                             MCAnnotateBasePairAnalyzer mcAnnotateBasePairAnalyzer) {
+                                             BasePairLoader basePairLoader) {
         this.imageService = imageService;
         this.analysisOutputsMapper = analysisOutputsMapper;
         this.servletContext = servletContext;
-        this.mcAnnotateBasePairAnalyzer = mcAnnotateBasePairAnalyzer;
+        this.basePairLoader = basePairLoader;
     }
 }
