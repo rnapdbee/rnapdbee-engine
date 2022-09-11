@@ -20,11 +20,9 @@ import java.io.IOException;
 @Component
 public class ImageService {
 
-    @Autowired
-    private ServletContext servletContext;
+    private final ServletContext servletContext;
 
-    @Autowired
-    private DrawerService drawerService;
+    private final DrawerService drawerService;
 
     public SecondaryStructureImage provideVisualization(VisualizationTool visualizationTool,
                                                         DotBracket combinedStrand) {
@@ -46,5 +44,11 @@ public class ImageService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Autowired
+    public ImageService(ServletContext servletContext, DrawerService drawerService) {
+        this.servletContext = servletContext;
+        this.drawerService = drawerService;
     }
 }
