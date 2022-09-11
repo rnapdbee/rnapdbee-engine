@@ -49,8 +49,22 @@ public class CalculationController {
             @RequestParam("removeIsolated") boolean removeIsolated,
             @RequestParam("structuralElementsHandling") StructuralElementsHandling structuralElementsHandling,
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
-            @RequestBody String content) {
-        throw new UnsupportedOperationException();
+            @RequestHeader("Content-Disposition") String contentDispositionHeader,
+            @RequestBody String fileContent) {
+        logger.info(String.format("Analysis of scenario 3D -> (...) started for content-disposition header %s",
+                contentDispositionHeader));
+        ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
+        var result = calculationService
+                .handleTertiaryToDotBracketCalculation(
+                        modelSelection,
+                        analysisTool,
+                        nonCanonicalHandling,
+                        removeIsolated,
+                        structuralElementsHandling,
+                        visualizationTool,
+                        contentDisposition.getFilename(),
+                        fileContent);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     /**
