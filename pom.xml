@@ -10,11 +10,18 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>com.example</groupId>
+    <groupId>pl.poznan.put.rnapdbee.engine</groupId>
     <artifactId>rnapdbee-engine</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>rnapdbee-engine</name>
     <description>rnapdbee-engine</description>
+
+    <repositories>
+        <repository>
+            <id>local-repository</id>
+            <url>file://${project.basedir}/src/lib</url>
+        </repository>
+    </repositories>
 
     <properties>
         <java.version>11</java.version>
@@ -42,8 +49,6 @@
             <groupId>pl.poznan.put</groupId>
             <artifactId>rnapdbee-common</artifactId>
             <version>2.1-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${pom.basedir}/src/lib/rnapdbee-common-2.1-SNAPSHOT.jar</systemPath>
         </dependency>
 
         <dependency>
