@@ -53,6 +53,16 @@ public class CalculationController {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * Endpoint responsible for 2D -> (....) analysis.
+     *
+     * @param structuralElementsHandling enum determining if pseudoknots should be considered or not
+     * @param visualizationTool          enum for Visualization Tool
+     * @param removeIsolated             boolean value indicating if the isolated residues should be removed or not
+     * @param contentDispositionHeader   Content-Disposition header containing name of the file
+     * @param fileContent                content of the analysed file
+     * @return wrapped in an object list of image outputs
+     */
     @Operation(summary = "Perform a 2D to Dot-Bracket calculation")
     @PostMapping(path = "/2d", produces = "application/json", consumes = "text/plain")
     public ResponseEntity<Output2D> calculateSecondaryToDotBracket(
@@ -60,18 +70,17 @@ public class CalculationController {
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
             @RequestParam("removeIsolated") boolean removeIsolated,
             @RequestHeader("Content-Disposition") String contentDispositionHeader,
-            @RequestBody String encodedContent) {
+            @RequestBody String fileContent) {
 
         logger.info(String.format("Analysis of scenario 2D -> (...) started for content-disposition header %s",
                 contentDispositionHeader));
         ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
-        String decodedContent = EncodingUtils.decodeBase64ToString(encodedContent);
         var outputAnalysis = calculationService
                 .handleSecondaryToDotBracketCalculation(
                         structuralElementsHandling,
                         visualizationTool,
                         removeIsolated,
-                        decodedContent,
+                        fileContent,
                         contentDisposition.getFilename());
         return new ResponseEntity<>(outputAnalysis, HttpStatus.OK);
     }
@@ -88,11 +97,11 @@ public class CalculationController {
     }
 
     /**
-     * Endpoint responsible for (...) -> Image analysis.
+     * Endpoint responsible for (....) -> Image analysis.
      *
      * @param structuralElementsHandling enum determining if pseudoknots should be considered or not
      * @param visualizationTool          enum for Visualization Tool
-     * @param encodedContent             base64 encoded content of the uploaded file
+     * @param fileContent                content of the analysed file
      * @return wrapped in an object list of image outputs
      */
     @Operation(summary = "Perform a Dot-Bracket to Image calculation")
@@ -101,17 +110,16 @@ public class CalculationController {
             @RequestParam("structuralElementsHandling") StructuralElementsHandling structuralElementsHandling,
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
             @RequestHeader("Content-Disposition") String contentDispositionHeader,
-            @RequestBody String encodedContent) {
+            @RequestBody String fileContent) {
 
         logger.info(String.format("Analysis of scenario (...) -> Image started for content-disposition header %s",
                 contentDispositionHeader));
         ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
-        String decodedContent = EncodingUtils.decodeBase64ToString(encodedContent);
         var outputAnalysis = calculationService
                 .handleDotBracketToImageCalculation(
                         structuralElementsHandling,
                         visualizationTool,
-                        decodedContent,
+                        fileContent,
                         contentDisposition.getFilename());
         return new ResponseEntity<>(outputAnalysis, HttpStatus.OK);
     }
