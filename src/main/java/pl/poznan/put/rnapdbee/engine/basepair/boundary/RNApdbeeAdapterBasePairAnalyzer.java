@@ -58,7 +58,7 @@ public abstract class RNApdbeeAdapterBasePairAnalyzer implements BasePairAnalyze
      * performs post analysis on response from adapter.
      * Separates response into canonical, nonCanonical, stackings, basePhosphate, baseRibose, otherInteractions,
      * and interStrand lists of base pairs.
-     *
+     * <p>
      * Calculates represented list of base pairs.
      * Calculates messages list.
      *
@@ -69,13 +69,14 @@ public abstract class RNApdbeeAdapterBasePairAnalyzer implements BasePairAnalyze
     private AnalysisResult performPostAnalysisOnResponseFromAdapter(AdaptersAnalysisDTO responseFromAdapter,
                                                                     NonCanonicalHandling nonCanonicalHandling) {
         List<AnalyzedBasePair> canonical = responseFromAdapter.getBasePairs().stream()
-                .filter(basePair -> basePair.getSaenger() != null &&  basePair.getSaenger().isCanonical())
+                .filter(basePair -> basePair.getSaenger() != null && basePair.getSaenger().isCanonical())
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair)
                         .withInteractionType(InteractionType.BASE_BASE)
                         .withSaenger(basePair.getSaenger())
                         .withLeontisWesthof(basePair.getLeontisWesthof())
                         .withBph(BPh.UNKNOWN)
-                        .withBr(BR.UNKNOWN)).collect(Collectors.toList());
+                        .withBr(BR.UNKNOWN))
+                .collect(Collectors.toList());
         List<AnalyzedBasePair> nonCanonical = responseFromAdapter.getBasePairs().stream()
                 .filter(basePair -> basePair.getSaenger() == null || !basePair.getSaenger().isCanonical())
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair)
@@ -83,31 +84,36 @@ public abstract class RNApdbeeAdapterBasePairAnalyzer implements BasePairAnalyze
                         .withSaenger(basePair.getSaenger() == null ? Saenger.UNKNOWN : basePair.getSaenger())
                         .withLeontisWesthof(basePair.getLeontisWesthof())
                         .withBph(BPh.UNKNOWN)
-                        .withBr(BR.UNKNOWN)).collect(Collectors.toList());
+                        .withBr(BR.UNKNOWN))
+                .collect(Collectors.toList());
         List<AnalyzedBasePair> stackings = responseFromAdapter.getStackings().stream()
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.STACKING)
                         .withSaenger(Saenger.UNKNOWN)
                         .withLeontisWesthof(LeontisWesthof.UNKNOWN)
                         .withBph(BPh.UNKNOWN)
-                        .withBr(BR.UNKNOWN)).collect(Collectors.toList());
+                        .withBr(BR.UNKNOWN))
+                .collect(Collectors.toList());
         List<AnalyzedBasePair> basePhosphate = responseFromAdapter.getBasePhosphateInteractions().stream()
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.BASE_PHOSPHATE)
                         .withSaenger(Saenger.UNKNOWN)
                         .withLeontisWesthof(LeontisWesthof.UNKNOWN)
-                        .withBph(BPh.UNKNOWN)
-                        .withBr(BR.UNKNOWN)).collect(Collectors.toList());
+                        .withBph(pl.poznan.put.rnapdbee.engine.basepair.model.BPh.mapToBioCommonsBph(basePair.getBph()))
+                        .withBr(BR.UNKNOWN))
+                .collect(Collectors.toList());
         List<AnalyzedBasePair> baseRibose = responseFromAdapter.getBaseRiboseInteractions().stream()
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.BASE_RIBOSE)
                         .withSaenger(Saenger.UNKNOWN)
                         .withLeontisWesthof(LeontisWesthof.UNKNOWN)
                         .withBph(BPh.UNKNOWN)
-                        .withBr(BR.UNKNOWN)).collect(Collectors.toList());
+                        .withBr(pl.poznan.put.rnapdbee.engine.basepair.model.BR.mapToBioCommonsBph(basePair.getBr())))
+                .collect(Collectors.toList());
         List<AnalyzedBasePair> otherInteractions = responseFromAdapter.getOther().stream()
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.OTHER)
                         .withSaenger(Saenger.UNKNOWN)
                         .withLeontisWesthof(LeontisWesthof.UNKNOWN)
                         .withBph(BPh.UNKNOWN)
-                        .withBr(BR.UNKNOWN)).collect(Collectors.toList());
+                        .withBr(BR.UNKNOWN))
+                .collect(Collectors.toList());
         List<AnalyzedBasePair> interStrand = responseFromAdapter.getBasePairs().stream()
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.BASE_BASE)
                         .withSaenger(basePair.getSaenger() == null ? Saenger.UNKNOWN : basePair.getSaenger())
