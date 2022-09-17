@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -149,13 +150,13 @@ public class SecondaryStructureAnalysisService {
                     ImmutablePdbNamedResidueIdentifier.of(
                             strandMine.name().replaceFirst("strand_", ""),
                             symbolMine.index() + 1,
-                            "",
+                            Optional.empty(),
                             symbolMine.sequence());
             final PdbNamedResidueIdentifier right =
                     ImmutablePdbNamedResidueIdentifier.of(
                             strandPair.name().replaceFirst("strand_", ""),
                             symbolPair.index() + 1,
-                            "",
+                            Optional.empty(),
                             symbolPair.sequence());
             final BasePair basePair = ImmutableBasePair.of(left, right);
             interStrand.add(ImmutableAnalyzedBasePair.of(basePair));
