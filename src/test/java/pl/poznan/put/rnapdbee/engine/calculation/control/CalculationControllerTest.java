@@ -3,7 +3,6 @@ package pl.poznan.put.rnapdbee.engine.calculation.control;
 import edu.put.rnapdbee.enums.DrawerEnum;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,7 +10,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import pl.poznan.put.rnapdbee.engine.calculation.logic.CalculationService;
-import pl.poznan.put.rnapdbee.engine.calculation.logic.EncodingUtils;
 import pl.poznan.put.rnapdbee.engine.calculation.model.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.calculation.model.Output2D;
 import pl.poznan.put.rnapdbee.engine.calculation.model.SingleSecondaryModelAnalysisOutput;
@@ -57,42 +55,6 @@ class CalculationControllerTest {
             .withName("A")
             .withSequence("sequence")
             .withStructure("structure");
-
-
-    @Test
-    public void shouldPopulateResponseEntityWithTheMappedResponseWhenTheCalculateDBToImageCalculationIsSuccessful() {
-        var analysisOutput = provideMockedOutput2D();
-        var expectedSingleAnalysis = analysisOutput.getAnalysis().get(0);
-        // mocked
-        Mockito.when(calculationService.handleDotBracketToImageCalculation(Mockito.any(),
-                        Mockito.any(), Mockito.eq(mockedContent), Mockito.eq(mockedFilename)))
-                .thenReturn(analysisOutput);
-        // when
-        ResponseEntity<Output2D> response = cut
-                .calculateDotBracketToImage(null, null,
-                        "Attachment; filename=\"" + mockedFilename + "\"", mockedContent);
-        // then
-        var actualSingleAnalysis = Objects.requireNonNull(response.getBody()).getAnalysis().get(0);
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals(expectedSingleAnalysis.getBpSeq(), actualSingleAnalysis.getBpSeq());
-        Assertions.assertEquals(expectedSingleAnalysis.getCt(), actualSingleAnalysis.getCt());
-        Assertions.assertEquals(expectedSingleAnalysis.getInteractions(), actualSingleAnalysis.getInteractions());
-
-        Assertions.assertEquals(expectedSingleAnalysis.getStrands().get(0).getName(), actualSingleAnalysis.getStrands().get(0).getName());
-        Assertions.assertEquals(expectedSingleAnalysis.getStrands().get(0).getSequence(), actualSingleAnalysis.getStrands().get(0).getSequence());
-        Assertions.assertEquals(expectedSingleAnalysis.getStrands().get(0).getStructure(), actualSingleAnalysis.getStrands().get(0).getStructure());
-
-        Assertions.assertEquals(expectedSingleAnalysis.getStructuralElements().getSingleStrands(), actualSingleAnalysis.getStructuralElements().getSingleStrands());
-        Assertions.assertEquals(expectedSingleAnalysis.getStructuralElements().getSingleStrands5p(), actualSingleAnalysis.getStructuralElements().getSingleStrands5p());
-        Assertions.assertEquals(expectedSingleAnalysis.getStructuralElements().getSingleStrands3p(), actualSingleAnalysis.getStructuralElements().getSingleStrands3p());
-        Assertions.assertEquals(expectedSingleAnalysis.getStructuralElements().getLoops(), actualSingleAnalysis.getStructuralElements().getLoops());
-        Assertions.assertEquals(expectedSingleAnalysis.getStructuralElements().getStems(), actualSingleAnalysis.getStructuralElements().getStems());
-
-        Assertions.assertEquals(expectedSingleAnalysis.getImageInformation().getFailedDrawer(), actualSingleAnalysis.getImageInformation().getFailedDrawer());
-        Assertions.assertEquals(expectedSingleAnalysis.getImageInformation().getSuccessfulDrawer(), actualSingleAnalysis.getImageInformation().getSuccessfulDrawer());
-        Assertions.assertEquals(expectedSingleAnalysis.getImageInformation().getPathToPNGImage(), actualSingleAnalysis.getImageInformation().getPathToPNGImage());
-        Assertions.assertEquals(expectedSingleAnalysis.getImageInformation().getPathToSVGImage(), actualSingleAnalysis.getImageInformation().getPathToSVGImage());
-    }
 
 
     @Test

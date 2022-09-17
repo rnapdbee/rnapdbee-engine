@@ -14,21 +14,6 @@ public class CalculationService {
 
     private final AnalysisOutputsMapper analysisOutputsMapper;
 
-    public Output2D handleDotBracketToImageCalculation(StructuralElementsHandling structuralElementsHandling,
-                                                       VisualizationTool visualizationTool,
-                                                       String content,
-                                                       String filename) {
-
-        var analysisResult = secondaryStructureAnalysisService
-                .analyseDotBracketNotationFile(
-                        structuralElementsHandling,
-                        visualizationTool,
-                        content,
-                        filename);
-
-        return analysisOutputsMapper.mapToOutput2D(analysisResult);
-    }
-
     public Output2D handleSecondaryToDotBracketCalculation(StructuralElementsHandling structuralElementsHandling,
                                                            VisualizationTool visualizationTool,
                                                            boolean removeIsolated,

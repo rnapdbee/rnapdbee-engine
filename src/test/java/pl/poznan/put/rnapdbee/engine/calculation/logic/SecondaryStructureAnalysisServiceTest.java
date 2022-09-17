@@ -18,11 +18,17 @@ import pl.poznan.put.rnapdbee.engine.image.logic.ImageService;
 import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.model.StructuralElementsHandling;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 
 @SpringBootTest
 class SecondaryStructureAnalysisServiceTest {
+
+    static String EXAMPLE_FILE_PATH_FORMAT = "/secondaryTestFiles/%s";
 
     @MockBean
     ImageService imageService;
@@ -37,30 +43,15 @@ class SecondaryStructureAnalysisServiceTest {
     }
 
     @ParameterizedTest
-    @CsvFileSource(resources = "/dotBracketToImageTestCases.csv")
-    public void testDotBracketNotationFileAnalysis(StructuralElementsHandling structuralElementsHandling,
-                                                   VisualizationTool visualizationTool,
-                                                   String filename,
-                                                   String content,
-                                                   @AggregateWith(AnalysisOutputTestInformationAggregator.class)
-                                                   List<AnalysisOutputTestInformation> expectedInformationList) {
-        var actual = cut.analyseDotBracketNotationFile(structuralElementsHandling,
-                visualizationTool,
-                content,
-                filename);
-        AnalysisOutputTestUtils.assertAnalysisOutputs(actual, expectedInformationList);
-    }
-
-
-    @ParameterizedTest
     @CsvFileSource(resources = "/secondaryToDotBracketTestCases.csv", maxCharsPerColumn = 16384)
     public void testSecondaryStructureFileAnalysis(StructuralElementsHandling structuralElementsHandling,
                                                    VisualizationTool visualizationTool,
                                                    String filename,
                                                    boolean shouldRemoveIsolated,
-                                                   String content,
                                                    @AggregateWith(AnalysisOutputTestInformationAggregator.class)
-                                                   List<AnalysisOutputTestInformation> expectedInformationList) {
+                                                   List<AnalysisOutputTestInformation> expectedInformationList)
+            throws URISyntaxException, IOException {
+        String content = Files.readString(Paths.get(getClass().getResource(String.format(EXAMPLE_FILE_PATH_FORMAT, filename)).toURI()));
         var actual = cut.analyseSecondaryStructureFile(structuralElementsHandling,
                 visualizationTool,
                 shouldRemoveIsolated,

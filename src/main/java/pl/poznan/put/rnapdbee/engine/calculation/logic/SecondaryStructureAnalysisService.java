@@ -41,31 +41,21 @@ import java.util.stream.Collectors;
 @Component
 public class SecondaryStructureAnalysisService {
 
-    // TODO: put in autowired constructor
-    @Autowired
     ImageService imageService;
 
     // TODO: replace converter method with Mixed-Integer Linear Programming (separate Task)
     final Converter CONVERTER = ConverterEnum.DPNEW;
 
-
     /**
-     * performs calculation of Dot Bracket RNA structures to Images (...) -> Image
+     * performs analysis of Secondary RNA structures to Images
      *
      * @param structuralElementsHandling enum determining if pseudoknots should be considered or not
      * @param visualizationTool          enum for Visualization Tool
      * @param content                    content of the uploaded file
+     * @param removeIsolated             indicates if isolated pairs should be taken into account in analysis
+     * @param filename                   name of loaded file structure
      * @return List of {@link AnalysisOutput}
      */
-    public List<AnalysisOutput> analyseDotBracketNotationFile(StructuralElementsHandling structuralElementsHandling,
-                                                              VisualizationTool visualizationTool,
-                                                              String content,
-                                                              String filename) {
-        var dotBracket = DefaultDotBracket.fromString(content);
-        return analyseDotBracket(dotBracket, filename, structuralElementsHandling, visualizationTool);
-    }
-
-
     public List<AnalysisOutput> analyseSecondaryStructureFile(StructuralElementsHandling structuralElementsHandling,
                                                               VisualizationTool visualizationTool,
                                                               boolean removeIsolated,
@@ -168,6 +158,8 @@ public class SecondaryStructureAnalysisService {
             return convertBpSeqIntoDotBracket(content, removeIsolated);
         } else if (fileExtension.equals(SecondaryFileExtensionEnum.CT.fileExtension)) {
             return convertCtIntoDotBracket(content, removeIsolated);
+        } else if (fileExtension.equals(SecondaryFileExtensionEnum.DBN.fileExtension)) {
+            return readDotBracketContent(content, removeIsolated);
         } else {
             throw new IllegalArgumentException(
                     "Invalid attempt to analyze secondary structure for input type: " + fileExtension);
@@ -188,5 +180,23 @@ public class SecondaryStructureAnalysisService {
                 : Ct.fromString(content);
         BpSeq bpSeq = BpSeq.fromCt(ct);
         return DefaultDotBracket.copyWithStrands(CONVERTER.convert(bpSeq), ct);
+    }
+
+    private DotBracket readDotBracketContent(String content, boolean removeIsolated) {
+        DotBracket readDotBracket = DefaultDotBracket.fromString(content);
+        // TODO: this results in failures in previous Test Cases for DBN -> Image.
+        //  Probably it's because of the converter, maybe it's possible to remove isolated from dot bracket not by
+        //  "casting" it to CT. Or it will be resolved after using MILP algoritm
+        /* Ct ct = removeIsolated
+                ? Ct.fromDotBracket(readDotBracket).withoutIsolatedPairs()
+                : Ct.fromDotBracket(readDotBracket);
+        BpSeq bpSeq = BpSeq.fromCt(ct);
+        return DefaultDotBracket.copyWithStrands(CONVERTER.convert(bpSeq), ct);*/
+        return readDotBracket;
+    }
+
+    @Autowired
+    public SecondaryStructureAnalysisService(ImageService imageService) {
+        this.imageService = imageService;
     }
 }
