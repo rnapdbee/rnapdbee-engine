@@ -7,6 +7,8 @@ import pl.poznan.put.pdb.ImmutablePdbNamedResidueIdentifier;
 import pl.poznan.put.pdb.PdbNamedResidueIdentifier;
 import pl.poznan.put.structure.BasePair;
 
+import java.util.Optional;
+
 /**
  * DTO class for BasePair
  * instances of this class are being returned by rnapdbee-adapters as array members.
@@ -78,12 +80,12 @@ public class BasePairDTO extends BasePair {
                 ? ImmutablePdbNamedResidueIdentifier.of(
                 residue.getAuth().getChainIdentifier(),
                 residue.getAuth().getResidueNumber(),
-                residue.getAuth().getInsertionCode() != null ? residue.getAuth().getInsertionCode() : " ",
+                Optional.ofNullable(residue.getAuth().getInsertionCode()),
                 residue.getAuth().getName().charAt(0))
                 : ImmutablePdbNamedResidueIdentifier.of(
                 residue.getLabel().getChainIdentifier(),
                 residue.getLabel().getResidueNumber(),
-                " ",
+                Optional.empty(),
                 residue.getLabel().getName().charAt(0));
     }
 }
