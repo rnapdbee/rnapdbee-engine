@@ -79,6 +79,33 @@ public class ConsensusStructureAnalysisService {
                         //      basePairLoader.provideBasePairAnalyzer(AnalysisTool.RNAVIEW))
                 );
 
+        final Pair<ConsensusInput, ConsensusOutput> consensus = findConsensus(modelSelection,
+                includeNonCanonical, removeIsolated, filename, content, analyzerPairs);
+
+        final List<BpSeqInfo> bpSeqInfos = consensus.getLeft().getBpSeqInfos();
+        final List<SVGDocument> svgDocuments = consensus.getRight().getSvgDocuments();
+        final int size = svgDocuments.size();
+        assert bpSeqInfos.size() == svgDocuments.size();
+
+        List<OutputMultiEntry> outputMultiEntryList = IntStream
+                .range(0, size)
+                .mapToObj(i -> mapBpSeqInfoAndConsensusImageIntoOutputMultiEntry(
+                        visualizationTool,
+                        bpSeqInfos.get(i),
+                        svgDocuments.get(i)))
+                .collect(Collectors.toList());
+
+        return new OutputMulti()
+                .withEntries(outputMultiEntryList);
+    }
+
+    private Pair<ConsensusInput, ConsensusOutput> findConsensus(ModelSelection modelSelection,
+                                                                boolean includeNonCanonical,
+                                                                boolean removeIsolated,
+                                                                String filename,
+                                                                String content,
+                                                                Collection<Pair<BasePairAnalyzerEnum, BasePairAnalyzer>>
+                                                                        analyzerPairs) {
         final Pair<ConsensusInput, ConsensusOutput> consensus;
         try {
             consensus = RNApdbee.findConsensus(
@@ -99,22 +126,7 @@ public class ConsensusStructureAnalysisService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        final List<BpSeqInfo> bpSeqInfos = consensus.getLeft().getBpSeqInfos();
-        final List<SVGDocument> svgDocuments = consensus.getRight().getSvgDocuments();
-        final int size = svgDocuments.size();
-        assert bpSeqInfos.size() == svgDocuments.size();
-
-        List<OutputMultiEntry> outputMultiEntryList = IntStream
-                .range(0, size)
-                .mapToObj(i -> mapBpSeqInfoAndConsensusImageIntoOutputMultiEntry(
-                        visualizationTool,
-                        bpSeqInfos.get(i),
-                        svgDocuments.get(i)))
-                .collect(Collectors.toList());
-
-        return new OutputMulti()
-                .withEntries(outputMultiEntryList);
+        return consensus;
     }
 
     private OutputMultiEntry mapBpSeqInfoAndConsensusImageIntoOutputMultiEntry(VisualizationTool visualizationTool,
