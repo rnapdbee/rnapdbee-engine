@@ -105,7 +105,7 @@ public abstract class RNApdbeeAdapterBasePairAnalyzer implements BasePairAnalyze
                         .withSaenger(Saenger.UNKNOWN)
                         .withLeontisWesthof(LeontisWesthof.UNKNOWN)
                         .withBph(BPh.UNKNOWN)
-                        .withBr(pl.poznan.put.rnapdbee.engine.basepair.model.BR.mapToBioCommonsBph(basePair.getBr())))
+                        .withBr(pl.poznan.put.rnapdbee.engine.basepair.model.BR.mapToBioCommonsBr(basePair.getBr())))
                 .collect(Collectors.toList());
         List<AnalyzedBasePair> otherInteractions = responseFromAdapter.getOther().stream()
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.OTHER)

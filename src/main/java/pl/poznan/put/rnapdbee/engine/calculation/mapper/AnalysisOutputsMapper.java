@@ -53,6 +53,21 @@ public class AnalysisOutputsMapper {
                 .withPathToSVGImage(image.getSvgUrl());
     }
 
+    public StructuralElementOutput mapStructuralElementFinderIntoStructuralElementOutput(
+            StructuralElementFinder structuralElementFinder) {
+        return new StructuralElementOutput()
+                .withStems(structuralElementFinder.getStems().stream()
+                        .map(StructuralElement::toString).collect(Collectors.toList()))
+                .withLoops(structuralElementFinder.getLoops().stream()
+                        .map(StructuralElement::toString).collect(Collectors.toList()))
+                .withSingleStrands(structuralElementFinder.getSingleStrands().stream()
+                        .map(StructuralElement::toString).collect(Collectors.toList()))
+                .withSingleStrands5p(structuralElementFinder.getSingleStrands5p().stream()
+                        .map(StructuralElement::toString).collect(Collectors.toList()))
+                .withSingleStrands3p(structuralElementFinder.getSingleStrands3p().stream()
+                        .map(StructuralElement::toString).collect(Collectors.toList()));
+    }
+
     /**
      * Maps {@link AnalysisOutput} into {@link SingleSecondaryModelAnalysisOutput}
      *
@@ -80,20 +95,5 @@ public class AnalysisOutputsMapper {
                 .withName(strand.name())
                 .withSequence(strand.sequence())
                 .withStructure(strand.structure());
-    }
-
-    private StructuralElementOutput mapStructuralElementFinderIntoStructuralElementOutput(
-            StructuralElementFinder structuralElementFinder) {
-        return new StructuralElementOutput()
-                .withStems(structuralElementFinder.getStems().stream()
-                        .map(StructuralElement::toString).collect(Collectors.toList()))
-                .withLoops(structuralElementFinder.getLoops().stream()
-                        .map(StructuralElement::toString).collect(Collectors.toList()))
-                .withSingleStrands(structuralElementFinder.getSingleStrands().stream()
-                        .map(StructuralElement::toString).collect(Collectors.toList()))
-                .withSingleStrands5p(structuralElementFinder.getSingleStrands5p().stream()
-                        .map(StructuralElement::toString).collect(Collectors.toList()))
-                .withSingleStrands3p(structuralElementFinder.getSingleStrands3p().stream()
-                        .map(StructuralElement::toString).collect(Collectors.toList()));
     }
 }

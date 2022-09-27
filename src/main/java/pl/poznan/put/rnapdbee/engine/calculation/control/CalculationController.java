@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pl.poznan.put.rnapdbee.engine.calculation.logic.CalculationService;
-import pl.poznan.put.rnapdbee.engine.calculation.logic.EncodingUtils;
 import pl.poznan.put.rnapdbee.engine.calculation.model.Output2D;
 import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.model.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.model.ModelSelection;
 import pl.poznan.put.rnapdbee.engine.model.NonCanonicalHandling;
+import pl.poznan.put.rnapdbee.engine.model.Output3D;
 import pl.poznan.put.rnapdbee.engine.model.StructuralElementsHandling;
 
 
@@ -40,9 +40,22 @@ public class CalculationController {
         this.logger = logger;
     }
 
+    /**
+     * Endpoint responsible for 3D -> (....) analysis.
+     *
+     * @param modelSelection                enum defining whether calculation should be made on first or all models in file
+     * @param analysisTool                  analysis tool (adapter) used in determination of base pairs
+     * @param nonCanonicalHandling          enum defining handling of non-canonical pairs
+     * @param removeIsolated                boolean flag indicating whether isolated pairs should be removed or not
+     * @param structuralElementsHandling    enum defining handling of pseudoknots
+     * @param visualizationTool             visualization tool used when creating the image
+     * @param contentDispositionHeader      header containing name of the analysed file
+     * @param fileContent                   content of the file
+     * @return output3D
+     */
     @Operation(summary = "Perform a 3D to Dot-Bracket calculation")
     @PostMapping(path = "/3d", produces = "application/json", consumes = "text/plain")
-    public ResponseEntity<Object> calculateTertiaryToDotBracket(
+    public ResponseEntity<Output3D> calculateTertiaryToDotBracket(
             @RequestParam("modelSelection") ModelSelection modelSelection,
             @RequestParam("analysisTool") AnalysisTool analysisTool,
             @RequestParam("nonCanonicalHandling") NonCanonicalHandling nonCanonicalHandling,

@@ -1,26 +1,19 @@
 package pl.poznan.put.rnapdbee.engine.model;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-import pl.poznan.put.rnapdbee.engine.basepair.model.AdaptersAnalysisDTO;
-import pl.poznan.put.rnapdbee.engine.calculation.model.Output2D;
 
-/**
- * DTO class for Output3D
- */
+import java.util.List;
+
 public class Output3D {
 
-    @JsonProperty("adaptersAnalysisDTO")
-    private AdaptersAnalysisDTO adaptersAnalysisDTO;
+    @JsonProperty("tertiaryModels")
+    List<SingleTertiaryModelOutput> tertiaryModels;
 
-    @JsonProperty("output2D")
-    private Output2D output2D;
-
-    public AdaptersAnalysisDTO getAnalysisOutput() {
-        return adaptersAnalysisDTO;
+    public List<SingleTertiaryModelOutput> getTertiaryModels() {
+        return tertiaryModels;
     }
 
-    public Output2D getOutput2D() {
-        return output2D;
+    public void setTertiaryModels(List<SingleTertiaryModelOutput> tertiaryModels) {
+        this.tertiaryModels = tertiaryModels;
     }
 }

@@ -14,12 +14,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rnapdbee.engine.basepair.service.BasePairLoader;
+import pl.poznan.put.rnapdbee.engine.calculation.mapper.AnalysisOutputsMapper;
+import pl.poznan.put.rnapdbee.engine.calculation.model.Output2D;
+import pl.poznan.put.rnapdbee.engine.calculation.model.SingleSecondaryModelAnalysisOutput;
 import pl.poznan.put.rnapdbee.engine.image.logic.ImageService;
 import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.model.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.model.ModelSelection;
 import pl.poznan.put.rnapdbee.engine.model.NonCanonicalHandling;
 import pl.poznan.put.rnapdbee.engine.model.Output3D;
+import pl.poznan.put.rnapdbee.engine.model.OutputBasePair;
+import pl.poznan.put.rnapdbee.engine.model.SingleTertiaryModelOutput;
 import pl.poznan.put.rnapdbee.engine.model.StructuralElementsHandling;
 import pl.poznan.put.structure.AnalyzedBasePair;
 import pl.poznan.put.structure.ClassifiedBasePair;
@@ -40,19 +45,18 @@ public class TertiaryStructureAnalysisService {
 
     private final BasePairLoader basePairLoader;
     private final ImageService imageService;
+    private final AnalysisOutputsMapper analysisOutputsMapper;
 
     private final Templates templates;
 
     public Output3D analyse(ModelSelection modelSelection,
-                                  AnalysisTool analysisTool,
-                                  NonCanonicalHandling nonCanonicalHandling,
-                                  boolean removeIsolated,
-                                  StructuralElementsHandling structuralElementsHandling,
-                                  VisualizationTool visualizationTool,
-                                  String filename,
-                                  String fileContent) {
-
-        final List<Output3D> results = new ArrayList<>();
+                                             AnalysisTool analysisTool,
+                                             NonCanonicalHandling nonCanonicalHandling,
+                                             boolean removeIsolated,
+                                             StructuralElementsHandling structuralElementsHandling,
+                                             VisualizationTool visualizationTool,
+                                             String filename,
+                                             String fileContent) {
 
         final List<PdbSecondaryStructure> secondaryStructures;
         try {
@@ -78,6 +82,8 @@ public class TertiaryStructureAnalysisService {
             throw new RuntimeException(e);
         }
 
+        final List<SingleTertiaryModelOutput> results = new ArrayList<>();
+
         for (final PdbSecondaryStructure secondaryStructure : secondaryStructures) {
             final AnalysisResult basePairAnalysis = secondaryStructure.getAnalysisResult();
             final List<AnalyzedBasePair> nonCanonicalBasePairs = basePairAnalysis.getNonCanonical();
@@ -95,6 +101,7 @@ public class TertiaryStructureAnalysisService {
                             .collect(Collectors.toList());
 
             for (final DotBracketFromPdb combinedStrand : combinedStrands) {
+                // TODO: analyse what is this and if it is needed.
                 final SecondaryStructureImage secondaryVisualization = imageService.provideVisualization(visualizationTool, dotBracket);
 
                 final PdbModel structureModel = secondaryStructure.getModel();
@@ -104,7 +111,6 @@ public class TertiaryStructureAnalysisService {
                 SecondaryStructureImage image = imageService.provideVisualization(visualizationTool, combinedStrand,
                         dotBracket, structureModel, nonCanonicalBasePairs, nonCanonicalHandling.mapTo2_0Enum());
 
-                final int modelNumber = structureModel.modelNumber();
                 final BpSeq bpseq = BpSeq.fromDotBracket(combinedStrand);
                 final Ct ct = Ct.fromDotBracket(combinedStrand);
                 final List<String> messages = generateMessageLog(filteredResults, image, analysisTool);
@@ -116,24 +122,43 @@ public class TertiaryStructureAnalysisService {
                                 structuralElementsHandling.isReuseSingleStrandsFromLoopsEnabled());
                 structuralElementFinder.generatePdb(structureModel);
 
-                // TODO map to engine data model.
-                /*results.add(
-                        ImmutableAnalysisOutput.builder()
-                                .modelNumber(modelNumber)
-                                .source(source)
-                                .bpSeq(bpseq)
-                                .ct(ct)
-                                .dotBracket(combinedStrand)
-                                .image(image)
-                                .messages(messages)
-                                .structuralElementFinder(structuralElementFinder)
-                                .analysisResult(filteredResults)
-                                .title(structureModel.title())
-                                .build());*/
+                SingleSecondaryModelAnalysisOutput singleOutput2D = new SingleSecondaryModelAnalysisOutput()
+                        .withImageInformation(analysisOutputsMapper.mapSecondaryStructureImageIntoImageInformationOutput(image))
+                        .withCt(analysisOutputsMapper.mapCtToListOfString(ct))
+                        .withBpSeq(analysisOutputsMapper.mapBpSeqToListOfString(bpseq))
+                        .withStructuralElement(analysisOutputsMapper
+                                .mapStructuralElementFinderIntoStructuralElementOutput(structuralElementFinder));
+
+
+                SingleTertiaryModelOutput singleTertiaryModelOutput = new SingleTertiaryModelOutput();
+                singleTertiaryModelOutput.setOutput2D(new Output2D().withAnalysis(List.of(singleOutput2D)));
+                singleTertiaryModelOutput.setMessages(messages);
+                singleTertiaryModelOutput.setModelNumber(structureModel.modelNumber());
+                singleTertiaryModelOutput.setTitle(structureModel.title());
+                singleTertiaryModelOutput.setCanonicalInteractions(mapAnalyzedBasePairsToOutputBasePairs(
+                        filteredResults.getCanonical()));
+                singleTertiaryModelOutput.setNonCanonicalInteractions(mapAnalyzedBasePairsToOutputBasePairs(
+                        filteredResults.getNonCanonical()));
+                singleTertiaryModelOutput.setStackingInteractions(mapAnalyzedBasePairsToOutputBasePairs(
+                        filteredResults.getStacking()));
+                singleTertiaryModelOutput.setBaseRiboseInteractions(mapAnalyzedBasePairsToOutputBasePairs(
+                        filteredResults.getBaseRibose()));
+                singleTertiaryModelOutput.setBasePhosphateInteractions(mapAnalyzedBasePairsToOutputBasePairs(
+                        filteredResults.getBasePhosphate()));
+                results.add(singleTertiaryModelOutput);
             }
         }
 
-        return null;
+        Output3D output3D = new Output3D();
+        output3D.setTertiaryModels(results);
+
+        return output3D;
+    }
+
+    private List<OutputBasePair> mapAnalyzedBasePairsToOutputBasePairs(List<AnalyzedBasePair> classifiedBasePairs) {
+        return classifiedBasePairs.stream()
+                .map(OutputBasePair::fromClassifiedBasePair)
+                .collect(Collectors.toList());
     }
 
     private List<String> generateMessageLog(AnalysisResult basePairAnalysis, SecondaryStructureImage image, AnalysisTool analysisTool) {
@@ -165,9 +190,12 @@ public class TertiaryStructureAnalysisService {
     }
 
     @Autowired
-    public TertiaryStructureAnalysisService(BasePairLoader basePairLoader, ImageService imageService) {
+    public TertiaryStructureAnalysisService(BasePairLoader basePairLoader,
+                                            ImageService imageService,
+                                            AnalysisOutputsMapper analysisOutputsMapper) {
         this.basePairLoader = basePairLoader;
         this.imageService = imageService;
+        this.analysisOutputsMapper = analysisOutputsMapper;
         try (final InputStream stream =
                      TertiaryStructureAnalysisService.class.getResourceAsStream("/completeAtomNames.dict")) {
             templates = new Templates(stream);
