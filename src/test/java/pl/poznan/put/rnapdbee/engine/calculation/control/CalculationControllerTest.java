@@ -3,10 +3,11 @@ package pl.poznan.put.rnapdbee.engine.calculation.control;
 import edu.put.rnapdbee.enums.DrawerEnum;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import pl.poznan.put.rnapdbee.engine.calculation.logic.CalculationService;
@@ -20,14 +21,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import org.slf4j.Logger;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class CalculationControllerTest {
 
-    @MockBean
+    @Mock
     CalculationService calculationService;
 
-    @Autowired
+    @Mock
+    Logger logger;
+
+    @InjectMocks
     CalculationController cut;
 
     private final static String mockedFilename = "test.cif";
