@@ -12,3 +12,6 @@ USE_PSEUDOKNOTS,VARNA,3G78.ct,true,421,421,5,421,2,26,41,25,2,1
 # Fifth test case
 USE_PSEUDOKNOTS,VARNA,3G78.dbn,false,421,421,5,421,2,26,49,29,2,3
 # Add each new test case with hash at the beginning so we don't get lost in this file.
+# Sixth test case
+USE_PSEUDOKNOTS,VARNA,3G78.dbn,true,421,421,5,421,2,26,46,27,2,3
+# Add each new test case with hash at the beginning so we don't get lost in this file.

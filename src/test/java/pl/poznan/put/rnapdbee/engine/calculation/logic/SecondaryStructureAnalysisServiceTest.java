@@ -62,11 +62,13 @@ class SecondaryStructureAnalysisServiceTest {
 
     @Test
     public void testSecondaryStructureFileAnalysisForWrongFileFormat() {
-        Assertions.assertThrows(IllegalArgumentException.class,
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
                 () -> cut.analyseSecondaryStructureFile(StructuralElementsHandling.USE_PSEUDOKNOTS,
                         VisualizationTool.VARNA,
                         true,
                         "Mocked content",
-                        "thisIsWrong.dbn"));
+                        "thisIsWrong.abc"),
+                "Invalid attempt to analyze secondary structure for input type: .abc");
     }
 }

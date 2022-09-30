@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -139,13 +140,13 @@ public class SecondaryStructureAnalysisService {
                     ImmutablePdbNamedResidueIdentifier.of(
                             strandMine.name().replaceFirst("strand_", ""),
                             symbolMine.index() + 1,
-                            "",
+                            Optional.empty(),
                             symbolMine.sequence());
             final PdbNamedResidueIdentifier right =
                     ImmutablePdbNamedResidueIdentifier.of(
                             strandPair.name().replaceFirst("strand_", ""),
                             symbolPair.index() + 1,
-                            "",
+                            Optional.empty(),
                             symbolPair.sequence());
             final BasePair basePair = ImmutableBasePair.of(left, right);
             interStrand.add(ImmutableAnalyzedBasePair.of(basePair));
@@ -184,15 +185,11 @@ public class SecondaryStructureAnalysisService {
 
     private DotBracket readDotBracketContent(String content, boolean removeIsolated) {
         DotBracket readDotBracket = DefaultDotBracket.fromString(content);
-        // TODO: this results in failures in previous Test Cases for DBN -> Image.
-        //  Probably it's because of the converter, maybe it's possible to remove isolated from dot bracket not by
-        //  "casting" it to CT. Or it will be resolved after using MILP algoritm
-        /* Ct ct = removeIsolated
-                ? Ct.fromDotBracket(readDotBracket).withoutIsolatedPairs()
-                : Ct.fromDotBracket(readDotBracket);
-        BpSeq bpSeq = BpSeq.fromCt(ct);
-        return DefaultDotBracket.copyWithStrands(CONVERTER.convert(bpSeq), ct);*/
-        return readDotBracket;
+        if (removeIsolated) {
+            return DefaultDotBracket.copyWithoutIsolatedBasePairs(readDotBracket);
+        } else {
+            return readDotBracket;
+        }
     }
 
     @Autowired
