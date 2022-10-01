@@ -12,7 +12,6 @@ import edu.put.rnapdbee.visualization.SecondaryStructureImage;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.consensus.BpSeqInfo;
 import pl.poznan.put.consensus.ConsensusInput;
 import pl.poznan.put.consensus.ConsensusOutput;
@@ -21,21 +20,17 @@ import pl.poznan.put.rnapdbee.engine.calculation.mapper.AnalysisOutputsMapper;
 import pl.poznan.put.rnapdbee.engine.calculation.model.Output2D;
 import pl.poznan.put.rnapdbee.engine.calculation.model.SingleSecondaryModelAnalysisOutput;
 import pl.poznan.put.rnapdbee.engine.image.logic.ImageService;
-import pl.poznan.put.rnapdbee.engine.image.logic.ImageUtils;
 import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.model.AnalysisTool;
-import pl.poznan.put.rnapdbee.engine.model.ConsensusVisualization;
 import pl.poznan.put.rnapdbee.engine.model.ModelSelection;
 import pl.poznan.put.rnapdbee.engine.model.OutputMulti;
 import pl.poznan.put.rnapdbee.engine.model.OutputMultiEntry;
 import pl.poznan.put.structure.formats.DotBracket;
 
-import javax.servlet.ServletContext;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Component
 public class ConsensusStructureAnalysisService {
@@ -43,8 +38,6 @@ public class ConsensusStructureAnalysisService {
     private final ImageService imageService;
 
     private final AnalysisOutputsMapper analysisOutputsMapper;
-
-    private final ServletContext servletContext;
 
     private final BasePairLoader basePairLoader;
 
@@ -60,39 +53,31 @@ public class ConsensusStructureAnalysisService {
         final Collection<Pair<BasePairAnalyzerEnum, BasePairAnalyzer>> analyzerPairs =
                 List.of(
                         Pair.of(BasePairAnalyzerEnum.MCANNOTATE,
-                                basePairLoader.provideBasePairAnalyzer(AnalysisTool.MC_ANNOTATE))
+                                basePairLoader.provideBasePairAnalyzer(AnalysisTool.MC_ANNOTATE)),
                         // TODO: fr3d is not always working - saengers are null
                         // Pair.of(BasePairAnalyzerEnum.FR3D,
                         //      basePairLoader.provideBasePairAnalyzer(AnalysisTool.FR3D_PYTHON)),
-                        // TODO: assuming DSSR means barnaba ->
+                        // TODO: assuming 'DSSR' means barnaba ->
                         //  must to be refactored when common code is joined with engine's code
-                        // TODO: barnaba is not always working - saengers are null
-                        // Pair.of(BasePairAnalyzerEnum.DSSR,
-                        //      basePairLoader.provideBasePairAnalyzer(AnalysisTool.BARNABA))
-                        // TODO: assuming RNAVIEW means BPNet ->
+                        Pair.of(BasePairAnalyzerEnum.DSSR,
+                             basePairLoader.provideBasePairAnalyzer(AnalysisTool.BARNABA)),
+                        // TODO: assuming 'FR3D' means BPNet ->
                         //  must to be refactored when common code is joined with engine's code
-                        // TODO: bpnet throws Inconsistent numbering in BPSEQ format: previous=0, current=0 for example4, commented out for now
-                        // Pair.of(BasePairAnalyzerEnum.RNAVIEW,
-                        //      basePairLoader.provideBasePairAnalyzer(AnalysisTool.BPNET))
-                        // TODO: rnaview throws Inconsistent numbering in BPSEQ format: previous=0, current=0 for example4, commented out for now
-                        // Pair.of(BasePairAnalyzerEnum.RNAVIEW,
-                        //      basePairLoader.provideBasePairAnalyzer(AnalysisTool.RNAVIEW))
+                        Pair.of(BasePairAnalyzerEnum.FR3D,
+                             basePairLoader.provideBasePairAnalyzer(AnalysisTool.BPNET)),
+                        Pair.of(BasePairAnalyzerEnum.RNAVIEW,
+                             basePairLoader.provideBasePairAnalyzer(AnalysisTool.RNAVIEW))
                 );
 
         final Pair<ConsensusInput, ConsensusOutput> consensus = findConsensus(modelSelection,
                 includeNonCanonical, removeIsolated, filename, content, analyzerPairs);
 
         final List<BpSeqInfo> bpSeqInfos = consensus.getLeft().getBpSeqInfos();
-        final List<SVGDocument> svgDocuments = consensus.getRight().getSvgDocuments();
-        final int size = svgDocuments.size();
-        assert bpSeqInfos.size() == svgDocuments.size();
 
-        List<OutputMultiEntry> outputMultiEntryList = IntStream
-                .range(0, size)
-                .mapToObj(i -> mapBpSeqInfoAndConsensusImageIntoOutputMultiEntry(
+        List<OutputMultiEntry> outputMultiEntryList = bpSeqInfos.stream()
+                .map(bpSeqInfo -> mapBpSeqInfoAndConsensusImageIntoOutputMultiEntry(
                         visualizationTool,
-                        bpSeqInfos.get(i),
-                        svgDocuments.get(i)))
+                        bpSeqInfo))
                 .collect(Collectors.toList());
 
         return new OutputMulti()
@@ -130,8 +115,7 @@ public class ConsensusStructureAnalysisService {
     }
 
     private OutputMultiEntry mapBpSeqInfoAndConsensusImageIntoOutputMultiEntry(VisualizationTool visualizationTool,
-                                                                               BpSeqInfo bpSeqInfo,
-                                                                               SVGDocument consensusImage) {
+                                                                               BpSeqInfo bpSeqInfo) {
         // TODO: using findFirst, because in future implementation using MILP the bpSeqInfo will only contain 1 dotBracket
         //  object, refactor when rnapdbee-common code is merged with the engine's code
         final DotBracket dotBracket = bpSeqInfo.uniqueDotBrackets().keySet()
@@ -139,47 +123,24 @@ public class ConsensusStructureAnalysisService {
                 .orElseThrow(RuntimeException::new);
         final SecondaryStructureImage secondaryVisualization = imageService.provideVisualization(visualizationTool, dotBracket);
 
-        final String svgConsensusVisualizationUrl = getSvgUrl(servletContext, consensusImage);
-        final String pngConsensusVisualizationUrl = getPngUrl(servletContext, consensusImage);
-
         SingleSecondaryModelAnalysisOutput secondaryAnalysisOutput = new SingleSecondaryModelAnalysisOutput()
                 .withBpSeq(analysisOutputsMapper.mapBpSeqToListOfString(bpSeqInfo.getBpSeq()))
                 .withCt(analysisOutputsMapper.mapCtToListOfString(bpSeqInfo.getCt()))
                 .withImageInformation(analysisOutputsMapper.mapSecondaryStructureImageIntoImageInformationOutput(secondaryVisualization));
         Output2D output2D = new Output2D()
                 .withAnalysis(List.of(secondaryAnalysisOutput));
-        ConsensusVisualization consensusVisualization =
-                new ConsensusVisualization(pngConsensusVisualizationUrl, svgConsensusVisualizationUrl);
 
         return new OutputMultiEntry()
                 .withOutput2D(output2D)
-                .withConsensusVisualization(consensusVisualization);
-    }
-
-    private String getSvgUrl(ServletContext servletContext, SVGDocument image) {
-        try {
-            return ImageUtils.generateSvgUrl(servletContext, image).getRight();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String getPngUrl(ServletContext servletContext, SVGDocument image) {
-        try {
-            return ImageUtils.generatePngUrl(servletContext, image).getRight();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+                .withAdapterEnums(bpSeqInfo.getBasePairAnalyzerNames());
     }
 
     @Autowired
     public ConsensusStructureAnalysisService(ImageService imageService,
                                              AnalysisOutputsMapper analysisOutputsMapper,
-                                             ServletContext servletContext,
                                              BasePairLoader basePairLoader) {
         this.imageService = imageService;
         this.analysisOutputsMapper = analysisOutputsMapper;
-        this.servletContext = servletContext;
         this.basePairLoader = basePairLoader;
     }
 }

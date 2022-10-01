@@ -29,8 +29,11 @@ public enum BR {
     NINE;
 
     // TODO: get rid of this when merging rnapdbee-common code to engine
-    public static pl.poznan.put.notation.BR mapToBioCommonsBph(BR bphFromEngineModel) {
-        switch (bphFromEngineModel) {
+    public static pl.poznan.put.notation.BR mapToBioCommonsBph(BR brFromEngine) {
+        if (brFromEngine == null) {
+            return pl.poznan.put.notation.BR.UNKNOWN;
+        }
+        switch (brFromEngine) {
             case ZERO:
                 return pl.poznan.put.notation.BR._0;
             case ONE:

@@ -31,6 +31,9 @@ public enum BPh {
 
     // TODO: get rid of this when merging rnapdbee-common code to engine
     public static pl.poznan.put.notation.BPh mapToBioCommonsBph(BPh bphFromEngineModel) {
+        if (bphFromEngineModel == null) {
+            return pl.poznan.put.notation.BPh.UNKNOWN;
+        }
         switch (bphFromEngineModel) {
             case ZERO:
                 return pl.poznan.put.notation.BPh._0;

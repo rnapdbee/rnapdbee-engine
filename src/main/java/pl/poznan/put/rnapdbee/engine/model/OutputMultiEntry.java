@@ -4,6 +4,8 @@ package pl.poznan.put.rnapdbee.engine.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import pl.poznan.put.rnapdbee.engine.calculation.model.Output2D;
 
+import java.util.List;
+
 /**
  * OutputMultiEntry
  */
@@ -12,15 +14,11 @@ public class OutputMultiEntry {
     @JsonProperty("output2D")
     private Output2D output2D;
 
-    @JsonProperty("consensusVisualization")
-    private ConsensusVisualization consensusVisualization;
+    @JsonProperty("adapterEnums")
+    private List<String> adapterEnums;
 
     public Output2D getOutput2D() {
         return output2D;
-    }
-
-    public ConsensusVisualization getConsensusVisualization() {
-        return consensusVisualization;
     }
 
     public OutputMultiEntry withOutput2D(Output2D output2D) {
@@ -28,8 +26,12 @@ public class OutputMultiEntry {
         return this;
     }
 
-    public OutputMultiEntry withConsensusVisualization(ConsensusVisualization consensusVisualization) {
-        this.consensusVisualization = consensusVisualization;
+    public List<String> getAdapterEnums() {
+        return adapterEnums;
+    }
+
+    public OutputMultiEntry withAdapterEnums(List<String> adapterEnums) {
+        this.adapterEnums = adapterEnums;
         return this;
     }
 }
