@@ -1,12 +1,6 @@
-### File containing test cases for (...) -> Image.
-### Currently the tests are checking if length of analysis's lists with parameters (bpseq, interactions...) is equal to expected lengths.
-### It is possible to assert multiple analysis outputs - just provide new set of sizes (bpseq size, ct size etc.) at the end. The test is flexible and will assert sizes of multiple analysis outputs.
-# First test case
-USE_PSEUDOKNOTS,VARNA,3G78.dbn,">strand_A
+>strand_A
 GuGUGCCCGGCAUGGGUGCAGUCUAUAGGGUGAGAGUCCCGAACUGUGAAGGCAGAAGUAACAGUUAGCCUAACGCAAGGGUGUCCGUGGCGACAUGGAAUCUGAAGGAAGCGGACGGCAAACCUUCGGUCUGAGGAACACGAACUUCAUAUGAGGCUAGGUAUCAAUGGAUGAGUUUGCAUAACAAAACAAAGUCCUUUCUGCCAAAGUUGGUACAGAGUAAAUGAAGCAGAUUGAUGAAGGGAAAGACUGCAUUCUUACCCGGGGAGGUCUGGAAACAGAAGUCAGCAGAAGUCAUAGUACCCUGUUCGCAGGGGAAGGACGGAACAAGUAUGGCGUUCGCGCCUAAGCUUGAACCGCCGUAUACCGAACGGUACGUACGGUGGUGUGAGAGGAGUUCGCUCUACUCUAU
 -.{[.(((((<..(((((((((((...(((.......)))..(((((...{{{.{{{...)))))..(((...(((..((((.((((((....))))))))))...]>..)))...)))...(((((((((((.(.....)...(((((.....[((...((((.(((((((..((((.][[[[[.))))...)))).}}}.}}}...))).))))...))...))))))))))...))))))...)))))))))))...})))))(...((((....))))...).......(((.(....(((........)))...))))....(((((..((((....))))...))))).(((((((((((((....)))..))))))))))...----------------------
 >strand_Z
 uGUUAUUUU
 .]]]]]...
-",421,421,5,421,2,26,49,29,2,3
-# Add each new test case with hash at the beginning so we don't get lost in this file.

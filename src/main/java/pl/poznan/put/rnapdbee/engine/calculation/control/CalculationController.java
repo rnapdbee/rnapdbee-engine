@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pl.poznan.put.rnapdbee.engine.calculation.logic.CalculationService;
-import pl.poznan.put.rnapdbee.engine.calculation.logic.EncodingUtils;
 import pl.poznan.put.rnapdbee.engine.calculation.model.Output2D;
 import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.model.AnalysisTool;
@@ -94,33 +93,5 @@ public class CalculationController {
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
             @RequestBody String content) {
         throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Endpoint responsible for (....) -> Image analysis.
-     *
-     * @param structuralElementsHandling enum determining if pseudoknots should be considered or not
-     * @param visualizationTool          enum for Visualization Tool
-     * @param fileContent                content of the analysed file
-     * @return wrapped in an object list of image outputs
-     */
-    @Operation(summary = "Perform a Dot-Bracket to Image calculation")
-    @PostMapping(path = "/image", produces = "application/json", consumes = "text/plain")
-    public ResponseEntity<Output2D> calculateDotBracketToImage(
-            @RequestParam("structuralElementsHandling") StructuralElementsHandling structuralElementsHandling,
-            @RequestParam("visualizationTool") VisualizationTool visualizationTool,
-            @RequestHeader("Content-Disposition") String contentDispositionHeader,
-            @RequestBody String fileContent) {
-
-        logger.info(String.format("Analysis of scenario (...) -> Image started for content-disposition header %s",
-                contentDispositionHeader));
-        ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
-        var outputAnalysis = calculationService
-                .handleDotBracketToImageCalculation(
-                        structuralElementsHandling,
-                        visualizationTool,
-                        fileContent,
-                        contentDisposition.getFilename());
-        return new ResponseEntity<>(outputAnalysis, HttpStatus.OK);
     }
 }

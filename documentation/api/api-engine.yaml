@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   description: "This is API of the engine service of RNApdbee v3.0."
-  version: "1.0.7"
+  version: "1.0.8"
   title: "RNApdbee Engine API"
 
 
@@ -75,35 +75,7 @@ paths:
           text/plain:
             schema:
               type: "string"
-              example: "content of the file"
-      responses:
-        "400":
-          description: "Bad request"
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Output2D"
-
-  /image/:
-    post:
-      tags:
-        - "Calculations"
-      summary: "Perform a Dot-Bracket to Image calculation"
-      description: ""
-      parameters:
-        - $ref: "#/components/parameters/structuralElementsHandling"
-        - $ref: "#/components/parameters/visualizationTool"
-        - $ref: "#/components/parameters/contentDispositionHeader"
-      requestBody:
-        description: ""
-        required: true
-        content:
-          text/plain:
-            schema:
-              type: "string"
-              example: "content of the file"
+              example: "content of the file (in either dbn, ct or bpseq format)"
       responses:
         "400":
           description: "Bad request"
