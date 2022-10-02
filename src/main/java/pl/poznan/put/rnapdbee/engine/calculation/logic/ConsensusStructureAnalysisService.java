@@ -89,7 +89,7 @@ public class ConsensusStructureAnalysisService {
         try {
             consensus = RNApdbee.findConsensus(
                     filename,
-                    InputType.valueOf(filename.split("\\.")[1].toUpperCase()),
+                    determineInputType(filename),
                     content,
                     analyzerPairs,
                     CONVERTERS,
@@ -106,6 +106,15 @@ public class ConsensusStructureAnalysisService {
             throw new RuntimeException(e);
         }
         return consensus;
+    }
+
+    private InputType determineInputType(String filename) {
+        for (InputType inputType: InputType.values()) {
+            if (filename.contains(inputType.getFileExtension())) {
+                return inputType;
+            }
+        }
+        throw new IllegalArgumentException("unknown file extension provided");
     }
 
     private OutputMultiEntry mapBpSeqInfoAndConsensusImageIntoOutputMultiEntry(VisualizationTool visualizationTool,

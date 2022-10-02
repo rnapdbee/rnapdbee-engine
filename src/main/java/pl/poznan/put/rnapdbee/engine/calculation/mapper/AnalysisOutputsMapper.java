@@ -14,6 +14,7 @@ import pl.poznan.put.rnapdbee.engine.calculation.model.StructuralElementOutput;
 import pl.poznan.put.rnapdbee.engine.model.OutputMultiEntry;
 import pl.poznan.put.structure.formats.BpSeq;
 import pl.poznan.put.structure.formats.Ct;
+import pl.poznan.put.structure.formats.DotBracket;
 import pl.poznan.put.structure.formats.Strand;
 
 import java.util.List;
@@ -47,6 +48,8 @@ public class AnalysisOutputsMapper {
         SingleSecondaryModelAnalysisOutput secondaryAnalysisOutput = new SingleSecondaryModelAnalysisOutput()
                 .withBpSeq(mapBpSeqToListOfString(bpSeqInfo.getBpSeq()))
                 .withCt(mapCtToListOfString(bpSeqInfo.getCt()))
+                // TODO remove this need to get(0) when merging rnapdbee-common code to engine.
+                .withStrands(mapDotBracketIntoStrandOutputs(bpSeqInfo.getDotBracketInfos().get(0).getDotBracket()))
                 .withImageInformation(mapSecondaryStructureImageIntoImageInformationOutput(secondaryVisualization));
         Output2D output2D = new Output2D()
                 .withAnalysis(List.of(secondaryAnalysisOutput));
@@ -84,10 +87,7 @@ public class AnalysisOutputsMapper {
     private SingleSecondaryModelAnalysisOutput mapSingleAnalysisOutputToSecondaryModelAnalysisOutput(AnalysisOutput analysisOutput) {
         return new SingleSecondaryModelAnalysisOutput()
                 .withBpSeq(mapBpSeqToListOfString(analysisOutput.bpSeq()))
-                .withStrands(analysisOutput
-                        .dotBracket().strands().stream()
-                        .map(this::mapStrandIntoSingleStrandOutput)
-                        .collect(Collectors.toList()))
+                .withStrands(mapDotBracketIntoStrandOutputs(analysisOutput.dotBracket()))
                 .withCt(mapCtToListOfString(analysisOutput.ct()))
                 .withInteractions(analysisOutput
                         .getInterStrand().stream()
@@ -96,6 +96,12 @@ public class AnalysisOutputsMapper {
                 .withStructuralElement(
                         mapStructuralElementFinderIntoStructuralElementOutput(analysisOutput.structuralElementFinder()))
                 .withImageInformation(mapSecondaryStructureImageIntoImageInformationOutput(analysisOutput.image()));
+    }
+
+    private List<SingleStrandOutput> mapDotBracketIntoStrandOutputs(DotBracket dotBracket) {
+        return dotBracket.strands().stream()
+                .map(this::mapStrandIntoSingleStrandOutput)
+                .collect(Collectors.toList());
     }
 
     private SingleStrandOutput mapStrandIntoSingleStrandOutput(Strand strand) {

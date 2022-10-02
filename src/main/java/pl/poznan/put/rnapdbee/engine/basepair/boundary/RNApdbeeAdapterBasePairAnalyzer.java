@@ -175,7 +175,8 @@ public abstract class RNApdbeeAdapterBasePairAnalyzer implements BasePairAnalyze
                     !classifiedNucleotides.contains(pair.basePair().right())) {
                 pairsClassifiedAsRepresented.add(pair);
                 /* TODO: ask if this should stay (2.0 version has inverted pairs, however it probably does not matter)
-                     pairsClassifiedAsRepresented.add((AnalyzedBasePair) pair.invert()); */
+                     pairsClassifiedAsRepresented.add((AnalyzedBasePair) pair.invert());
+                 */
                 classifiedNucleotides.add(pair.basePair().left());
                 classifiedNucleotides.add(pair.basePair().right());
             }

@@ -6,10 +6,10 @@ import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.aggregator.AggregateWith;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.mockito.InjectMocks;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -24,6 +24,9 @@ import pl.poznan.put.rnapdbee.engine.basepair.boundary.BarnabaBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.basepair.boundary.MCAnnotateBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.basepair.boundary.RnaViewBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.basepair.webclient.AdapterWebClientConfiguration;
+import pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensus.ConsensusAnalysisTestInformation;
+import pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensus.ConsensusAnalysisTestInformationAggregator;
+import pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensus.ConsensusAnalysisTestUtils;
 import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.model.ModelSelection;
 
@@ -31,6 +34,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
 
 @SpringBootTest
@@ -38,7 +42,9 @@ class ConsensusStructureAnalysisServiceTest {
 
     static MockWebServer mockWebServer;
 
-    static String EXAMPLE_FILE_PATH_FORMAT = "/3DToMulti2DMocks/%s/pdbfile.pdb";
+    static String EXAMPLE_PDB_FILE_PATH_FORMAT = "/3DToMulti2DMocks/%s/pdbfile.pdb";
+    static String EXAMPLE_CIF_FILE_PATH_FORMAT = "/3DToMulti2DMocks/%s/mmciffile.cif";
+
     static String BARNABA_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/barnaba_response.json";
     static String BPNET_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/bpnet_response.json";
     static String MC_ANNOTATE_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/mc_annotate_response.json";
@@ -62,13 +68,24 @@ class ConsensusStructureAnalysisServiceTest {
     @ParameterizedTest
     @CsvFileSource(resources = "/3dToMulti2DTestCases.csv")
     @Timeout(60)
-    void testConsensusAnalysis(String exampleFilename) {
+    void testConsensusAnalysis(String exampleFilename, ModelSelection modelSelection, boolean includeNonCanonical,
+                               boolean removeIsolated, VisualizationTool visualizationTool,
+                               @AggregateWith(ConsensusAnalysisTestInformationAggregator.class)
+                               List<ConsensusAnalysisTestInformation> expectedInformationList) {
         prepareMockWebServerStubs(exampleFilename);
-        String fileContent = readFileAsString(String.format(EXAMPLE_FILE_PATH_FORMAT, exampleFilename));
-        // TODO: make all enums configurable via csv file.
-        var result = cut.analyse(ModelSelection.ALL, true, true, VisualizationTool.VARNA, exampleFilename, fileContent);
-        // TODO: add more assertions.
-        Assertions.assertEquals(result.getEntries().size(), 4);
+        String fileContent = readFileContentFromFile(exampleFilename);
+        var result = cut.analyse(modelSelection, includeNonCanonical, removeIsolated, visualizationTool, exampleFilename, fileContent);
+        // TODO: add assertions for adapterEnums when rnapdbee-common code is merged with rnapdbee-engine
+        ConsensusAnalysisTestUtils.assertAnalysisOutput(result, expectedInformationList);
+    }
+
+    private String readFileContentFromFile(String exampleFilename) {
+        if (exampleFilename.contains(".pdb")) {
+            return readFileAsString(String.format(EXAMPLE_PDB_FILE_PATH_FORMAT, exampleFilename));
+        } else if (exampleFilename.contains(".cif")) {
+            return readFileAsString(String.format(EXAMPLE_CIF_FILE_PATH_FORMAT, exampleFilename));
+        }
+        throw new IllegalArgumentException("example file name is neither pdb, nor cif");
     }
 
     private void prepareMockWebServerStubs(String exampleFileName) {
