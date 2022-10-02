@@ -50,31 +50,13 @@ public class ConsensusStructureAnalysisService {
                                VisualizationTool visualizationTool,
                                String filename,
                                String content) {
-        final Collection<Pair<BasePairAnalyzerEnum, BasePairAnalyzer>> analyzerPairs =
-                List.of(
-                        Pair.of(BasePairAnalyzerEnum.MCANNOTATE,
-                                basePairLoader.provideBasePairAnalyzer(AnalysisTool.MC_ANNOTATE)),
-                        // TODO: fr3d is not always working - saengers are null
-                        // Pair.of(BasePairAnalyzerEnum.FR3D,
-                        //      basePairLoader.provideBasePairAnalyzer(AnalysisTool.FR3D_PYTHON)),
-                        // TODO: assuming 'DSSR' means barnaba ->
-                        //  must to be refactored when common code is joined with engine's code
-                        Pair.of(BasePairAnalyzerEnum.DSSR,
-                             basePairLoader.provideBasePairAnalyzer(AnalysisTool.BARNABA)),
-                        // TODO: assuming 'FR3D' means BPNet ->
-                        //  must to be refactored when common code is joined with engine's code
-                        Pair.of(BasePairAnalyzerEnum.FR3D,
-                             basePairLoader.provideBasePairAnalyzer(AnalysisTool.BPNET)),
-                        Pair.of(BasePairAnalyzerEnum.RNAVIEW,
-                             basePairLoader.provideBasePairAnalyzer(AnalysisTool.RNAVIEW))
-                );
-
-        final Pair<ConsensusInput, ConsensusOutput> consensus = findConsensus(modelSelection,
+        final var analyzerPairs = prepareAnalyzerPairs();
+        final var consensus = findConsensus(modelSelection,
                 includeNonCanonical, removeIsolated, filename, content, analyzerPairs);
 
         final List<BpSeqInfo> bpSeqInfos = consensus.getLeft().getBpSeqInfos();
 
-        List<OutputMultiEntry> outputMultiEntryList = bpSeqInfos.stream()
+        final List<OutputMultiEntry> outputMultiEntryList = bpSeqInfos.stream()
                 .map(bpSeqInfo -> mapBpSeqInfoAndConsensusImageIntoOutputMultiEntry(
                         visualizationTool,
                         bpSeqInfo))
@@ -133,6 +115,26 @@ public class ConsensusStructureAnalysisService {
         return new OutputMultiEntry()
                 .withOutput2D(output2D)
                 .withAdapterEnums(bpSeqInfo.getBasePairAnalyzerNames());
+    }
+
+    private Collection<Pair<BasePairAnalyzerEnum, BasePairAnalyzer>> prepareAnalyzerPairs() {
+        return List.of(
+                Pair.of(BasePairAnalyzerEnum.MCANNOTATE,
+                        basePairLoader.provideBasePairAnalyzer(AnalysisTool.MC_ANNOTATE)),
+                // TODO: fr3d is not always working - saengers are null
+                // Pair.of(BasePairAnalyzerEnum.FR3D,
+                //      basePairLoader.provideBasePairAnalyzer(AnalysisTool.FR3D_PYTHON)),
+                // TODO: assuming 'DSSR' means barnaba ->
+                //  must to be refactored when common code is joined with engine's code
+                Pair.of(BasePairAnalyzerEnum.DSSR,
+                        basePairLoader.provideBasePairAnalyzer(AnalysisTool.BARNABA)),
+                // TODO: assuming 'FR3D' means BPNet ->
+                //  must to be refactored when common code is joined with engine's code
+                Pair.of(BasePairAnalyzerEnum.FR3D,
+                        basePairLoader.provideBasePairAnalyzer(AnalysisTool.BPNET)),
+                Pair.of(BasePairAnalyzerEnum.RNAVIEW,
+                        basePairLoader.provideBasePairAnalyzer(AnalysisTool.RNAVIEW))
+        );
     }
 
     @Autowired
