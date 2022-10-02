@@ -1,0 +1,181 @@
+{
+  "basePairs": [
+    {
+      "nt1": {
+        "label": null,
+        "auth": {
+          "chain": "A",
+          "number": 1,
+          "icode": null,
+          "name": "G"
+        }
+      },
+      "nt2": {
+        "label": null,
+        "auth": {
+          "chain": "A",
+          "number": 17,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "lw": "cWW",
+      "saenger": null
+    },
+    {
+      "nt1": {
+        "label": null,
+        "auth": {
+          "chain": "A",
+          "number": 2,
+          "icode": null,
+          "name": "G"
+        }
+      },
+      "nt2": {
+        "label": null,
+        "auth": {
+          "chain": "A",
+          "number": 16,
+          "icode": null,
+          "name": "U"
+        }
+      },
+      "lw": "cWW",
+      "saenger": "XXVIII"
+    },
+    {
+      "nt1": {
+        "label": null,
+        "auth": {
+          "chain": "A",
+          "number": 3,
+          "icode": null,
+          "name": "G"
+        }
+      },
+      "nt2": {
+        "label": null,
+        "auth": {
+          "chain": "A",
+          "number": 15,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "lw": "cWW",
+      "saenger": "XIX"
+    },
+    {
+      "nt1": {
+        "label": null,
+        "auth": {
+          "chain": "A",
+          "number": 4,
+          "icode": null,
+          "name": "A"
+        }
+      },
+      "nt2": {
+        "label": null,
+        "auth": {
+          "chain": "A",
+          "number": 14,
+          "icode": null,
+          "name": "U"
+        }
+      },
+      "lw": "cWW",
+      "saenger": "XX"
+    },
+    {
+      "nt1": {
+        "label": null,
+        "auth": {
+          "chain": "A",
+          "number": 5,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "nt2": {
+        "label": null,
+        "auth": {
+          "chain": "A",
+          "number": 13,
+          "icode": null,
+          "name": "G"
+        }
+      },
+      "lw": "cWW",
+      "saenger": "XIX"
+    },
+    {
+      "nt1": {
+        "label": null,
+        "auth": {
+          "chain": "A",
+          "number": 6,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "nt2": {
+        "label": null,
+        "auth": {
+          "chain": "A",
+          "number": 12,
+          "icode": null,
+          "name": "G"
+        }
+      },
+      "lw": "cWW",
+      "saenger": "XIX"
+    }
+  ],
+  "stackings": [],
+  "baseRiboseInteractions": [],
+  "basePhosphateInteractions": [],
+  "otherInteractions": [
+    {
+      "nt1": {
+        "label": null,
+        "auth": {
+          "chain": "A",
+          "number": 7,
+          "icode": null,
+          "name": "U"
+        }
+      },
+      "nt2": {
+        "label": null,
+        "auth": {
+          "chain": "A",
+          "number": 11,
+          "icode": null,
+          "name": "C"
+        }
+      }
+    },
+    {
+      "nt1": {
+        "label": null,
+        "auth": {
+          "chain": "A",
+          "number": 8,
+          "icode": null,
+          "name": "U"
+        }
+      },
+      "nt2": {
+        "label": null,
+        "auth": {
+          "chain": "A",
+          "number": 10,
+          "icode": null,
+          "name": "C"
+        }
+      }
+    }
+  ]
+}
