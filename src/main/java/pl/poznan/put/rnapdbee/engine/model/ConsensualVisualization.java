@@ -4,7 +4,7 @@ package pl.poznan.put.rnapdbee.engine.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * DTO class for Consensus Visualization - currently blank in the spec
+ * DTO class for Consensus Visualization
  */
 public class ConsensualVisualization {
 
@@ -19,6 +19,14 @@ public class ConsensualVisualization {
 
     public void setPathToSVGImage(String pathToSVGImage) {
         this.pathToSvgImage = pathToSVGImage;
+    }
+
+    public String getPathToPngImage() {
+        return pathToPngImage;
+    }
+
+    public String getPathToSvgImage() {
+        return pathToSvgImage;
     }
 
     public ConsensualVisualization() {

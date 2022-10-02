@@ -10,6 +10,10 @@ import pl.poznan.put.rnapdbee.engine.basepair.boundary.MCAnnotateBasePairAnalyze
 import pl.poznan.put.rnapdbee.engine.basepair.boundary.RnaViewBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.model.AnalysisTool;
 
+/**
+ * Component which handles loading right implementation of
+ * {@link pl.poznan.put.rnapdbee.engine.basepair.boundary.RNApdbeeAdapterBasePairAnalyzer}
+ */
 @Component
 public class BasePairLoader {
 
@@ -19,6 +23,13 @@ public class BasePairLoader {
     private final BPNetBasePairAnalyzer bpNetBasePairAnalyzer;
     private final BarnabaBasePairAnalyzer barnabaBasePairAnalyzer;
 
+    /**
+     * Returns the appropriate implementation of {@link pl.poznan.put.rnapdbee.engine.basepair.boundary.RNApdbeeAdapterBasePairAnalyzer},
+     * based on given enum.
+     *
+     * @param basePairAnalyzerEnum enum of AnalysisTool that should be used in analysis
+     * @return implementation connected with given enum
+     */
     public BasePairAnalyzer provideBasePairAnalyzer(AnalysisTool basePairAnalyzerEnum) {
         switch (basePairAnalyzerEnum) {
             case BPNET:

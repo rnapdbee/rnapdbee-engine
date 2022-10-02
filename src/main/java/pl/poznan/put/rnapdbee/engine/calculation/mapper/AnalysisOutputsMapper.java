@@ -5,11 +5,13 @@ import edu.put.rnapdbee.analysis.elements.StructuralElement;
 import edu.put.rnapdbee.analysis.elements.StructuralElementFinder;
 import edu.put.rnapdbee.visualization.SecondaryStructureImage;
 import org.springframework.stereotype.Service;
+import pl.poznan.put.consensus.BpSeqInfo;
 import pl.poznan.put.rnapdbee.engine.calculation.model.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.calculation.model.Output2D;
 import pl.poznan.put.rnapdbee.engine.calculation.model.SingleSecondaryModelAnalysisOutput;
 import pl.poznan.put.rnapdbee.engine.calculation.model.SingleStrandOutput;
 import pl.poznan.put.rnapdbee.engine.calculation.model.StructuralElementOutput;
+import pl.poznan.put.rnapdbee.engine.model.OutputMultiEntry;
 import pl.poznan.put.structure.formats.BpSeq;
 import pl.poznan.put.structure.formats.Ct;
 import pl.poznan.put.structure.formats.Strand;
@@ -33,19 +35,40 @@ public class AnalysisOutputsMapper {
                 .withAnalysis(singleAnalysisOutputs);
     }
 
-    public List<String> mapBpSeqToListOfString(BpSeq bpSeq) {
+    /**
+     * maps bpSeqInfo object and secondaryStructureImage object into OutputMultiEntry.
+     *
+     * @param bpSeqInfo              bpSeqInfo object
+     * @param secondaryVisualization visualization of the analysed bpSeq
+     * @return important information wrapped in OutputMultiEntry object
+     */
+    public OutputMultiEntry mapBpSeqInfoAndSecondaryStructureImageIntoOutputMultiEntry(BpSeqInfo bpSeqInfo,
+                                                                                       SecondaryStructureImage secondaryVisualization) {
+        SingleSecondaryModelAnalysisOutput secondaryAnalysisOutput = new SingleSecondaryModelAnalysisOutput()
+                .withBpSeq(mapBpSeqToListOfString(bpSeqInfo.getBpSeq()))
+                .withCt(mapCtToListOfString(bpSeqInfo.getCt()))
+                .withImageInformation(mapSecondaryStructureImageIntoImageInformationOutput(secondaryVisualization));
+        Output2D output2D = new Output2D()
+                .withAnalysis(List.of(secondaryAnalysisOutput));
+
+        return new OutputMultiEntry()
+                .withOutput2D(output2D)
+                .withAdapterEnums(bpSeqInfo.getBasePairAnalyzerNames());
+    }
+
+    private List<String> mapBpSeqToListOfString(BpSeq bpSeq) {
         return bpSeq.entries().stream()
                 .map(BpSeq.Entry::toString)
                 .collect(Collectors.toList());
     }
 
-    public List<String> mapCtToListOfString(Ct ct) {
+    private List<String> mapCtToListOfString(Ct ct) {
         return ct.entries().stream()
                 .map(Ct.ExtendedEntry::toString)
                 .collect(Collectors.toList());
     }
 
-    public ImageInformationOutput mapSecondaryStructureImageIntoImageInformationOutput(SecondaryStructureImage image) {
+    private ImageInformationOutput mapSecondaryStructureImageIntoImageInformationOutput(SecondaryStructureImage image) {
         return new ImageInformationOutput()
                 .withSuccessfulDrawer(image.getSuccessfulDrawer())
                 .withFailedDrawer(image.getFailedDrawer())

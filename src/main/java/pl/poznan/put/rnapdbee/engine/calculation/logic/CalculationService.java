@@ -9,6 +9,9 @@ import pl.poznan.put.rnapdbee.engine.model.ModelSelection;
 import pl.poznan.put.rnapdbee.engine.model.OutputMulti;
 import pl.poznan.put.rnapdbee.engine.model.StructuralElementsHandling;
 
+/**
+ * Middleware between CalculationController and Structure Analysis Services.
+ */
 @Component
 public class CalculationService {
 

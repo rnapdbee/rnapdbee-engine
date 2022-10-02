@@ -13,7 +13,6 @@ import java.util.Optional;
  * DTO class for BasePair
  * instances of this class are being returned by rnapdbee-adapters as array members.
  */
-// TODO ask if the approach of just one class there is good (in my opinion it's not needed to
 public class BasePairDTO extends BasePair {
 
     @JsonProperty("nt1")

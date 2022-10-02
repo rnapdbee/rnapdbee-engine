@@ -17,8 +17,6 @@ import pl.poznan.put.consensus.ConsensusInput;
 import pl.poznan.put.consensus.ConsensusOutput;
 import pl.poznan.put.rnapdbee.engine.basepair.service.BasePairLoader;
 import pl.poznan.put.rnapdbee.engine.calculation.mapper.AnalysisOutputsMapper;
-import pl.poznan.put.rnapdbee.engine.calculation.model.Output2D;
-import pl.poznan.put.rnapdbee.engine.calculation.model.SingleSecondaryModelAnalysisOutput;
 import pl.poznan.put.rnapdbee.engine.image.logic.ImageService;
 import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.model.AnalysisTool;
@@ -32,6 +30,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Service which purpose is to handle 3D -> Multi 2D analysis.
+ */
 @Component
 public class ConsensusStructureAnalysisService {
 
@@ -44,6 +45,17 @@ public class ConsensusStructureAnalysisService {
     // TODO: replace converter method with Mixed-Integer Linear Programming (separate Task)
     final static List<ConverterEnum> CONVERTERS = List.of(ConverterEnum.DPNEW);
 
+    /**
+     * Performs 3D -> multi 2D analysis.
+     *
+     * @param modelSelection      enum indicating if first, or all models from file should be analysed
+     * @param includeNonCanonical boolean flag indicating if non-canonical pairs should be kept in analysis
+     * @param removeIsolated      boolean flag indicating if isolated pairs should be removed from analysis
+     * @param visualizationTool   enum indicating the tool/method that should be used in visualization
+     * @param filename            name of the analysed file
+     * @param content             content of the analysed file
+     * @return output of the analysis
+     */
     public OutputMulti analyse(ModelSelection modelSelection,
                                boolean includeNonCanonical,
                                boolean removeIsolated,
@@ -105,23 +117,14 @@ public class ConsensusStructureAnalysisService {
                 .orElseThrow(RuntimeException::new);
         final SecondaryStructureImage secondaryVisualization = imageService.provideVisualization(visualizationTool, dotBracket);
 
-        SingleSecondaryModelAnalysisOutput secondaryAnalysisOutput = new SingleSecondaryModelAnalysisOutput()
-                .withBpSeq(analysisOutputsMapper.mapBpSeqToListOfString(bpSeqInfo.getBpSeq()))
-                .withCt(analysisOutputsMapper.mapCtToListOfString(bpSeqInfo.getCt()))
-                .withImageInformation(analysisOutputsMapper.mapSecondaryStructureImageIntoImageInformationOutput(secondaryVisualization));
-        Output2D output2D = new Output2D()
-                .withAnalysis(List.of(secondaryAnalysisOutput));
-
-        return new OutputMultiEntry()
-                .withOutput2D(output2D)
-                .withAdapterEnums(bpSeqInfo.getBasePairAnalyzerNames());
+        return analysisOutputsMapper.mapBpSeqInfoAndSecondaryStructureImageIntoOutputMultiEntry(bpSeqInfo, secondaryVisualization);
     }
 
     private Collection<Pair<BasePairAnalyzerEnum, BasePairAnalyzer>> prepareAnalyzerPairs() {
         return List.of(
                 Pair.of(BasePairAnalyzerEnum.MCANNOTATE,
                         basePairLoader.provideBasePairAnalyzer(AnalysisTool.MC_ANNOTATE)),
-                // TODO: fr3d is not always working - saengers are null
+                // TODO: fr3d is not always working
                 // Pair.of(BasePairAnalyzerEnum.FR3D,
                 //      basePairLoader.provideBasePairAnalyzer(AnalysisTool.FR3D_PYTHON)),
                 // TODO: assuming 'DSSR' means barnaba ->
