@@ -7,7 +7,7 @@ import edu.put.rnapdbee.visualization.SecondaryStructureDrawer;
 import edu.put.rnapdbee.visualization.SecondaryStructureImage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import pl.poznan.put.rnapdbee.engine.calculation.logic.DrawerService;
+import pl.poznan.put.rnapdbee.engine.calculation.logic.DrawerLoader;
 import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
 import pl.poznan.put.structure.formats.DotBracket;
 
@@ -22,7 +22,7 @@ public class ImageService {
 
     private final ServletContext servletContext;
 
-    private final DrawerService drawerService;
+    private final DrawerLoader drawerLoader;
 
     public SecondaryStructureImage provideVisualization(VisualizationTool visualizationTool,
                                                         DotBracket combinedStrand) {
@@ -30,8 +30,8 @@ public class ImageService {
             return SecondaryStructureImage.emptyInstance(combinedStrand);
         }
 
-        final SecondaryStructureDrawer mainDrawer = drawerService.loadDrawer(visualizationTool);
-        final SecondaryStructureDrawer backupDrawer = drawerService
+        final SecondaryStructureDrawer mainDrawer = drawerLoader.loadDrawer(visualizationTool);
+        final SecondaryStructureDrawer backupDrawer = drawerLoader
                 .loadDrawer(visualizationTool.getBackupVisualizationTool());
 
         // TODO: restore the cache
@@ -47,8 +47,8 @@ public class ImageService {
     }
 
     @Autowired
-    public ImageService(ServletContext servletContext, DrawerService drawerService) {
+    public ImageService(ServletContext servletContext, DrawerLoader drawerLoader) {
         this.servletContext = servletContext;
-        this.drawerService = drawerService;
+        this.drawerLoader = drawerLoader;
     }
 }

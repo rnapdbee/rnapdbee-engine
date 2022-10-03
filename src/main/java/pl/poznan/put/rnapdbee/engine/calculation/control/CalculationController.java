@@ -84,6 +84,16 @@ public class CalculationController {
         return new ResponseEntity<>(outputAnalysis, HttpStatus.OK);
     }
 
+    /**
+     * Endpoint responsible for 3D -> multi 2D analysis.
+     * @param modelSelection            enum indicating if first, or all models from file should be analysed
+     * @param includeNonCanonical       boolean flag indicating if non-canonical pairs should be kept in analysis
+     * @param removeIsolated            boolean flag indicating if isolated pairs should be removed from analysis
+     * @param visualizationTool         enum indicating the tool/method that should be used in visualization
+     * @param contentDispositionHeader  Content-Disposition header containing name of the file
+     * @param fileContent               content of the analysed file
+     * @return object with analysis output
+     */
     @Operation(summary = "Perform a 3D to multi 2D calculation")
     @PostMapping(path = "/multi", produces = "application/json", consumes = "text/plain")
     public ResponseEntity<Object> calculateTertiaryToMultiSecondary(
@@ -91,7 +101,14 @@ public class CalculationController {
             @RequestParam("includeNonCanonical") boolean includeNonCanonical,
             @RequestParam("removeIsolated") boolean removeIsolated,
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
-            @RequestBody String content) {
-        throw new UnsupportedOperationException();
+            @RequestHeader("Content-Disposition") String contentDispositionHeader,
+            @RequestBody String fileContent) {
+        logger.info(String.format("Analysis of scenario 3D -> multi 2D started for content-disposition header %s",
+                contentDispositionHeader));
+        ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
+        var result = calculationService.handleTertiaryToMultiSecondaryCalculation(modelSelection,
+                includeNonCanonical, removeIsolated, visualizationTool, contentDisposition.getFilename(), fileContent);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }
