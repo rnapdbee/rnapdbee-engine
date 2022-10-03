@@ -59,19 +59,22 @@ public class AnalysisOutputsMapper {
                 .withAdapterEnums(bpSeqInfo.getBasePairAnalyzerNames());
     }
 
-    private List<String> mapBpSeqToListOfString(BpSeq bpSeq) {
+    // TODO make private
+    public List<String> mapBpSeqToListOfString(BpSeq bpSeq) {
         return bpSeq.entries().stream()
                 .map(BpSeq.Entry::toString)
                 .collect(Collectors.toList());
     }
 
-    private List<String> mapCtToListOfString(Ct ct) {
+    // TODO make private
+    public List<String> mapCtToListOfString(Ct ct) {
         return ct.entries().stream()
                 .map(Ct.ExtendedEntry::toString)
                 .collect(Collectors.toList());
     }
 
-    private ImageInformationOutput mapSecondaryStructureImageIntoImageInformationOutput(SecondaryStructureImage image) {
+    // TODO make private
+    public ImageInformationOutput mapSecondaryStructureImageIntoImageInformationOutput(SecondaryStructureImage image) {
         return new ImageInformationOutput()
                 .withSuccessfulDrawer(image.getSuccessfulDrawer())
                 .withFailedDrawer(image.getFailedDrawer())
@@ -111,7 +114,8 @@ public class AnalysisOutputsMapper {
                 .withStructure(strand.structure());
     }
 
-    private StructuralElementOutput mapStructuralElementFinderIntoStructuralElementOutput(
+    // TODO make private
+    public StructuralElementOutput mapStructuralElementFinderIntoStructuralElementOutput(
             StructuralElementFinder structuralElementFinder) {
         return new StructuralElementOutput()
                 .withStems(structuralElementFinder.getStems().stream()
