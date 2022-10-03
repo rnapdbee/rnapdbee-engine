@@ -15,15 +15,12 @@ import org.springframework.stereotype.Component;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rnapdbee.engine.basepair.service.BasePairLoader;
 import pl.poznan.put.rnapdbee.engine.calculation.mapper.AnalysisOutputsMapper;
-import pl.poznan.put.rnapdbee.engine.calculation.model.Output2D;
-import pl.poznan.put.rnapdbee.engine.calculation.model.SingleSecondaryModelAnalysisOutput;
 import pl.poznan.put.rnapdbee.engine.image.logic.ImageService;
 import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.model.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.model.ModelSelection;
 import pl.poznan.put.rnapdbee.engine.model.NonCanonicalHandling;
 import pl.poznan.put.rnapdbee.engine.model.Output3D;
-import pl.poznan.put.rnapdbee.engine.model.OutputBasePair;
 import pl.poznan.put.rnapdbee.engine.model.SingleTertiaryModelOutput;
 import pl.poznan.put.rnapdbee.engine.model.StructuralElementsHandling;
 import pl.poznan.put.structure.AnalyzedBasePair;
@@ -39,6 +36,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class TertiaryStructureAnalysisService {
@@ -50,18 +48,115 @@ public class TertiaryStructureAnalysisService {
     private final Templates templates;
 
     public Output3D analyse(ModelSelection modelSelection,
-                                             AnalysisTool analysisTool,
-                                             NonCanonicalHandling nonCanonicalHandling,
-                                             boolean removeIsolated,
-                                             StructuralElementsHandling structuralElementsHandling,
-                                             VisualizationTool visualizationTool,
-                                             String filename,
-                                             String fileContent) {
+                            AnalysisTool analysisTool,
+                            NonCanonicalHandling nonCanonicalHandling,
+                            boolean removeIsolated,
+                            StructuralElementsHandling structuralElementsHandling,
+                            VisualizationTool visualizationTool,
+                            String filename,
+                            String fileContent) {
 
+        final List<PdbSecondaryStructure> secondaryStructures = performAnalysis(modelSelection, analysisTool,
+                nonCanonicalHandling, removeIsolated, filename, fileContent);
+
+        final List<SingleTertiaryModelOutput> results = secondaryStructures
+                .stream().flatMap(secondaryStructure ->
+                        processSingleSecondaryStructure(analysisTool,
+                                nonCanonicalHandling,
+                                structuralElementsHandling,
+                                visualizationTool,
+                                secondaryStructure))
+                .collect(Collectors.toList());
+
+        Output3D output3D = new Output3D();
+        output3D.setModels(results);
+
+        return output3D;
+    }
+
+    private Stream<SingleTertiaryModelOutput> processSingleSecondaryStructure(
+            AnalysisTool analysisTool,
+            NonCanonicalHandling nonCanonicalHandling,
+            StructuralElementsHandling structuralElementsHandling,
+            VisualizationTool visualizationTool,
+            PdbSecondaryStructure secondaryStructure) {
+        final AnalysisResult basePairAnalysis = secondaryStructure.getAnalysisResult();
+        final List<AnalyzedBasePair> nonCanonicalBasePairs = basePairAnalysis.getNonCanonical();
+        final DefaultDotBracketFromPdb dotBracket = secondaryStructure.getDotBracket();
+        final List<DotBracketFromPdb> combinedStrands = determineCombinedStrands(nonCanonicalHandling,
+                nonCanonicalBasePairs, dotBracket);
+
+        return combinedStrands
+                .stream().map(combinedStrand ->
+                        processSingleCombinedStrand(analysisTool,
+                                nonCanonicalHandling,
+                                structuralElementsHandling,
+                                visualizationTool,
+                                secondaryStructure,
+                                basePairAnalysis,
+                                nonCanonicalBasePairs,
+                                dotBracket,
+                                combinedStrand));
+    }
+
+    private SingleTertiaryModelOutput processSingleCombinedStrand(
+            AnalysisTool analysisTool,
+            NonCanonicalHandling nonCanonicalHandling,
+            StructuralElementsHandling structuralElementsHandling,
+            VisualizationTool visualizationTool,
+            PdbSecondaryStructure secondaryStructure,
+            AnalysisResult basePairAnalysis,
+            List<AnalyzedBasePair> nonCanonicalBasePairs,
+            DefaultDotBracketFromPdb dotBracket,
+            DotBracketFromPdb combinedStrand) {
+        final PdbModel structureModel = secondaryStructure.getModel();
+        final AnalysisResult filteredResults =
+                basePairAnalysis.filtered(combinedStrand.identifierSet());
+
+        SecondaryStructureImage image = imageService.visualizeCanonicalOrNonCanonical(visualizationTool,
+                combinedStrand, dotBracket, structureModel, nonCanonicalBasePairs, nonCanonicalHandling.mapTo2_0Enum());
+
+        final BpSeq bpseq = BpSeq.fromDotBracket(combinedStrand);
+        final Ct ct = Ct.fromDotBracket(combinedStrand);
+        final List<String> messages = generateMessageLog(filteredResults, image, analysisTool);
+
+        final StructuralElementFinder structuralElementFinder =
+                new StructuralElementFinder(
+                        combinedStrand,
+                        structuralElementsHandling.canElementsEndWithPseudoknots(),
+                        structuralElementsHandling.isReuseSingleStrandsFromLoopsEnabled());
+        structuralElementFinder.generatePdb(structureModel);
+
+        return analysisOutputsMapper
+                .wrapSingleMulti2DAnalysisToDto(structureModel, filteredResults, image, bpseq, ct, messages,
+                        structuralElementFinder);
+    }
+
+    private List<DotBracketFromPdb> determineCombinedStrands(NonCanonicalHandling nonCanonicalHandling,
+                                                             List<AnalyzedBasePair> nonCanonicalBasePairs,
+                                                             DefaultDotBracketFromPdb dotBracket) {
+        return (nonCanonicalHandling.mapTo2_0Enum().isAnalysis() || nonCanonicalHandling.mapTo2_0Enum().isVisualization())
+                ? dotBracket
+                .combineStrands(nonCanonicalBasePairs.stream()
+                        .filter(ClassifiedBasePair::isPairing)
+                        .collect(Collectors.toList()))
+                : dotBracket
+                .combineStrands()
+                .stream()
+                .map(db -> (DotBracketFromPdb) db)
+                .collect(Collectors.toList());
+    }
+
+    private List<PdbSecondaryStructure> performAnalysis(ModelSelection modelSelection,
+                                                        AnalysisTool analysisTool,
+                                                        NonCanonicalHandling nonCanonicalHandling,
+                                                        boolean removeIsolated,
+                                                        String filename,
+                                                        String fileContent) {
         final List<PdbSecondaryStructure> secondaryStructures;
         try {
             secondaryStructures = RNApdbee.process(
-                    InputType.valueOf(filename.split("\\.")[1].toUpperCase()),
+                    determineInputType(filename),
                     fileContent,
                     // TODO: hardcoded for now, change when rnapdbee-common code is merged with engine's code
                     BasePairAnalyzerEnum.MCANNOTATE,
@@ -81,87 +176,21 @@ public class TertiaryStructureAnalysisService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        return secondaryStructures;
+    }
 
-        final List<SingleTertiaryModelOutput> results = new ArrayList<>();
-
-        for (final PdbSecondaryStructure secondaryStructure : secondaryStructures) {
-            final AnalysisResult basePairAnalysis = secondaryStructure.getAnalysisResult();
-            final List<AnalyzedBasePair> nonCanonicalBasePairs = basePairAnalysis.getNonCanonical();
-            final DefaultDotBracketFromPdb dotBracket = secondaryStructure.getDotBracket();
-            final List<DotBracketFromPdb> combinedStrands =
-                    (nonCanonicalHandling.mapTo2_0Enum().isAnalysis() || nonCanonicalHandling.mapTo2_0Enum().isVisualization())
-                            ? dotBracket
-                            .combineStrands(nonCanonicalBasePairs.stream()
-                                    .filter(ClassifiedBasePair::isPairing)
-                                    .collect(Collectors.toList()))
-                            : dotBracket
-                            .combineStrands()
-                            .stream()
-                            .map(db -> (DotBracketFromPdb) db)
-                            .collect(Collectors.toList());
-
-            for (final DotBracketFromPdb combinedStrand : combinedStrands) {
-                // TODO: analyse what is this and if it is needed.
-                final SecondaryStructureImage secondaryVisualization = imageService.provideVisualization(visualizationTool, dotBracket);
-
-                final PdbModel structureModel = secondaryStructure.getModel();
-                final AnalysisResult filteredResults =
-                        basePairAnalysis.filtered(combinedStrand.identifierSet());
-
-                SecondaryStructureImage image = imageService.provideVisualization(visualizationTool, combinedStrand,
-                        dotBracket, structureModel, nonCanonicalBasePairs, nonCanonicalHandling.mapTo2_0Enum());
-
-                final BpSeq bpseq = BpSeq.fromDotBracket(combinedStrand);
-                final Ct ct = Ct.fromDotBracket(combinedStrand);
-                final List<String> messages = generateMessageLog(filteredResults, image, analysisTool);
-
-                final StructuralElementFinder structuralElementFinder =
-                        new StructuralElementFinder(
-                                combinedStrand,
-                                structuralElementsHandling.canElementsEndWithPseudoknots(),
-                                structuralElementsHandling.isReuseSingleStrandsFromLoopsEnabled());
-                structuralElementFinder.generatePdb(structureModel);
-
-                SingleSecondaryModelAnalysisOutput singleOutput2D = new SingleSecondaryModelAnalysisOutput()
-                        .withImageInformation(analysisOutputsMapper.mapSecondaryStructureImageIntoImageInformationOutput(image))
-                        .withCt(analysisOutputsMapper.mapCtToListOfString(ct))
-                        .withBpSeq(analysisOutputsMapper.mapBpSeqToListOfString(bpseq))
-                        .withStructuralElement(analysisOutputsMapper
-                                .mapStructuralElementFinderIntoStructuralElementOutput(structuralElementFinder));
-
-
-                SingleTertiaryModelOutput singleTertiaryModelOutput = new SingleTertiaryModelOutput();
-                singleTertiaryModelOutput.setOutput2D(new Output2D().withAnalysis(List.of(singleOutput2D)));
-                singleTertiaryModelOutput.setMessages(messages);
-                singleTertiaryModelOutput.setModelNumber(structureModel.modelNumber());
-                singleTertiaryModelOutput.setTitle(structureModel.title());
-                singleTertiaryModelOutput.setCanonicalInteractions(mapAnalyzedBasePairsToOutputBasePairs(
-                        filteredResults.getCanonical()));
-                singleTertiaryModelOutput.setNonCanonicalInteractions(mapAnalyzedBasePairsToOutputBasePairs(
-                        filteredResults.getNonCanonical()));
-                singleTertiaryModelOutput.setStackingInteractions(mapAnalyzedBasePairsToOutputBasePairs(
-                        filteredResults.getStacking()));
-                singleTertiaryModelOutput.setBaseRiboseInteractions(mapAnalyzedBasePairsToOutputBasePairs(
-                        filteredResults.getBaseRibose()));
-                singleTertiaryModelOutput.setBasePhosphateInteractions(mapAnalyzedBasePairsToOutputBasePairs(
-                        filteredResults.getBasePhosphate()));
-                results.add(singleTertiaryModelOutput);
+    private InputType determineInputType(String filename) {
+        for (InputType inputType : InputType.values()) {
+            if (filename.toLowerCase().contains(inputType.getFileExtension())) {
+                return inputType;
             }
         }
-
-        Output3D output3D = new Output3D();
-        output3D.setTertiaryModels(results);
-
-        return output3D;
+        throw new IllegalArgumentException("unknown file extension provided");
     }
 
-    private List<OutputBasePair> mapAnalyzedBasePairsToOutputBasePairs(List<AnalyzedBasePair> classifiedBasePairs) {
-        return classifiedBasePairs.stream()
-                .map(OutputBasePair::fromClassifiedBasePair)
-                .collect(Collectors.toList());
-    }
-
-    private List<String> generateMessageLog(AnalysisResult basePairAnalysis, SecondaryStructureImage image, AnalysisTool analysisTool) {
+    private List<String> generateMessageLog(AnalysisResult basePairAnalysis,
+                                            SecondaryStructureImage image,
+                                            AnalysisTool analysisTool) {
         final List<String> messages = new ArrayList<>();
         messages.add(String.format("Base-pairs identified by %s", analysisTool));
 

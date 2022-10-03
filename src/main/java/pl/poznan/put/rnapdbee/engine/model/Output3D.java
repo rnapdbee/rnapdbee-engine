@@ -6,14 +6,14 @@ import java.util.List;
 
 public class Output3D {
 
-    @JsonProperty("tertiaryModels")
-    List<SingleTertiaryModelOutput> tertiaryModels;
+    @JsonProperty("models")
+    List<SingleTertiaryModelOutput> models;
 
-    public List<SingleTertiaryModelOutput> getTertiaryModels() {
-        return tertiaryModels;
+    public List<SingleTertiaryModelOutput> getModels() {
+        return models;
     }
 
-    public void setTertiaryModels(List<SingleTertiaryModelOutput> tertiaryModels) {
-        this.tertiaryModels = tertiaryModels;
+    public void setModels(List<SingleTertiaryModelOutput> models) {
+        this.models = models;
     }
 }

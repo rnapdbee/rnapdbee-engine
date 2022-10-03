@@ -110,7 +110,7 @@ public class ConsensusStructureAnalysisService {
 
     private InputType determineInputType(String filename) {
         for (InputType inputType: InputType.values()) {
-            if (filename.contains(inputType.getFileExtension())) {
+            if (filename.toLowerCase().contains(inputType.getFileExtension())) {
                 return inputType;
             }
         }
@@ -124,7 +124,7 @@ public class ConsensusStructureAnalysisService {
         final DotBracket dotBracket = bpSeqInfo.uniqueDotBrackets().keySet()
                 .stream().findFirst()
                 .orElseThrow(RuntimeException::new);
-        final SecondaryStructureImage secondaryVisualization = imageService.provideVisualization(visualizationTool, dotBracket);
+        final SecondaryStructureImage secondaryVisualization = imageService.visualizeCanonical(visualizationTool, dotBracket);
 
         return analysisOutputsMapper.mapBpSeqInfoAndSecondaryStructureImageIntoOutputMultiEntry(bpSeqInfo, secondaryVisualization);
     }

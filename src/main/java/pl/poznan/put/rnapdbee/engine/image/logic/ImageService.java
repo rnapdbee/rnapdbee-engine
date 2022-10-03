@@ -29,8 +29,24 @@ public class ImageService {
 
     private final DrawerLoader drawerLoader;
 
-    public SecondaryStructureImage provideVisualization(VisualizationTool visualizationTool,
-                                                        DotBracket combinedStrand) {
+    public SecondaryStructureImage visualizeCanonicalOrNonCanonical(
+            VisualizationTool visualizationTool,
+            DotBracket combinedStrand,
+            DotBracketFromPdb dotBracketFromPdb,
+            PdbModel structureModel,
+            List<? extends ClassifiedBasePair> nonCanonicalBasePairs,
+            NonCanonicalHandling nonCanonicalHandling) {
+        if (visualizationTool == VisualizationTool.NONE) {
+            return SecondaryStructureImage.emptyInstance(combinedStrand);
+        }
+        return nonCanonicalHandling.isVisualization()
+                ? this.visualizeNonCanonical(visualizationTool, dotBracketFromPdb, structureModel,
+                nonCanonicalBasePairs)
+                : this.visualizeCanonical(visualizationTool, combinedStrand);
+    }
+
+    public SecondaryStructureImage visualizeCanonical(VisualizationTool visualizationTool,
+                                                      DotBracket combinedStrand) {
         if (visualizationTool == VisualizationTool.NONE) {
             return SecondaryStructureImage.emptyInstance(combinedStrand);
         }
@@ -51,16 +67,10 @@ public class ImageService {
         }
     }
 
-    public SecondaryStructureImage provideVisualization(VisualizationTool visualizationTool,
-                                                        DotBracket combinedStrand,
-                                                        DotBracketFromPdb dotBracketFromPdb,
-                                                        PdbModel structureModel,
-                                                        List<? extends ClassifiedBasePair> nonCanonicalBasePairs,
-                                                        NonCanonicalHandling nonCanonicalHandling) {
-        if (visualizationTool == VisualizationTool.NONE) {
-            return SecondaryStructureImage.emptyInstance(combinedStrand);
-        }
-
+    private SecondaryStructureImage visualizeNonCanonical(VisualizationTool visualizationTool,
+                                                          DotBracketFromPdb dotBracketFromPdb,
+                                                          PdbModel structureModel,
+                                                          List<? extends ClassifiedBasePair> nonCanonicalBasePairs) {
         final SecondaryStructureDrawer mainDrawer = drawerLoader.loadDrawer(visualizationTool);
         final SecondaryStructureDrawer backupDrawer = drawerLoader
                 .loadDrawer(visualizationTool.getBackupVisualizationTool());
@@ -70,10 +80,8 @@ public class ImageService {
         final ImageCache imageCache = new ImageCacheImpl();
 
         try {
-            SecondaryStructureImage image = nonCanonicalHandling.isVisualization() ?
-                    RNApdbeeDrawer.drawCanonicalAndNonCanonical(imageCache, mainDrawer, backupDrawer,
-                            dotBracketFromPdb, structureModel, nonCanonicalBasePairs) :
-                    RNApdbeeDrawer.drawCanonical(imageCache, mainDrawer, backupDrawer, combinedStrand);
+            SecondaryStructureImage image = RNApdbeeDrawer.drawCanonicalAndNonCanonical(imageCache,
+                    mainDrawer, backupDrawer, dotBracketFromPdb, structureModel, nonCanonicalBasePairs);
             return new ImageUrl(image, servletContext);
         } catch (IOException e) {
             throw new RuntimeException(e);
