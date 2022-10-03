@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   description: "This is API of the engine service of RNApdbee v3.0."
-  version: "1.0.8"
+  version: "1.0.9"
   title: "RNApdbee Engine API"
 
 
@@ -200,22 +200,29 @@ components:
       type: object
       properties:
         entries:
-          type: array
+          type: "array"
           items:
             $ref: "#/components/schemas/OutputMultiEntry"
+        consensualVisualization:
+          $ref: "#/components/schemas/ConsensualVisualization"
       required:
-        - entries
+        - "entries"
+        - "consensualVisualization"
 
     OutputMultiEntry:
       type: "object"
       properties:
         output2D:
           $ref: "#/components/schemas/Output2D"
-        consensusVisualization:
-          $ref: "#/components/schemas/ConsensusVisualization"
+        adapterEnums:
+          type: "array"
+          items:
+            type: "string"
+            description: "adapter enums for which this entry object was created"
+            example: "FR3D"
       required:
         - "output2D"
-        - "consensusVisualization"
+        - "adapterEnums"
 
     Output2DEntry:
       type: "object"
@@ -240,7 +247,7 @@ components:
         - "structuralElements"
         - "imageInformation"
 
-    ConsensusVisualization:
+    ConsensualVisualization:
       type: "object"
       properties:
         pathToPngImage:
@@ -335,23 +342,23 @@ components:
       type: object
       properties:
         basePairs:
-          type: array
+          type: "array"
           items:
             $ref: "#/components/schemas/BasePair"
         stackings:
-          type: array
+          type: "array"
           items:
             $ref: "#/components/schemas/Stacking"
         baseRiboseInteractions:
-          type: array
+          type: "array"
           items:
             $ref: "#/components/schemas/BaseRibose"
         basePhosphateInteractions:
-          type: array
+          type: "array"
           items:
             $ref: "#/components/schemas/BasePhosphate"
         other:
-          type: array
+          type: "array"
           items:
             $ref: "#/components/schemas/Other"
       required:
@@ -435,7 +442,7 @@ components:
         auth:
           $ref: "#/components/schemas/ResidueAuth"
         atoms:
-          type: array
+          type: "array"
           items:
             $ref: "#/components/schemas/Atom"
       required:

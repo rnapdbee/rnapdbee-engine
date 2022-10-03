@@ -11,9 +11,9 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import pl.poznan.put.rnapdbee.engine.calculation.testhelp.AnalysisOutputTestInformation;
-import pl.poznan.put.rnapdbee.engine.calculation.testhelp.AnalysisOutputTestInformationAggregator;
-import pl.poznan.put.rnapdbee.engine.calculation.testhelp.AnalysisOutputTestUtils;
+import pl.poznan.put.rnapdbee.engine.calculation.testhelp.secondary.SecondaryAnalysisOutputTestInformation;
+import pl.poznan.put.rnapdbee.engine.calculation.testhelp.secondary.SecondaryAnalysisOutputTestInformationAggregator;
+import pl.poznan.put.rnapdbee.engine.calculation.testhelp.secondary.SecondaryAnalysisOutputTestUtils;
 import pl.poznan.put.rnapdbee.engine.image.logic.ImageService;
 import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.model.StructuralElementsHandling;
@@ -48,8 +48,8 @@ class SecondaryStructureAnalysisServiceTest {
                                                    VisualizationTool visualizationTool,
                                                    String filename,
                                                    boolean shouldRemoveIsolated,
-                                                   @AggregateWith(AnalysisOutputTestInformationAggregator.class)
-                                                   List<AnalysisOutputTestInformation> expectedInformationList)
+                                                   @AggregateWith(SecondaryAnalysisOutputTestInformationAggregator.class)
+                                                   List<SecondaryAnalysisOutputTestInformation> expectedInformationList)
             throws URISyntaxException, IOException {
         String content = Files.readString(Paths.get(getClass().getResource(String.format(EXAMPLE_FILE_PATH_FORMAT, filename)).toURI()));
         var actual = cut.analyseSecondaryStructureFile(structuralElementsHandling,
@@ -57,7 +57,7 @@ class SecondaryStructureAnalysisServiceTest {
                 shouldRemoveIsolated,
                 content,
                 filename);
-        AnalysisOutputTestUtils.assertAnalysisOutputs(actual, expectedInformationList);
+        SecondaryAnalysisOutputTestUtils.assertAnalysisOutputs(actual, expectedInformationList);
     }
 
     @Test
