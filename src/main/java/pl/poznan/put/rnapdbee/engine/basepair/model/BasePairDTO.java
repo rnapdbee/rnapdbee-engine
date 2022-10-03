@@ -7,13 +7,20 @@ import pl.poznan.put.pdb.ImmutablePdbNamedResidueIdentifier;
 import pl.poznan.put.pdb.PdbNamedResidueIdentifier;
 import pl.poznan.put.structure.BasePair;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * DTO class for BasePair
  * instances of this class are being returned by rnapdbee-adapters as array members.
  */
 public class BasePairDTO extends BasePair {
+
+    private static final Set<String> CANONICAL_ONE_LETTER_NAME_SORTED_PAIRS = new HashSet<>(Arrays.asList("AU", "GU", "CG"));
 
     @JsonProperty("nt1")
     private Residue nt1;
@@ -49,7 +56,9 @@ public class BasePairDTO extends BasePair {
     }
 
     public Saenger getSaenger() {
-        return saenger;
+        return saenger != null
+                ? saenger
+                : Saenger.UNKNOWN;
     }
 
     public StackingTopology getTopology() {
@@ -68,10 +77,22 @@ public class BasePairDTO extends BasePair {
     public PdbNamedResidueIdentifier left() {
         return mapResidueToPdbNamedResidueIdentifier(nt1);
     }
-    
+
     @Override
     public PdbNamedResidueIdentifier right() {
         return mapResidueToPdbNamedResidueIdentifier(nt2);
+    }
+
+    public boolean isCanonical() {
+        if (leontisWesthof == LeontisWesthof.CWW) {
+            String sequence = Stream.of(this.left().oneLetterName(), this.right().oneLetterName())
+                    .map(c -> Character.toString(c))
+                    .map(String::toUpperCase)
+                    .sorted().collect(Collectors.joining());
+
+            return CANONICAL_ONE_LETTER_NAME_SORTED_PAIRS.contains(sequence);
+        }
+        return false;
     }
 
     private PdbNamedResidueIdentifier mapResidueToPdbNamedResidueIdentifier(Residue residue) {

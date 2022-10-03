@@ -18,6 +18,7 @@ import pl.poznan.put.pdb.PdbParsingException;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rna.InteractionType;
 import pl.poznan.put.rnapdbee.engine.basepair.model.AdaptersAnalysisDTO;
+import pl.poznan.put.rnapdbee.engine.basepair.model.BasePairDTO;
 import pl.poznan.put.structure.AnalyzedBasePair;
 import pl.poznan.put.structure.ImmutableAnalyzedBasePair;
 
@@ -69,7 +70,7 @@ public abstract class RNApdbeeAdapterBasePairAnalyzer implements BasePairAnalyze
     private AnalysisResult performPostAnalysisOnResponseFromAdapter(AdaptersAnalysisDTO responseFromAdapter,
                                                                     NonCanonicalHandling nonCanonicalHandling) {
         List<AnalyzedBasePair> canonical = responseFromAdapter.getBasePairs().stream()
-                .filter(basePair -> basePair.getSaenger() != null && basePair.getSaenger().isCanonical())
+                .filter(BasePairDTO::isCanonical)
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair)
                         .withInteractionType(InteractionType.BASE_BASE)
                         .withSaenger(basePair.getSaenger())
@@ -78,10 +79,10 @@ public abstract class RNApdbeeAdapterBasePairAnalyzer implements BasePairAnalyze
                         .withBr(BR.UNKNOWN))
                 .collect(Collectors.toList());
         List<AnalyzedBasePair> nonCanonical = responseFromAdapter.getBasePairs().stream()
-                .filter(basePair -> basePair.getSaenger() == null || !basePair.getSaenger().isCanonical())
+                .filter(basePair -> !basePair.isCanonical())
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair)
                         .withInteractionType(InteractionType.BASE_BASE)
-                        .withSaenger(basePair.getSaenger() == null ? Saenger.UNKNOWN : basePair.getSaenger())
+                        .withSaenger(basePair.getSaenger())
                         .withLeontisWesthof(basePair.getLeontisWesthof())
                         .withBph(BPh.UNKNOWN)
                         .withBr(BR.UNKNOWN))
@@ -116,7 +117,7 @@ public abstract class RNApdbeeAdapterBasePairAnalyzer implements BasePairAnalyze
                 .collect(Collectors.toList());
         List<AnalyzedBasePair> interStrand = responseFromAdapter.getBasePairs().stream()
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.BASE_BASE)
-                        .withSaenger(basePair.getSaenger() == null ? Saenger.UNKNOWN : basePair.getSaenger())
+                        .withSaenger(basePair.getSaenger())
                         .withLeontisWesthof(basePair.getLeontisWesthof())
                         .withBph(BPh.UNKNOWN)
                         .withBr(BR.UNKNOWN))
