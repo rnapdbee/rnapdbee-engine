@@ -1,5 +1,7 @@
 package pl.poznan.put.rnapdbee.engine.calculation.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 /**
@@ -7,11 +9,18 @@ import java.util.List;
  */
 public class StructuralElementOutput {
 
+    @JsonProperty("stems")
     private List<String> stems;
+    @JsonProperty("loops")
     private List<String> loops;
+    @JsonProperty("singleStrands")
     private List<String> singleStrands;
+    @JsonProperty("singleStrands5p")
     private List<String> singleStrands5p;
+    @JsonProperty("singleStrands3p")
     private List<String> singleStrands3p;
+    @JsonProperty("coordinates")
+    private String coordinates;
 
     public List<String> getStems() {
         return stems;
@@ -31,6 +40,10 @@ public class StructuralElementOutput {
 
     public List<String> getSingleStrands3p() {
         return singleStrands3p;
+    }
+
+    public String getCoordinates() {
+        return coordinates;
     }
 
     public StructuralElementOutput withStems(List<String> stems) {
@@ -55,6 +68,11 @@ public class StructuralElementOutput {
 
     public StructuralElementOutput withSingleStrands3p(List<String> singleStrands3p) {
         this.singleStrands3p = singleStrands3p;
+        return this;
+    }
+
+    public StructuralElementOutput withCoordinates(String coordinates) {
+        this.coordinates = coordinates;
         return this;
     }
 }

@@ -77,7 +77,8 @@ public class AnalysisOutputsMapper {
                 .withImageInformation(mapSecondaryStructureImageIntoImageInformationOutput(image))
                 .withCt(mapCtToListOfString(ct))
                 .withBpSeq(mapBpSeqToListOfString(bpseq))
-                .withStructuralElement(mapStructuralElementFinderIntoStructuralElementOutput(structuralElementFinder));
+                .withStructuralElement(mapStructuralElementFinderIntoStructuralElementOutputForTertiaryAnalysis(
+                        structuralElementFinder));
 
         SingleTertiaryModelOutput singleTertiaryModelOutput = new SingleTertiaryModelOutput();
         singleTertiaryModelOutput.setOutput2D(new Output2D().withAnalysis(List.of(singleOutput2D)));
@@ -168,5 +169,11 @@ public class AnalysisOutputsMapper {
                         .map(StructuralElement::toString).collect(Collectors.toList()))
                 .withSingleStrands3p(structuralElementFinder.getSingleStrands3p().stream()
                         .map(StructuralElement::toString).collect(Collectors.toList()));
+    }
+
+    private StructuralElementOutput mapStructuralElementFinderIntoStructuralElementOutputForTertiaryAnalysis(
+            StructuralElementFinder structuralElementFinder) {
+        return mapStructuralElementFinderIntoStructuralElementOutput(structuralElementFinder)
+                .withCoordinates(structuralElementFinder.getPdb());
     }
 }
