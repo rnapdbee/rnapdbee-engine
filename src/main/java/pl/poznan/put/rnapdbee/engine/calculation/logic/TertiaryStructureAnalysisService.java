@@ -13,7 +13,7 @@ import edu.put.rnapdbee.visualization.SecondaryStructureImage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.poznan.put.pdb.analysis.PdbModel;
-import pl.poznan.put.rnapdbee.engine.basepair.service.BasePairLoader;
+import pl.poznan.put.rnapdbee.engine.basepair.service.BasePairAnalyzerFactory;
 import pl.poznan.put.rnapdbee.engine.calculation.mapper.AnalysisOutputsMapper;
 import pl.poznan.put.rnapdbee.engine.image.logic.ImageService;
 import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
@@ -41,7 +41,7 @@ import java.util.stream.Stream;
 @Component
 public class TertiaryStructureAnalysisService {
 
-    private final BasePairLoader basePairLoader;
+    private final BasePairAnalyzerFactory basePairAnalyzerFactory;
     private final ImageService imageService;
     private final AnalysisOutputsMapper analysisOutputsMapper;
 
@@ -160,7 +160,7 @@ public class TertiaryStructureAnalysisService {
                     fileContent,
                     // TODO: hardcoded for now, change when rnapdbee-common code is merged with engine's code
                     BasePairAnalyzerEnum.MCANNOTATE,
-                    basePairLoader.provideBasePairAnalyzer(analysisTool),
+                    basePairAnalyzerFactory.provideBasePairAnalyzer(analysisTool),
                     // TODO: replace converter method with Mixed-Integer Linear Programming (separate Task)
                     ConverterEnum.DPNEW,
                     nonCanonicalHandling.mapTo2_0Enum(),
@@ -219,10 +219,10 @@ public class TertiaryStructureAnalysisService {
     }
 
     @Autowired
-    public TertiaryStructureAnalysisService(BasePairLoader basePairLoader,
+    public TertiaryStructureAnalysisService(BasePairAnalyzerFactory basePairAnalyzerFactory,
                                             ImageService imageService,
                                             AnalysisOutputsMapper analysisOutputsMapper) {
-        this.basePairLoader = basePairLoader;
+        this.basePairAnalyzerFactory = basePairAnalyzerFactory;
         this.imageService = imageService;
         this.analysisOutputsMapper = analysisOutputsMapper;
         try (final InputStream stream =

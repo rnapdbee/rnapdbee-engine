@@ -20,7 +20,7 @@ public class CalculationService {
 
     private final SecondaryStructureAnalysisService secondaryStructureAnalysisService;
     private final AnalysisOutputsMapper analysisOutputsMapper;
-    private final ConsensusStructureAnalysisService consensusStructureAnalysisService;
+    private final ConsensualStructureAnalysisService consensualStructureAnalysisService;
     private final TertiaryStructureAnalysisService tertiaryStructureAnalysisService;
 
     public Output2D handleSecondaryToDotBracketCalculation(StructuralElementsHandling structuralElementsHandling,
@@ -45,7 +45,7 @@ public class CalculationService {
                                                                  VisualizationTool visualizationTool,
                                                                  String filename,
                                                                  String content) {
-        return consensusStructureAnalysisService
+        return consensualStructureAnalysisService
                 .analyse(modelSelection,
                         includeNonCanonical,
                         removeIsolated,
@@ -76,11 +76,11 @@ public class CalculationService {
     @Autowired
     private CalculationService(SecondaryStructureAnalysisService secondaryStructureAnalysisService,
                                AnalysisOutputsMapper analysisOutputsMapper,
-                               ConsensusStructureAnalysisService consensusStructureAnalysisService,
+                               ConsensualStructureAnalysisService consensualStructureAnalysisService,
                                TertiaryStructureAnalysisService tertiaryStructureAnalysisService) {
         this.secondaryStructureAnalysisService = secondaryStructureAnalysisService;
         this.analysisOutputsMapper = analysisOutputsMapper;
-        this.consensusStructureAnalysisService = consensusStructureAnalysisService;
+        this.consensualStructureAnalysisService = consensualStructureAnalysisService;
         this.tertiaryStructureAnalysisService = tertiaryStructureAnalysisService;
     }
 }

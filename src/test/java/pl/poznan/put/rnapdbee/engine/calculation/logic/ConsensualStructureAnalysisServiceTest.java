@@ -24,9 +24,9 @@ import pl.poznan.put.rnapdbee.engine.basepair.boundary.BarnabaBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.basepair.boundary.MCAnnotateBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.basepair.boundary.RnaViewBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.basepair.webclient.AdapterWebClientConfiguration;
-import pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensus.ConsensusAnalysisTestInformation;
-import pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensus.ConsensusAnalysisTestInformationAggregator;
-import pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensus.ConsensusAnalysisTestUtils;
+import pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensual.ConsensualAnalysisTestInformation;
+import pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensual.ConsensualAnalysisTestInformationAggregator;
+import pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensual.ConsensualAnalysisTestUtils;
 import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.model.ModelSelection;
 
@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Objects;
 
 @SpringBootTest
-class ConsensusStructureAnalysisServiceTest {
+class ConsensualStructureAnalysisServiceTest {
 
     static MockWebServer mockWebServer;
 
@@ -52,7 +52,7 @@ class ConsensusStructureAnalysisServiceTest {
 
     @Autowired
     @InjectMocks
-    ConsensusStructureAnalysisService cut;
+    ConsensualStructureAnalysisService cut;
 
     @BeforeAll
     static void setUp() throws IOException {
@@ -68,15 +68,15 @@ class ConsensusStructureAnalysisServiceTest {
     @ParameterizedTest
     @CsvFileSource(resources = "/3dToMulti2DTestCases.csv")
     @Timeout(60)
-    void testConsensusAnalysis(String exampleFilename, ModelSelection modelSelection, boolean includeNonCanonical,
-                               boolean removeIsolated, VisualizationTool visualizationTool,
-                               @AggregateWith(ConsensusAnalysisTestInformationAggregator.class)
-                               List<ConsensusAnalysisTestInformation> expectedInformationList) {
+    void testConsensualAnalysis(String exampleFilename, ModelSelection modelSelection, boolean includeNonCanonical,
+                                boolean removeIsolated, VisualizationTool visualizationTool,
+                                @AggregateWith(ConsensualAnalysisTestInformationAggregator.class)
+                               List<ConsensualAnalysisTestInformation> expectedInformationList) {
         prepareMockWebServerStubs(exampleFilename);
         String fileContent = readFileContentFromFile(exampleFilename);
         var result = cut.analyse(modelSelection, includeNonCanonical, removeIsolated, visualizationTool, exampleFilename, fileContent);
         // TODO: add assertions for adapterEnums when rnapdbee-common code is merged with rnapdbee-engine
-        ConsensusAnalysisTestUtils.assertAnalysisOutput(result, expectedInformationList);
+        ConsensualAnalysisTestUtils.assertAnalysisOutput(result, expectedInformationList);
     }
 
     private String readFileContentFromFile(String exampleFilename) {

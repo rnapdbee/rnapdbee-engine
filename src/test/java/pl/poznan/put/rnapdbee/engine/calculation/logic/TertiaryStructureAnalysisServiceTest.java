@@ -24,11 +24,14 @@ import pl.poznan.put.rnapdbee.engine.basepair.boundary.BarnabaBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.basepair.boundary.MCAnnotateBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.basepair.boundary.RnaViewBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.basepair.webclient.AdapterWebClientConfiguration;
-import pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensus.ConsensusAnalysisTestInformation;
-import pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensus.ConsensusAnalysisTestInformationAggregator;
-import pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensus.ConsensusAnalysisTestUtils;
+import pl.poznan.put.rnapdbee.engine.calculation.testhelp.tertiary.TertiaryAnalysisOutputTestInformation;
+import pl.poznan.put.rnapdbee.engine.calculation.testhelp.tertiary.TertiaryAnalysisOutputTestInformationAggregator;
+import pl.poznan.put.rnapdbee.engine.calculation.testhelp.tertiary.TertiaryAnalysisOutputTestUtils;
 import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
+import pl.poznan.put.rnapdbee.engine.model.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.model.ModelSelection;
+import pl.poznan.put.rnapdbee.engine.model.NonCanonicalHandling;
+import pl.poznan.put.rnapdbee.engine.model.StructuralElementsHandling;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -47,6 +50,9 @@ class TertiaryStructureAnalysisServiceTest {
     static String EXAMPLE_CIF_FILE_PATH_FORMAT = "/3DToSecondaryMocks/%s/mmciffile.cif";
 
     static String BARNABA_RESPONSE_MOCK_PATH_FORMAT = "/3DToSecondaryMocks/%s/mocked_response.json";
+    static String BPNET_RESPONSE_MOCK_PATH_FORMAT = "/3DToSecondaryMocks/%s/bpnet_response.json";
+    static String MC_ANNOTATE_RESPONSE_MOCK_PATH_FORMAT = "/3DToSecondaryMocks/%s/mc_annotate_response.json";
+    static String RNAVIEW_RESPONSE_MOCK_PATH_FORMAT = "/3DToSecondaryMocks/%s/rnaview_response.json";
 
     @Autowired
     @InjectMocks
@@ -63,19 +69,30 @@ class TertiaryStructureAnalysisServiceTest {
         mockWebServer.shutdown();
     }
 
-  /*  @ParameterizedTest
-    @CsvFileSource(resources = "/3DToSecondaryMocks.csv")
+    @ParameterizedTest
+    @CsvFileSource(resources = "/3dToSecondaryTestCases.csv")
     @Timeout(60)
-    void testConsensusAnalysis(String exampleFilename, ModelSelection modelSelection, boolean includeNonCanonical,
-                               boolean removeIsolated, VisualizationTool visualizationTool,
-                               @AggregateWith(ConsensusAnalysisTestInformationAggregator.class)
-                               List<ConsensusAnalysisTestInformation> expectedInformationList) {
+    void testConsensusAnalysis(String exampleFilename,
+                               ModelSelection modelSelection,
+                               AnalysisTool analysisTool,
+                               NonCanonicalHandling nonCanonicalHandling,
+                               boolean removeIsolated,
+                               StructuralElementsHandling structuralElementsHandling,
+                               VisualizationTool visualizationTool,
+                               @AggregateWith(TertiaryAnalysisOutputTestInformationAggregator.class)
+                               List<TertiaryAnalysisOutputTestInformation> expectedInformationList) {
         prepareMockWebServerStubs(exampleFilename);
         String fileContent = readFileContentFromFile(exampleFilename);
-        var result = cut.analyse(modelSelection, includeNonCanonical, removeIsolated, visualizationTool, exampleFilename, fileContent);
-        // TODO: add assertions for adapterEnums when rnapdbee-common code is merged with rnapdbee-engine
-        ConsensusAnalysisTestUtils.assertAnalysisOutput(result, expectedInformationList);
-    }*/
+        var result = cut.analyse(modelSelection,
+                analysisTool,
+                nonCanonicalHandling,
+                removeIsolated,
+                structuralElementsHandling,
+                visualizationTool,
+                exampleFilename,
+                fileContent);
+        TertiaryAnalysisOutputTestUtils.assertAnalysisOutputs(result, expectedInformationList);
+    }
 
     private String readFileContentFromFile(String exampleFilename) {
         if (exampleFilename.contains(".pdb")) {
@@ -87,7 +104,38 @@ class TertiaryStructureAnalysisServiceTest {
     }
 
     private void prepareMockWebServerStubs(String exampleFileName) {
-        mockWebServer.enqueue(new MockResponse().setBody(readFileAsString(exampleFileName)));
+        Dispatcher dispatcher = new Dispatcher() {
+            @Override
+            @NotNull
+            public MockResponse dispatch(RecordedRequest request) {
+                if ("/analyze/barnaba".equals(request.getPath())) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .addHeader("Content-Type", MediaType.APPLICATION_JSON)
+                            .setBody(readFileAsString(String.format(BARNABA_RESPONSE_MOCK_PATH_FORMAT, exampleFileName)));
+                }
+                if ("/analyze/bpnet".equals(request.getPath())) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .addHeader("Content-Type", MediaType.APPLICATION_JSON)
+                            .setBody(readFileAsString(String.format(BPNET_RESPONSE_MOCK_PATH_FORMAT, exampleFileName)));
+                }
+                if ("/analyze/mc-annotate".equals(request.getPath())) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .addHeader("Content-Type", MediaType.APPLICATION_JSON)
+                            .setBody(readFileAsString(String.format(MC_ANNOTATE_RESPONSE_MOCK_PATH_FORMAT, exampleFileName)));
+                }
+                if ("/analyze/rnaview".equals(request.getPath())) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .addHeader("Content-Type", MediaType.APPLICATION_JSON)
+                            .setBody(readFileAsString(String.format(RNAVIEW_RESPONSE_MOCK_PATH_FORMAT, exampleFileName)));
+                }
+                return new MockResponse().setResponseCode(404);
+            }
+        };
+        mockWebServer.setDispatcher(dispatcher);
     }
 
     private String readFileAsString(String pathToFile) {

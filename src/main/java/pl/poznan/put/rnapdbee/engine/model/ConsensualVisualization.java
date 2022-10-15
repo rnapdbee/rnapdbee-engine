@@ -4,7 +4,7 @@ package pl.poznan.put.rnapdbee.engine.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * DTO class for Consensus Visualization
+ * DTO class for Consensual Visualization
  */
 public class ConsensualVisualization {
 

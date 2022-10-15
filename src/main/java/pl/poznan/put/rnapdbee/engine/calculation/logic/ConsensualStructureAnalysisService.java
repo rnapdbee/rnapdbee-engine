@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import pl.poznan.put.consensus.BpSeqInfo;
 import pl.poznan.put.consensus.ConsensusInput;
 import pl.poznan.put.consensus.ConsensusOutput;
-import pl.poznan.put.rnapdbee.engine.basepair.service.BasePairLoader;
+import pl.poznan.put.rnapdbee.engine.basepair.service.BasePairAnalyzerFactory;
 import pl.poznan.put.rnapdbee.engine.calculation.mapper.AnalysisOutputsMapper;
 import pl.poznan.put.rnapdbee.engine.image.logic.ImageService;
 import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
@@ -34,13 +34,13 @@ import java.util.stream.Collectors;
  * Service which purpose is to handle 3D -> Multi 2D analysis.
  */
 @Component
-public class ConsensusStructureAnalysisService {
+public class ConsensualStructureAnalysisService {
 
     private final ImageService imageService;
 
     private final AnalysisOutputsMapper analysisOutputsMapper;
 
-    private final BasePairLoader basePairLoader;
+    private final BasePairAnalyzerFactory basePairAnalyzerFactory;
 
     // TODO: replace converter method with Mixed-Integer Linear Programming (separate Task)
     final static List<ConverterEnum> CONVERTERS = List.of(ConverterEnum.DPNEW);
@@ -69,7 +69,7 @@ public class ConsensusStructureAnalysisService {
         final List<BpSeqInfo> bpSeqInfos = consensus.getLeft().getBpSeqInfos();
 
         final List<OutputMultiEntry> outputMultiEntryList = bpSeqInfos.stream()
-                .map(bpSeqInfo -> mapBpSeqInfoAndConsensusImageIntoOutputMultiEntry(
+                .map(bpSeqInfo -> mapBpSeqInfoAndConsensualImageIntoOutputMultiEntry(
                         visualizationTool,
                         bpSeqInfo))
                 .collect(Collectors.toList());
@@ -117,8 +117,8 @@ public class ConsensusStructureAnalysisService {
         throw new IllegalArgumentException("unknown file extension provided");
     }
 
-    private OutputMultiEntry mapBpSeqInfoAndConsensusImageIntoOutputMultiEntry(VisualizationTool visualizationTool,
-                                                                               BpSeqInfo bpSeqInfo) {
+    private OutputMultiEntry mapBpSeqInfoAndConsensualImageIntoOutputMultiEntry(VisualizationTool visualizationTool,
+                                                                                BpSeqInfo bpSeqInfo) {
         // TODO: using findFirst, because in future implementation using MILP the bpSeqInfo will only contain 1 dotBracket
         //  object, refactor when rnapdbee-common code is merged with the engine's code
         final DotBracket dotBracket = bpSeqInfo.uniqueDotBrackets().keySet()
@@ -132,29 +132,29 @@ public class ConsensusStructureAnalysisService {
     private Collection<Pair<BasePairAnalyzerEnum, BasePairAnalyzer>> prepareAnalyzerPairs() {
         return List.of(
                 Pair.of(BasePairAnalyzerEnum.MCANNOTATE,
-                        basePairLoader.provideBasePairAnalyzer(AnalysisTool.MC_ANNOTATE)),
+                        basePairAnalyzerFactory.provideBasePairAnalyzer(AnalysisTool.MC_ANNOTATE)),
                 // TODO: fr3d is not always working
                 // Pair.of(BasePairAnalyzerEnum.FR3D,
                 //      basePairLoader.provideBasePairAnalyzer(AnalysisTool.FR3D_PYTHON)),
                 // TODO: assuming 'DSSR' means barnaba ->
                 //  must to be refactored when common code is joined with engine's code
                 Pair.of(BasePairAnalyzerEnum.DSSR,
-                        basePairLoader.provideBasePairAnalyzer(AnalysisTool.BARNABA)),
+                        basePairAnalyzerFactory.provideBasePairAnalyzer(AnalysisTool.BARNABA)),
                 // TODO: assuming 'FR3D' means BPNet ->
                 //  must to be refactored when common code is joined with engine's code
                 Pair.of(BasePairAnalyzerEnum.FR3D,
-                        basePairLoader.provideBasePairAnalyzer(AnalysisTool.BPNET)),
+                        basePairAnalyzerFactory.provideBasePairAnalyzer(AnalysisTool.BPNET)),
                 Pair.of(BasePairAnalyzerEnum.RNAVIEW,
-                        basePairLoader.provideBasePairAnalyzer(AnalysisTool.RNAVIEW))
+                        basePairAnalyzerFactory.provideBasePairAnalyzer(AnalysisTool.RNAVIEW))
         );
     }
 
     @Autowired
-    public ConsensusStructureAnalysisService(ImageService imageService,
-                                             AnalysisOutputsMapper analysisOutputsMapper,
-                                             BasePairLoader basePairLoader) {
+    public ConsensualStructureAnalysisService(ImageService imageService,
+                                              AnalysisOutputsMapper analysisOutputsMapper,
+                                              BasePairAnalyzerFactory basePairAnalyzerFactory) {
         this.imageService = imageService;
         this.analysisOutputsMapper = analysisOutputsMapper;
-        this.basePairLoader = basePairLoader;
+        this.basePairAnalyzerFactory = basePairAnalyzerFactory;
     }
 }
