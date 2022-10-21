@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   description: "This is API of the engine service of RNApdbee v3.0."
-  version: "1.0.9"
+  version: "1.0.10"
   title: "RNApdbee Engine API"
 
 
@@ -186,19 +186,77 @@ components:
 
   schemas:
     Output3D:
-      type: object
+      type: "object"
       properties:
-        analysisOutput:
-          $ref: "#/components/schemas/AnalysisOutput"
+        title:
+          type: "string"
+          description: "Title of the model taken from analysed pdb/mmcif file. Not every file contains the title."
+          example: "GLYCYL-TRNA(UCC)1B ANTICODON STEM-LOOP FROM STAPHYLOCOCCUS EPIDERMIDIS"
+        models:
+          type: "array"
+          description: "Analysed models."
+          items:
+            $ref: "#/components/schemas/SingleTertiaryModelOutput"
+      required:
+        - "output2D"
+        - "models"
+
+    SingleTertiaryModelOutput:
+      type: "object"
+      properties:
+        modelNumber:
+          type: "integer"
+          example: "1"
         output2D:
           $ref: "#/components/schemas/Output2D"
-      required:
-        - analysisOutput
-        - output2D
+        messages:
+          type: "array"
+          description: "Log messages written during the analysis."
+          items:
+            type: "string"
+            example: "Multiplet identified: A.U7 -> [A.C6, A.U8]"
+        canonicalInteractions:
+          $ref: "#/components/schemas/TertiaryInteractions"
+        nonCanonicalInteractions:
+          $ref: "#/components/schemas/TertiaryInteractions"
+        stackingInteractions:
+          $ref: "#/components/schemas/TertiaryInteractions"
+        basePhosphateInteractions:
+          $ref: "#/components/schemas/TertiaryInteractions"
+        baseRiboseInteractions:
+          $ref: "#/components/schemas/TertiaryInteractions"
+
+    TertiaryInteractions:
+      type: "array"
+      items:
+        type: "object"
+        properties:
+          interactionType:
+            type: "string"
+            example: "base - base"
+          saenger:
+            $ref: "#/components/schemas/Saenger"
+          leontisWesthof:
+            $ref: "#/components/schemas/LeontisWesthof"
+          bPh:
+            $ref: "#/components/schemas/BPh"
+          br:
+            $ref: "#/components/schemas/BR"
+          leftResidue:
+            $ref: "#/components/schemas/Residue"
+          rightResidue:
+            $ref: "#/components/schemas/Residue"
+        required:
+          - "interactionType"
+          - "leftResidue"
+          - "rightResidue"
 
     OutputMulti:
-      type: object
+      type: "object"
       properties:
+        title:
+          type: "string"
+          example: "GLYCYL-TRNA(UCC)1B ANTICODON STEM-LOOP FROM STAPHYLOCOCCUS EPIDERMIDIS"
         entries:
           type: "array"
           items:
@@ -240,10 +298,8 @@ components:
         imageInformation:
           $ref: "#/components/schemas/ImageInformation"
       required:
-        - "strands"
         - "bpSeq"
         - "ct"
-        - "interactions"
         - "structuralElements"
         - "imageInformation"
 
@@ -296,12 +352,14 @@ components:
 
     Interactions:
       type: "array"
+      description: "mandatory for 2D analysis result, null in 3D and consensual analysis result"
       items:
         type: "string"
         example: "A.A181 - Z.U418"
 
     DotBracket:
       type: "array"
+      description: "mandatory for 2D and consensual analysis result, null in 3D analysis result"
       items:
         $ref: "#/components/schemas/StrandEntry"
 
@@ -331,6 +389,16 @@ components:
           $ref: "#/components/schemas/StructuralElementsArray"
         singleStrands3p:
           $ref: "#/components/schemas/StructuralElementsArray"
+        coordinates:
+          type: "string"
+          description: "Generated pdb file. Not relevand (null) for 2D analysis"
+          example: "ATOM     33  P     G A   2      17.038   9.250   4.315  1.00  1.00           P"
+      required:
+        - "stems"
+        - "loops"
+        - "singleStrands"
+        - "singleStrands5p"
+        - "singleStrands3p"
 
     StructuralElementsArray:
       type: "array"
@@ -338,149 +406,25 @@ components:
         type: "string"
         example: "6 10 CCCGG ((((( YYYRR 262 266 CCGGG ))))) YYRRR"
 
-    AnalysisOutput:
-      type: object
-      properties:
-        basePairs:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/BasePair"
-        stackings:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Stacking"
-        baseRiboseInteractions:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/BaseRibose"
-        basePhosphateInteractions:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/BasePhosphate"
-        other:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Other"
-      required:
-        - basePairs
-        - stackings
-        - baseRiboseInteractions
-        - basePhosphateInteractions
-        - other
-
-    BasePair:
-      type: object
-      properties:
-        nt1:
-          $ref: "#/components/schemas/Residue"
-        nt2:
-          $ref: "#/components/schemas/Residue"
-        leontisWesthof:
-          $ref: "#/components/schemas/LeontisWesthof"
-        saenger:
-          $ref: "#/components/schemas/Saenger"
-      required:
-        - leontisWesthof
-        - nt1
-        - nt2
-
-    BaseRibose:
-      type: object
-      properties:
-        nt1:
-          $ref: "#/components/schemas/Residue"
-        nt2:
-          $ref: "#/components/schemas/Residue"
-        br:
-          $ref: "#/components/schemas/BR"
-      required:
-        - nt1
-        - nt2
-
-    BasePhosphate:
-      type: object
-      properties:
-        nt1:
-          $ref: "#/components/schemas/Residue"
-        nt2:
-          $ref: "#/components/schemas/Residue"
-        bph:
-          $ref: "#/components/schemas/BPh"
-      required:
-        - nt1
-        - nt2
-
-    Stacking:
-      type: object
-      properties:
-        nt1:
-          $ref: "#/components/schemas/Residue"
-        nt2:
-          $ref: "#/components/schemas/Residue"
-        topology:
-          $ref: "#/components/schemas/StackingTopology"
-      required:
-        - nt1
-        - nt2
-
-    Other:
-      type: object
-      properties:
-        nt1:
-          $ref: "#/components/schemas/Residue"
-        nt2:
-          $ref: "#/components/schemas/Residue"
-      required:
-        - nt1
-        - nt2
-
     Residue:
-      type: object
+      type: "object"
       properties:
-        label:
-          $ref: "#/components/schemas/ResidueLabel"
-        auth:
-          $ref: "#/components/schemas/ResidueAuth"
-        atoms:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Atom"
+        chainIdentifier:
+          type: "string"
+          example: "A"
+        residueNumber:
+          type: "integer"
+          example: "16"
+        insertionCode:
+          type: "string"
+          description: "null in some adapters"
+        oneLetterName:
+          type: "string"
+          example: "G"
       required:
-        - atoms
-
-    Atom:
-      type: object
-
-    ResidueAuth:
-      type: object
-      properties:
-        chain:
-          type: string
-        number:
-          type: integer
-        icode:
-          type: string
-        name:
-          type: string
-      required:
-        - chain
-        - number
-        - icode
-        - name
-
-    ResidueLabel:
-      type: object
-      properties:
-        chain:
-          type: string
-        number:
-          type: integer
-        name:
-          type: string
-      required:
-        - chain
-        - number
-        - name
+        - "chainIdentifier"
+        - "residueNumber"
+        - "oneLetterName"
 
     LeontisWesthof:
       type: "string"

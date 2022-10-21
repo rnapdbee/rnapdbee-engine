@@ -17,12 +17,12 @@ public class TertiaryAnalysisOutputTestUtils {
         for (int assertedListItemIndex = 0; assertedListItemIndex < expectedInformation.size(); ++assertedListItemIndex) {
             assertAnalysisOutput(tertiaryAnalysisOutput.getModels().get(assertedListItemIndex),
                     expectedInformation.get(assertedListItemIndex));
+            assertEquals(assertedListItemIndex + 1, tertiaryAnalysisOutput.getModels().get(assertedListItemIndex).getModelNumber());
         }
     }
 
     private static void assertAnalysisOutput(SingleTertiaryModelOutput singleTertiaryModelOutput,
                                              TertiaryAnalysisOutputTestInformation expectedInformation) {
-        // TODO: assert title???
         assertAll("The sizes of analysis's information lists must be the same as expected",
                 () -> assertEquals(expectedInformation.getBpSeqSize(), singleTertiaryModelOutput.getOutput2D()
                                 .getAnalysis().get(0).getBpSeq().size(),

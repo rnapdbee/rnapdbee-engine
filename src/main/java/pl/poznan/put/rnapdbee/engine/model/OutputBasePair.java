@@ -13,7 +13,7 @@ import pl.poznan.put.structure.ClassifiedBasePair;
  */
 public class OutputBasePair {
 
-    InteractionType interactionType;
+    String interactionType;
     Saenger saenger;
     LeontisWesthof leontisWesthof;
     BPh bPh;
@@ -24,7 +24,7 @@ public class OutputBasePair {
     public static OutputBasePair fromClassifiedBasePair(ClassifiedBasePair classifiedBasePair) {
         OutputBasePair outputBasePair = new OutputBasePair();
 
-        outputBasePair.setInteractionType(classifiedBasePair.interactionType());
+        outputBasePair.setInteractionType(classifiedBasePair.interactionType().description());
         outputBasePair.setSaenger(classifiedBasePair.saenger());
         outputBasePair.setLeontisWesthof(classifiedBasePair.leontisWesthof());
         outputBasePair.setbPh(BPh.mapBioCommonsBphToEngineBph(classifiedBasePair.bph()));
@@ -41,11 +41,11 @@ public class OutputBasePair {
         return outputBasePair;
     }
 
-    public InteractionType getInteractionType() {
+    public String getInteractionType() {
         return interactionType;
     }
 
-    public void setInteractionType(InteractionType interactionType) {
+    public void setInteractionType(String interactionType) {
         this.interactionType = interactionType;
     }
 

@@ -67,9 +67,11 @@ public class TertiaryStructureAnalysisService {
                                 visualizationTool,
                                 secondaryStructure))
                 .collect(Collectors.toList());
+        final String title = secondaryStructures.stream().findAny().orElseThrow().getModel().title();
 
         Output3D output3D = new Output3D();
         output3D.setModels(results);
+        output3D.setTitle(title);
 
         return output3D;
     }

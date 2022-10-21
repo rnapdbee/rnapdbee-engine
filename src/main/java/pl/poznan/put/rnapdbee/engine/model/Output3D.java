@@ -9,11 +9,22 @@ public class Output3D {
     @JsonProperty("models")
     List<SingleTertiaryModelOutput> models;
 
+    @JsonProperty("title")
+    private String title;
+
     public List<SingleTertiaryModelOutput> getModels() {
         return models;
     }
 
     public void setModels(List<SingleTertiaryModelOutput> models) {
         this.models = models;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

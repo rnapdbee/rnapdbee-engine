@@ -84,7 +84,6 @@ public class AnalysisOutputsMapper {
         singleTertiaryModelOutput.setOutput2D(new Output2D().withAnalysis(List.of(singleOutput2D)));
         singleTertiaryModelOutput.setMessages(messages);
         singleTertiaryModelOutput.setModelNumber(structureModel.modelNumber());
-        singleTertiaryModelOutput.setTitle(structureModel.title());
         singleTertiaryModelOutput.setCanonicalInteractions(mapAnalyzedBasePairsToOutputBasePairs(
                 filteredResults.getCanonical()));
         singleTertiaryModelOutput.setNonCanonicalInteractions(mapAnalyzedBasePairsToOutputBasePairs(

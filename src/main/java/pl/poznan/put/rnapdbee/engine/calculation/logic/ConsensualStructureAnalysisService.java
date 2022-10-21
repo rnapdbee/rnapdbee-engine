@@ -67,6 +67,7 @@ public class ConsensualStructureAnalysisService {
                 includeNonCanonical, removeIsolated, filename, content, analyzerPairs);
 
         final List<BpSeqInfo> bpSeqInfos = consensus.getLeft().getBpSeqInfos();
+        final String title = bpSeqInfos.stream().findAny().orElseThrow().getTitle();
 
         final List<OutputMultiEntry> outputMultiEntryList = bpSeqInfos.stream()
                 .map(bpSeqInfo -> mapBpSeqInfoAndConsensualImageIntoOutputMultiEntry(
@@ -75,7 +76,8 @@ public class ConsensualStructureAnalysisService {
                 .collect(Collectors.toList());
 
         return new OutputMulti()
-                .withEntries(outputMultiEntryList);
+                .withEntries(outputMultiEntryList)
+                .withTitle(title);
     }
 
     private Pair<ConsensusInput, ConsensusOutput> findConsensus(ModelSelection modelSelection,

@@ -11,10 +11,6 @@ import java.util.List;
  */
 public class SingleTertiaryModelOutput {
 
-
-    @JsonProperty("title")
-    private String title;
-
     @JsonProperty("modelNumber")
     private Integer modelNumber;
 
@@ -103,11 +99,4 @@ public class SingleTertiaryModelOutput {
         this.modelNumber = modelNumber;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
 }
