@@ -1,6 +1,6 @@
-package pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensus;
+package pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensual;
 
-public class ConsensusAnalysisTestInformation {
+public class ConsensualAnalysisTestInformation {
 
     private int bpSeqSize;
     private int ctEntriesSize;

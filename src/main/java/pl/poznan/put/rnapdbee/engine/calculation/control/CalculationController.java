@@ -19,6 +19,7 @@ import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.model.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.model.ModelSelection;
 import pl.poznan.put.rnapdbee.engine.model.NonCanonicalHandling;
+import pl.poznan.put.rnapdbee.engine.model.Output3D;
 import pl.poznan.put.rnapdbee.engine.model.StructuralElementsHandling;
 
 
@@ -39,17 +40,44 @@ public class CalculationController {
         this.logger = logger;
     }
 
+    /**
+     * Endpoint responsible for 3D -> (....) analysis.
+     *
+     * @param modelSelection                enum defining whether calculation should be made on first or all models in file
+     * @param analysisTool                  analysis tool (adapter) used in determination of base pairs
+     * @param nonCanonicalHandling          enum defining handling of non-canonical pairs
+     * @param removeIsolated                boolean flag indicating whether isolated pairs should be removed or not
+     * @param structuralElementsHandling    enum defining handling of pseudoknots
+     * @param visualizationTool             visualization tool used when creating the image
+     * @param contentDispositionHeader      header containing name of the analysed file
+     * @param fileContent                   content of the file
+     * @return output3D
+     */
     @Operation(summary = "Perform a 3D to Dot-Bracket calculation")
     @PostMapping(path = "/3d", produces = "application/json", consumes = "text/plain")
-    public ResponseEntity<Object> calculateTertiaryToDotBracket(
+    public ResponseEntity<Output3D> calculateTertiaryToDotBracket(
             @RequestParam("modelSelection") ModelSelection modelSelection,
             @RequestParam("analysisTool") AnalysisTool analysisTool,
             @RequestParam("nonCanonicalHandling") NonCanonicalHandling nonCanonicalHandling,
             @RequestParam("removeIsolated") boolean removeIsolated,
             @RequestParam("structuralElementsHandling") StructuralElementsHandling structuralElementsHandling,
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
-            @RequestBody String content) {
-        throw new UnsupportedOperationException();
+            @RequestHeader("Content-Disposition") String contentDispositionHeader,
+            @RequestBody String fileContent) {
+        logger.info(String.format("Analysis of scenario 3D -> (...) started for content-disposition header %s",
+                contentDispositionHeader));
+        ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
+        var result = calculationService
+                .handleTertiaryToDotBracketCalculation(
+                        modelSelection,
+                        analysisTool,
+                        nonCanonicalHandling,
+                        removeIsolated,
+                        structuralElementsHandling,
+                        visualizationTool,
+                        contentDisposition.getFilename(),
+                        fileContent);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     /**

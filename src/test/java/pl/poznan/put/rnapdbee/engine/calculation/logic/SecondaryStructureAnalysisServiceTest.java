@@ -39,7 +39,7 @@ class SecondaryStructureAnalysisServiceTest {
     @BeforeEach
     void provideMocks() {
         SecondaryStructureImage imageMock = Mockito.mock(SecondaryStructureImage.class);
-        Mockito.when(imageService.provideVisualization(Mockito.any(), Mockito.any())).thenReturn(imageMock);
+        Mockito.when(imageService.visualizeCanonical(Mockito.any(), Mockito.any())).thenReturn(imageMock);
     }
 
     @ParameterizedTest

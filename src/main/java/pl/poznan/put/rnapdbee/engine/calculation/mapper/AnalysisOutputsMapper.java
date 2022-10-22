@@ -1,17 +1,22 @@
 package pl.poznan.put.rnapdbee.engine.calculation.mapper;
 
 import edu.put.rnapdbee.analysis.AnalysisOutput;
+import edu.put.rnapdbee.analysis.AnalysisResult;
 import edu.put.rnapdbee.analysis.elements.StructuralElement;
 import edu.put.rnapdbee.analysis.elements.StructuralElementFinder;
 import edu.put.rnapdbee.visualization.SecondaryStructureImage;
 import org.springframework.stereotype.Service;
 import pl.poznan.put.consensus.BpSeqInfo;
+import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rnapdbee.engine.calculation.model.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.calculation.model.Output2D;
 import pl.poznan.put.rnapdbee.engine.calculation.model.SingleSecondaryModelAnalysisOutput;
 import pl.poznan.put.rnapdbee.engine.calculation.model.SingleStrandOutput;
 import pl.poznan.put.rnapdbee.engine.calculation.model.StructuralElementOutput;
+import pl.poznan.put.rnapdbee.engine.model.OutputBasePair;
 import pl.poznan.put.rnapdbee.engine.model.OutputMultiEntry;
+import pl.poznan.put.rnapdbee.engine.model.SingleTertiaryModelOutput;
+import pl.poznan.put.structure.AnalyzedBasePair;
 import pl.poznan.put.structure.formats.BpSeq;
 import pl.poznan.put.structure.formats.Ct;
 import pl.poznan.put.structure.formats.DotBracket;
@@ -43,8 +48,9 @@ public class AnalysisOutputsMapper {
      * @param secondaryVisualization visualization of the analysed bpSeq
      * @return important information wrapped in OutputMultiEntry object
      */
-    public OutputMultiEntry mapBpSeqInfoAndSecondaryStructureImageIntoOutputMultiEntry(BpSeqInfo bpSeqInfo,
-                                                                                       SecondaryStructureImage secondaryVisualization) {
+    public OutputMultiEntry mapBpSeqInfoAndSecondaryStructureImageIntoOutputMultiEntry(
+            BpSeqInfo bpSeqInfo,
+            SecondaryStructureImage secondaryVisualization) {
         SingleSecondaryModelAnalysisOutput secondaryAnalysisOutput = new SingleSecondaryModelAnalysisOutput()
                 .withBpSeq(mapBpSeqToListOfString(bpSeqInfo.getBpSeq()))
                 .withCt(mapCtToListOfString(bpSeqInfo.getCt()))
@@ -57,6 +63,38 @@ public class AnalysisOutputsMapper {
         return new OutputMultiEntry()
                 .withOutput2D(output2D)
                 .withAdapterEnums(bpSeqInfo.getBasePairAnalyzerNames());
+    }
+
+    public SingleTertiaryModelOutput wrapSingleMulti2DAnalysisToDto(
+            PdbModel structureModel,
+            AnalysisResult filteredResults,
+            SecondaryStructureImage image,
+            BpSeq bpseq,
+            Ct ct,
+            List<String> messages,
+            StructuralElementFinder structuralElementFinder) {
+        SingleSecondaryModelAnalysisOutput singleOutput2D = new SingleSecondaryModelAnalysisOutput()
+                .withImageInformation(mapSecondaryStructureImageIntoImageInformationOutput(image))
+                .withCt(mapCtToListOfString(ct))
+                .withBpSeq(mapBpSeqToListOfString(bpseq))
+                .withStructuralElement(mapStructuralElementFinderIntoStructuralElementOutputForTertiaryAnalysis(
+                        structuralElementFinder));
+
+        SingleTertiaryModelOutput singleTertiaryModelOutput = new SingleTertiaryModelOutput();
+        singleTertiaryModelOutput.setOutput2D(new Output2D().withAnalysis(List.of(singleOutput2D)));
+        singleTertiaryModelOutput.setMessages(messages);
+        singleTertiaryModelOutput.setModelNumber(structureModel.modelNumber());
+        singleTertiaryModelOutput.setCanonicalInteractions(mapAnalyzedBasePairsToOutputBasePairs(
+                filteredResults.getCanonical()));
+        singleTertiaryModelOutput.setNonCanonicalInteractions(mapAnalyzedBasePairsToOutputBasePairs(
+                filteredResults.getNonCanonical()));
+        singleTertiaryModelOutput.setStackingInteractions(mapAnalyzedBasePairsToOutputBasePairs(
+                filteredResults.getStacking()));
+        singleTertiaryModelOutput.setBaseRiboseInteractions(mapAnalyzedBasePairsToOutputBasePairs(
+                filteredResults.getBaseRibose()));
+        singleTertiaryModelOutput.setBasePhosphateInteractions(mapAnalyzedBasePairsToOutputBasePairs(
+                filteredResults.getBasePhosphate()));
+        return singleTertiaryModelOutput;
     }
 
     private List<String> mapBpSeqToListOfString(BpSeq bpSeq) {
@@ -111,6 +149,12 @@ public class AnalysisOutputsMapper {
                 .withStructure(strand.structure());
     }
 
+    private List<OutputBasePair> mapAnalyzedBasePairsToOutputBasePairs(List<AnalyzedBasePair> classifiedBasePairs) {
+        return classifiedBasePairs.stream()
+                .map(OutputBasePair::fromClassifiedBasePair)
+                .collect(Collectors.toList());
+    }
+
     private StructuralElementOutput mapStructuralElementFinderIntoStructuralElementOutput(
             StructuralElementFinder structuralElementFinder) {
         return new StructuralElementOutput()
@@ -124,5 +168,11 @@ public class AnalysisOutputsMapper {
                         .map(StructuralElement::toString).collect(Collectors.toList()))
                 .withSingleStrands3p(structuralElementFinder.getSingleStrands3p().stream()
                         .map(StructuralElement::toString).collect(Collectors.toList()));
+    }
+
+    private StructuralElementOutput mapStructuralElementFinderIntoStructuralElementOutputForTertiaryAnalysis(
+            StructuralElementFinder structuralElementFinder) {
+        return mapStructuralElementFinderIntoStructuralElementOutput(structuralElementFinder)
+                .withCoordinates(structuralElementFinder.getPdb());
     }
 }

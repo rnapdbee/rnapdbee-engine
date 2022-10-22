@@ -14,6 +14,9 @@ public class OutputMulti {
     @JsonProperty("entries")
     private List<OutputMultiEntry> entries;
 
+    @JsonProperty("title")
+    private String title;
+
     /* TODO: here should be the consensual visualization written as weblogo (separate task) */
     @JsonProperty("consensualVisualization")
     private ConsensualVisualization consensualVisualization;
@@ -24,6 +27,15 @@ public class OutputMulti {
 
     public OutputMulti withEntries(List<OutputMultiEntry> entries) {
         this.entries = entries;
+        return this;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public OutputMulti withTitle(String title) {
+        this.title = title;
         return this;
     }
 

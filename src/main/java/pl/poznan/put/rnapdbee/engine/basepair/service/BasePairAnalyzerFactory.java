@@ -15,7 +15,7 @@ import pl.poznan.put.rnapdbee.engine.model.AnalysisTool;
  * {@link pl.poznan.put.rnapdbee.engine.basepair.boundary.RNApdbeeAdapterBasePairAnalyzer}
  */
 @Component
-public class BasePairLoader {
+public class BasePairAnalyzerFactory {
 
     private final RnaViewBasePairAnalyzer rnaViewBasePairAnalyzer;
     private final MCAnnotateBasePairAnalyzer mcAnnotateBasePairAnalyzer;
@@ -48,11 +48,11 @@ public class BasePairLoader {
     }
 
     @Autowired
-    public BasePairLoader(RnaViewBasePairAnalyzer rnaViewBasePairAnalyzer,
-                          MCAnnotateBasePairAnalyzer mcAnnotateBasePairAnalyzer,
-                          Fr3dBasePairAnalyzer fr3dBasePairAnalyzer,
-                          BPNetBasePairAnalyzer bpNetBasePairAnalyzer,
-                          BarnabaBasePairAnalyzer barnabaBasePairAnalyzer) {
+    public BasePairAnalyzerFactory(RnaViewBasePairAnalyzer rnaViewBasePairAnalyzer,
+                                   MCAnnotateBasePairAnalyzer mcAnnotateBasePairAnalyzer,
+                                   Fr3dBasePairAnalyzer fr3dBasePairAnalyzer,
+                                   BPNetBasePairAnalyzer bpNetBasePairAnalyzer,
+                                   BarnabaBasePairAnalyzer barnabaBasePairAnalyzer) {
         this.rnaViewBasePairAnalyzer = rnaViewBasePairAnalyzer;
         this.mcAnnotateBasePairAnalyzer = mcAnnotateBasePairAnalyzer;
         this.fr3dBasePairAnalyzer = fr3dBasePairAnalyzer;
