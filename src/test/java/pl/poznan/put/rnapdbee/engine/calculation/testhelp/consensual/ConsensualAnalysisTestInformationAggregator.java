@@ -1,4 +1,4 @@
-package pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensus;
+package pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensual;
 
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.params.aggregator.ArgumentsAccessor;
@@ -8,7 +8,7 @@ import org.junit.jupiter.params.aggregator.ArgumentsAggregator;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConsensusAnalysisTestInformationAggregator implements ArgumentsAggregator {
+public class ConsensualAnalysisTestInformationAggregator implements ArgumentsAggregator {
 
     // each entry has only 1 bpseq, 1 ct and 1 dot bracket which are aggregated.
     private static final int NUMBER_OF_AGGREGATED_ARGUMENTS_FOR_EACH_MODEL = 3;
@@ -19,7 +19,7 @@ public class ConsensusAnalysisTestInformationAggregator implements ArgumentsAggr
         // assuming there is only 1 aggregated parameter in the test
         final int numberOfNotAggregatedArgumentsInTestMethod = parameterContext.getDeclaringExecutable()
                 .getParameters().length - 1;
-        List<ConsensusAnalysisTestInformation> testInformationArrayList = new ArrayList<>();
+        List<ConsensualAnalysisTestInformation> testInformationArrayList = new ArrayList<>();
         int modelsInTestCase = (argumentsAccessor.size() - (numberOfNotAggregatedArgumentsInTestMethod - 1))
                 / NUMBER_OF_AGGREGATED_ARGUMENTS_FOR_EACH_MODEL;
 
@@ -30,11 +30,11 @@ public class ConsensusAnalysisTestInformationAggregator implements ArgumentsAggr
             int ctEntriesSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 1);
             int strandsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 2);
 
-            ConsensusAnalysisTestInformation consensusAnalysisTestInformation = new ConsensusAnalysisTestInformation();
-            consensusAnalysisTestInformation.setBpSeqSize(bpSeqSize);
-            consensusAnalysisTestInformation.setCtEntriesSize(ctEntriesSize);
-            consensusAnalysisTestInformation.setStrandsSize(strandsSize);
-            testInformationArrayList.add(consensusAnalysisTestInformation);
+            ConsensualAnalysisTestInformation consensualAnalysisTestInformation = new ConsensualAnalysisTestInformation();
+            consensualAnalysisTestInformation.setBpSeqSize(bpSeqSize);
+            consensualAnalysisTestInformation.setCtEntriesSize(ctEntriesSize);
+            consensualAnalysisTestInformation.setStrandsSize(strandsSize);
+            testInformationArrayList.add(consensualAnalysisTestInformation);
         }
 
         return testInformationArrayList;

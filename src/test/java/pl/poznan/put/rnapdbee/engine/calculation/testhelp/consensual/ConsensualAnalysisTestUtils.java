@@ -1,4 +1,4 @@
-package pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensus;
+package pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensual;
 
 import pl.poznan.put.rnapdbee.engine.model.OutputMulti;
 import pl.poznan.put.rnapdbee.engine.model.OutputMultiEntry;
@@ -8,10 +8,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ConsensusAnalysisTestUtils {
+public class ConsensualAnalysisTestUtils {
 
     public static void assertAnalysisOutput(OutputMulti analysisOutput,
-                                             List<ConsensusAnalysisTestInformation> secondaryAnalysisOutputTestInformationList) {
+                                             List<ConsensualAnalysisTestInformation> secondaryAnalysisOutputTestInformationList) {
         assertEquals(secondaryAnalysisOutputTestInformationList.size(), analysisOutput.getEntries().size(),
                 "Analysis output length must be correct");
         for (int assertedListItemIndex = 0; assertedListItemIndex < secondaryAnalysisOutputTestInformationList.size(); ++assertedListItemIndex) {
@@ -21,7 +21,7 @@ public class ConsensusAnalysisTestUtils {
     }
 
     private static void assertSingleEntryOfAnalysisOutput(OutputMultiEntry outputMultiEntry,
-                                             ConsensusAnalysisTestInformation expectedInformationAboutAnalysis) {
+                                             ConsensualAnalysisTestInformation expectedInformationAboutAnalysis) {
         var output2DEntry = outputMultiEntry.getOutput2D().getAnalysis().get(0);
         assertAll("The sizes of analysis's information lists must be the same as expected",
                 () -> assertEquals(expectedInformationAboutAnalysis.getBpSeqSize(), output2DEntry.getBpSeq().size(),

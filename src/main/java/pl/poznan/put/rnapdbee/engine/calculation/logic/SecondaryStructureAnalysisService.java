@@ -87,7 +87,7 @@ public class SecondaryStructureAnalysisService {
         final BpSeq bpSeqFromCombined = BpSeq.fromDotBracket(combinedStrand);
         final Ct ctFromCombined = Ct.fromDotBracket(combinedStrand);
 
-        SecondaryStructureImage image = imageService.provideVisualization(visualizationTool, combinedStrand);
+        SecondaryStructureImage image = imageService.visualizeCanonical(visualizationTool, combinedStrand);
 
         final StructuralElementFinder structuralElementFinder =
                 new StructuralElementFinder(

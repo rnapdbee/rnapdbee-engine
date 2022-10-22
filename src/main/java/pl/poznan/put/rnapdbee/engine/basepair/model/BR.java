@@ -29,11 +29,11 @@ public enum BR {
     NINE;
 
     // TODO: get rid of this when merging rnapdbee-common code to engine
-    public static pl.poznan.put.notation.BR mapToBioCommonsBph(BR brFromEngine) {
-        if (brFromEngine == null) {
+    public static pl.poznan.put.notation.BR mapToBioCommonsBr(BR brFromEngineModel) {
+        if (brFromEngineModel == null) {
             return pl.poznan.put.notation.BR.UNKNOWN;
         }
-        switch (brFromEngine) {
+        switch (brFromEngineModel) {
             case ZERO:
                 return pl.poznan.put.notation.BR._0;
             case ONE:
@@ -56,6 +56,34 @@ public enum BR {
                 return pl.poznan.put.notation.BR._9;
             default:
                 return pl.poznan.put.notation.BR.UNKNOWN;
+        }
+    }
+
+    // TODO: get rid of this when merging rnapdbee-common code to engine
+    public static BR mapBioCommonsBrToEngineBr(pl.poznan.put.notation.BR brFromEngineModel) {
+        switch (brFromEngineModel) {
+            case _0:
+                return ZERO;
+            case _1:
+                return ONE;
+            case _2:
+                return TWO;
+            case _3:
+                return THREE;
+            case _4:
+                return FOUR;
+            case _5:
+                return FIVE;
+            case _6:
+                return SIX;
+            case _7:
+                return SEVEN;
+            case _8:
+                return EIGHT;
+            case _9:
+                return NINE;
+            default:
+                return null;
         }
     }
 }
