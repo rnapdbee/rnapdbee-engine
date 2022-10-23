@@ -145,7 +145,7 @@ public class TertiaryStructureAnalysisService {
 //        return secondaryStructures;
 //    }
 //
-//    // TODO put this and the one from multi2D to new file.
+//    // TODO: put this and the one from multi2D to new file.
 //    private InputType determineInputType(String filename) {
 //        for (InputType inputType : InputType.values()) {
 //            if (filename.toLowerCase().contains(inputType.getFileExtension())) {

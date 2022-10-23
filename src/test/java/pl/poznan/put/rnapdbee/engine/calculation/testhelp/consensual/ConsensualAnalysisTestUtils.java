@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ConsensualAnalysisTestUtils {
 
     public static void assertAnalysisOutput(OutputMulti analysisOutput,
-                                             List<ConsensualAnalysisTestInformation> secondaryAnalysisOutputTestInformationList) {
+                                            List<ConsensualAnalysisTestInformation> secondaryAnalysisOutputTestInformationList) {
         assertEquals(secondaryAnalysisOutputTestInformationList.size(), analysisOutput.getEntries().size(),
                 "Analysis output length must be correct");
         for (int assertedListItemIndex = 0; assertedListItemIndex < secondaryAnalysisOutputTestInformationList.size(); ++assertedListItemIndex) {
@@ -21,7 +21,7 @@ public class ConsensualAnalysisTestUtils {
     }
 
     private static void assertSingleEntryOfAnalysisOutput(OutputMultiEntry outputMultiEntry,
-                                             ConsensualAnalysisTestInformation expectedInformationAboutAnalysis) {
+                                                          ConsensualAnalysisTestInformation expectedInformationAboutAnalysis) {
         var output2DEntry = outputMultiEntry.getOutput2D();
         assertAll("The sizes of analysis's information lists must be the same as expected",
                 () -> assertEquals(expectedInformationAboutAnalysis.getBpSeqSize(), output2DEntry.getBpSeq().size(),
