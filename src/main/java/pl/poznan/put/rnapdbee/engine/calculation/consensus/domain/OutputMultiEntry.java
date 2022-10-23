@@ -3,6 +3,7 @@ package pl.poznan.put.rnapdbee.engine.calculation.consensus.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import pl.poznan.put.rnapdbee.engine.calculation.secondary.domain.Output2D;
+import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class OutputMultiEntry {
     private Output2D output2D;
 
     @JsonProperty("adapterEnums")
-    private List<String> adapterEnums;
+    private List<AnalysisTool> adapterEnums;
 
     public Output2D getOutput2D() {
         return output2D;
@@ -26,11 +27,11 @@ public class OutputMultiEntry {
         return this;
     }
 
-    public List<String> getAdapterEnums() {
+    public List<AnalysisTool> getAdapterEnums() {
         return adapterEnums;
     }
 
-    public OutputMultiEntry withAdapterEnums(List<String> adapterEnums) {
+    public OutputMultiEntry withAdapterEnums(List<AnalysisTool> adapterEnums) {
         this.adapterEnums = adapterEnums;
         return this;
     }

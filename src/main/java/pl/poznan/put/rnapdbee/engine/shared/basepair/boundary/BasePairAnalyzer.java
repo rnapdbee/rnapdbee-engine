@@ -8,13 +8,11 @@ import pl.poznan.put.notation.BR;
 import pl.poznan.put.notation.LeontisWesthof;
 import pl.poznan.put.notation.Saenger;
 import pl.poznan.put.pdb.PdbNamedResidueIdentifier;
-import pl.poznan.put.pdb.PdbParsingException;
-import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rna.InteractionType;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.AdaptersAnalysisDTO;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairDTO;
-import pl.poznan.put.rnapdbee.engine.shared.domain.InputType;
-import pl.poznan.put.rnapdbee.engine.shared.domain.NonCanonicalHandling;
+import pl.poznan.put.rnapdbee.engine.shared.multiplet.MultipletSet;
 import pl.poznan.put.structure.AnalyzedBasePair;
 import pl.poznan.put.structure.ImmutableAnalyzedBasePair;
 
@@ -26,7 +24,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-// TODO  WebFlux would be really efficient with the 3D->multi 2D analysis as we there perform multiple calls to the
+// TODO: WebFlux would be really efficient with the 3D->multi 2D analysis as we there perform multiple calls to the
 //  adapters, it could be done in parallel and then joined up after each call is performed. We would save a tone of
 //  time with this approach if the adapters were scalable horizontally in the future.
 public abstract class BasePairAnalyzer {
@@ -39,14 +37,12 @@ public abstract class BasePairAnalyzer {
     protected String adapterURI;
 
     // TODO: think about using WebFlux advancements when refactoring
-    public AnalyzedBasePair analyze(InputType inputType,
-                                    PdbModel pdbModel,
-                                    String fileContent,
-                                    NonCanonicalHandling nonCanonicalHandling) throws PdbParsingException {
-        AdaptersAnalysisDTO adaptersAnalysis = performAnalysisOnAdapter(fileContent);
+    public BasePairAnalysis analyze(String fileContent,
+                                    boolean includeNonCanonical,
+                                    int modelNumber) {
+        AdaptersAnalysisDTO adaptersAnalysis = performAnalysisOnAdapter(fileContent, modelNumber);
         assert adaptersAnalysis != null;
-        return null;
-        //return performPostAnalysisOnResponseFromAdapter(adaptersAnalysis, nonCanonicalHandling);
+        return performPostAnalysisOnResponseFromAdapter(adaptersAnalysis, includeNonCanonical);
     }
 
     /**
@@ -57,12 +53,12 @@ public abstract class BasePairAnalyzer {
      * Calculates represented list of base pairs.
      * Calculates messages list.
      *
-     * @param responseFromAdapter  response from the adapter
-     * @param nonCanonicalHandling enum specifying how should nonCanonical pairs be handled
-     * @return {@link AnalyzedBasePair} TertiaryAnalysisResult object with populated pairs lists.
+     * @param responseFromAdapter response from the adapter
+     * @param includeNonCanonical flag specifying if nonCanonical pairs should be included or not
+     * @return {@link AnalyzedBasePair} BasePairAnalysis object with populated pairs lists.
      */
-    private AnalyzedBasePair performPostAnalysisOnResponseFromAdapter(AdaptersAnalysisDTO responseFromAdapter,
-                                                                      NonCanonicalHandling nonCanonicalHandling) {
+    private BasePairAnalysis performPostAnalysisOnResponseFromAdapter(AdaptersAnalysisDTO responseFromAdapter,
+                                                                      boolean includeNonCanonical) {
         List<AnalyzedBasePair> canonical = responseFromAdapter.getBasePairs().stream()
                 .filter(BasePairDTO::isCanonical)
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair)
@@ -117,30 +113,28 @@ public abstract class BasePairAnalyzer {
                         .withBr(BR.UNKNOWN))
                 .filter(basePair -> !basePair.basePair().left().chainIdentifier().equals(basePair.basePair().right().chainIdentifier()))
                 .collect(Collectors.toList());
-        List<AnalyzedBasePair> represented = determineRepresentedPairs(canonical, nonCanonical, nonCanonicalHandling);
+        List<AnalyzedBasePair> represented = determineRepresentedPairs(canonical, nonCanonical, includeNonCanonical);
 
         final Iterable<AnalyzedBasePair> allBasePairs =
-                (nonCanonicalHandling == NonCanonicalHandling.TEXT_AND_VISUALIZATION
+                (includeNonCanonical
                         ? Stream.of(canonical, nonCanonical, stackings, basePhosphate, baseRibose, otherInteractions)
                         : Stream.of(canonical, stackings, basePhosphate, baseRibose, otherInteractions)
                 )
                         .flatMap(Collection::stream)
                         .collect(Collectors.toList());
-        //List<String> messages = (new MultipletSet(allBasePairs)).generateMessages();
+        List<String> messages = (new MultipletSet(allBasePairs)).generateMessages();
 
-        return null;
-        /*return new TertiaryAnalysisResult(
-                nonCanonicalHandling,
-                represented,
-                canonical,
-                nonCanonical,
-                stackings,
-                basePhosphate,
-                baseRibose,
-                otherInteractions,
-                interStrand,
-                messages
-        );*/
+        return new BasePairAnalysis.BasePairAnalysisBuilder()
+                .withRepresented(represented)
+                .withCanonical(canonical)
+                .withNonCanonical(nonCanonical)
+                .withStacking(stackings)
+                .withBasePhosphate(basePhosphate)
+                .withBaseRibose(baseRibose)
+                .withOther(otherInteractions)
+                .withInterStrand(interStrand)
+                .withMessages(messages)
+                .build();
     }
 
     /**
@@ -149,10 +143,11 @@ public abstract class BasePairAnalyzer {
      * @param fileContent content of file
      * @return {@link AdaptersAnalysisDTO} - performed analysis as Java object
      */
-    private AdaptersAnalysisDTO performAnalysisOnAdapter(String fileContent) {
+    // TODO: make cache that is different for all adapters (inheritors of this class).
+    private AdaptersAnalysisDTO performAnalysisOnAdapter(String fileContent, int modelNumber) {
         return adaptersWebClient
                 .post()
-                .uri(adapterURI)
+                .uri(adapterURI, modelNumber)
                 .contentType(MediaType.TEXT_PLAIN)
                 .body(BodyInserters.fromValue(fileContent))
                 .retrieve()
@@ -162,7 +157,7 @@ public abstract class BasePairAnalyzer {
 
     private List<AnalyzedBasePair> determineRepresentedPairs(List<AnalyzedBasePair> canonicalPairs,
                                                              List<AnalyzedBasePair> nonCanonicalPairs,
-                                                             NonCanonicalHandling nonCanonicalHandling) {
+                                                             boolean includeNonCanonical) {
         List<AnalyzedBasePair> pairsClassifiedAsRepresented = new ArrayList<>();
         final HashSet<PdbNamedResidueIdentifier> classifiedNucleotides = new HashSet<>();
 
@@ -179,7 +174,7 @@ public abstract class BasePairAnalyzer {
         };
 
         canonicalPairs.forEach(classifyBasePair);
-        if (nonCanonicalHandling == NonCanonicalHandling.TEXT_AND_VISUALIZATION) {
+        if (includeNonCanonical) {
             nonCanonicalPairs.forEach(classifyBasePair);
         }
         return pairsClassifiedAsRepresented;

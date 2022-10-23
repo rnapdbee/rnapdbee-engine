@@ -1,6 +1,39 @@
 package pl.poznan.put.rnapdbee.engine.calculation.consensus;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import pl.poznan.put.pdb.analysis.MoleculeType;
+import pl.poznan.put.pdb.analysis.PdbModel;
+import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.OutputMulti;
+import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.OutputMultiEntry;
+import pl.poznan.put.rnapdbee.engine.calculation.secondary.domain.Output2D;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BasePairAnalyzer;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.service.BasePairAnalyzerFactory;
+import pl.poznan.put.rnapdbee.engine.shared.converter.KnotRemoval;
+import pl.poznan.put.rnapdbee.engine.shared.converter.RNAStructure;
+import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
+import pl.poznan.put.rnapdbee.engine.shared.domain.InputType;
+import pl.poznan.put.rnapdbee.engine.shared.domain.ModelSelection;
+import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
+import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
+import pl.poznan.put.rnapdbee.engine.shared.image.logic.ImageService;
+import pl.poznan.put.rnapdbee.engine.shared.parser.TertiaryFileParser;
+import pl.poznan.put.structure.AnalyzedBasePair;
+import pl.poznan.put.structure.formats.BpSeq;
+import pl.poznan.put.structure.formats.Ct;
+import pl.poznan.put.structure.formats.DotBracket;
+import pl.poznan.put.structure.formats.ImmutableDefaultDotBracket;
+import pl.poznan.put.structure.formats.ImmutableDefaultDotBracketFromPdb;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Service which purpose is to handle 3D -> Multi 2D analysis.
@@ -8,16 +41,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConsensualStructureAnalysisService {
 
- /*   private final ImageService imageService;
+    private final ImageService imageService;
 
-    private final AnalysisOutputsMapper analysisOutputsMapper;
+    private final TertiaryFileParser tertiaryFileParser;
 
     private final BasePairAnalyzerFactory basePairAnalyzerFactory;
 
-    // TODO: replace converter method with Mixed-Integer Linear Programming (separate Task)
-    final static List<ConverterEnum> CONVERTERS = List.of(ConverterEnum.DPNEW);
-
-    *//**
+    /**
      * Performs 3D -> multi 2D analysis.
      *
      * @param modelSelection      enum indicating if first, or all models from file should be analysed
@@ -27,7 +57,7 @@ public class ConsensualStructureAnalysisService {
      * @param filename            name of the analysed file
      * @param content             content of the analysed file
      * @return output of the analysis
-     *//*
+     */
     public OutputMulti analyse(ModelSelection modelSelection,
                                boolean includeNonCanonical,
                                boolean removeIsolated,
@@ -35,143 +65,98 @@ public class ConsensualStructureAnalysisService {
                                String filename,
                                String content) {
         final var analyzerPairs = prepareAnalyzerPairs();
-        final var consensus = findConsensus(modelSelection,
-                includeNonCanonical, removeIsolated, filename, content, analyzerPairs);
 
-        final List<BpSeqInfo> bpSeqInfos = consensus.getLeft().getBpSeqInfos();
-        final String title = bpSeqInfos.stream().findAny().orElseThrow().getTitle();
-
-        final List<OutputMultiEntry> outputMultiEntryList = bpSeqInfos.stream()
-                .map(bpSeqInfo -> mapBpSeqInfoAndConsensualImageIntoOutputMultiEntry(
-                        visualizationTool,
-                        bpSeqInfo))
-                .collect(Collectors.toList());
-
-        return new OutputMulti()
-                .withEntries(outputMultiEntryList)
-                .withTitle(title);
+        return findConsensus(modelSelection,
+                determineInputType(filename),
+                content,
+                analyzerPairs,
+                includeNonCanonical,
+                removeIsolated,
+                visualizationTool);
     }
 
-    private Pair<ConsensusInput, ConsensusOutput> findConsensus(ModelSelection modelSelection,
-                                                                boolean includeNonCanonical,
-                                                                boolean removeIsolated,
-                                                                String filename,
-                                                                String content,
-                                                                Collection<Pair<AnalysisTool, BasePairAnalyzer>>
-                                                                        analyzerPairs) {
-        final Pair<ConsensusInput, ConsensusOutput> consensus;
-        try {
-            consensus = RNApdbee.findConsensus(
-                    filename,
-                    determineInputType(filename),
-                    content,
-                    analyzerPairs,
-                    CONVERTERS,
-                    includeNonCanonical ? NonCanonicalHandling.TEXT_AND_VISUALIZATION : NonCanonicalHandling.IGNORE,
-                    removeIsolated,
-                    // TODO: restore cache (best would be using Spring mechanisms) -> do with embedding of common codebase
-                    //new ParserCacheImpl(),
-                    // TODO: restore cache (best would be using Spring mechanisms) -> do with embedding of common codebase
-                    //new AnalyzerCacheImpl(),
-                    // TODO: ugly solution, but later will be better when rnapdbee-common code is embedded into engine
-                    modelSelection.toString());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return consensus;
-    }
-
-    public static Pair<ConsensusInput, ConsensusOutput> findConsensus(
-            final String structureName,
+    // TODO: refactor to streams
+    private OutputMulti findConsensus(
+            final ModelSelection modelSelection,
             final InputType inputType,
             final String fileContents,
             final Iterable<? extends Pair<AnalysisTool, BasePairAnalyzer>> analyzerPairs,
-            final Collection<ConverterEnum> converters,
-            final NonCanonicalHandling nonCanonicalHandling,
+            final boolean includeNonCanonical,
             final boolean removeIsolated,
-            final ParserCache parserCache,
-            final AnalyzerCache analyzerCache,
-            final ModelSelection modelSelection)
-            throws IOException {
-        // if not cached, parse file contents
-        if (!parserCache.containsKey(fileContents)) {
-            final List<? extends PdbModel> models = RNApdbee.parseFileContents(inputType, fileContents);
-            parserCache.put(fileContents, models);
+            VisualizationTool visualizationTool) {
+        String title = null;
+
+        final List<? extends PdbModel> models;
+        try {
+            models = tertiaryFileParser.parseFileContents(inputType, fileContents);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        final List<? extends PdbModel> models = parserCache.get(fileContents);
 
         if ((models.size() > 1) && (modelSelection == ModelSelection.FIRST)) {
-            models.retainAll(Collections.singleton(models.get(0)));
+            models.retainAll(Collections.singletonList(models.get(0)));
         }
 
-        final Map<BpSeq, BpSeqInfo> uniqueInputs = new LinkedHashMap<>();
+        final Map<BpSeq, OutputMultiEntry> uniqueInputs = new LinkedHashMap<>();
         for (final PdbModel model : models) {
             if (!model.containsAny(MoleculeType.RNA)) {
                 continue;
             }
             final PdbModel rna = model.filteredNewInstance(MoleculeType.RNA);
+            title = rna.title();
             final int modelNumber = rna.modelNumber();
 
-            for (final Pair<BasePairAnalyzerEnum, BasePairAnalyzer> analyzerPair : analyzerPairs) {
-                final BasePairAnalyzerEnum analyzerEnum = analyzerPair.getLeft();
-                final String analyzerName = analyzerEnum.getDisplayName();
-                final BasePairAnalyzer analyzer = analyzerPair.getRight();
+            for (final Pair<AnalysisTool, BasePairAnalyzer> analyzerPair : analyzerPairs) {
 
-                // if not cached, use analyzer on the structure
-                if (!analyzerCache.containsKey(
-                        fileContents, modelNumber, analyzerEnum, nonCanonicalHandling)) {
-                    assert inputType.getStructureType() == StructureType.STRUCTURE_3D;
-                    final AnalysisResult analysisResults =
-                            analyzer.analyze(inputType, rna, fileContents, nonCanonicalHandling);
-                    analyzerCache.put(
-                            fileContents, modelNumber, analyzerEnum, nonCanonicalHandling, analysisResults);
-                }
-                final TertiaryAnalysisResult analysisResults =
-                        (TertiaryAnalysisResult)
-                                analyzerCache.get(fileContents, modelNumber, analyzerEnum, nonCanonicalHandling);
+                final AnalysisTool analyzerEnum = analyzerPair.getLeft();
+                final BasePairAnalyzer analyzer = analyzerPair.getRight();
+                final BasePairAnalysis analysisResults =
+                        analyzer.analyze(fileContents, includeNonCanonical, modelNumber);
                 if (removeIsolated) {
                     analysisResults.removeIsolatedBasePairs(rna);
                 }
 
                 final List<AnalyzedBasePair> represented = analysisResults.getRepresented();
-                final List<AnalyzedBasePair> nonCanonical = analysisResults.getNonCanonical();
                 final BpSeq bpSeq = BpSeq.fromBasePairs(rna.namedResidueIdentifiers(), represented);
 
                 if (uniqueInputs.containsKey(bpSeq)) {
-                    final BpSeqInfo bpSeqInfo = uniqueInputs.get(bpSeq);
-                    bpSeqInfo.getBasePairAnalyzerNames().add(analyzerName);
+                    final OutputMultiEntry bpSeqInfo = uniqueInputs.get(bpSeq);
+                    bpSeqInfo.getAdapterEnums().add(analyzerEnum);
                     continue;
                 }
 
                 final Ct ct = Ct.fromBpSeqAndPdbModel(bpSeq, rna);
-                final List<DotBracketInfo> dotBracketInfos = new ArrayList<>(converters.size());
+                final DotBracket convertedDotBracket = convert(bpSeq);
+                final DotBracket dotBracketFromPdb = ImmutableDefaultDotBracketFromPdb
+                        .of(convertedDotBracket.sequence(), convertedDotBracket.structure(), rna);
 
-                for (final ConverterEnum converter : converters) {
-                    final DotBracket dotBracket = converter.convert(bpSeq);
-                    final DefaultDotBracketFromPdb dotBracketFromPdb =
-                            ImmutableDefaultDotBracketFromPdb.of(
-                                    dotBracket.sequence(), dotBracket.structure(), rna);
-                    dotBracketInfos.add(new DotBracketInfo(converter.getName(), dotBracketFromPdb));
-                }
+                final ImageInformationOutput imageInformation = imageService.visualizeCanonical(visualizationTool,
+                        dotBracketFromPdb);
+                final List<AnalysisTool> analyzerNames = new ArrayList<>();
+                analyzerNames.add(analyzerEnum);
 
-                final List<String> analyzerNames = new ArrayList<>();
-                analyzerNames.add(analyzerName);
+                final Output2D output2D = new Output2D()
+                        .withImageInformation(imageInformation)
+                        .withBpSeqFromBpSeqObject(bpSeq)
+                        .withStrandsFromDotBracket(dotBracketFromPdb)
+                        .withCtFromCt(ct);
 
-                final BpSeqInfo bpSeqInfo =
-                        new BpSeqInfo(structureName, analyzerNames, bpSeq, ct, dotBracketInfos, rna.title());
+                final OutputMultiEntry outputMultiEntry = new OutputMultiEntry()
+                        .withOutput2D(output2D)
+                        .withAdapterEnums(analyzerNames);
 
-                uniqueInputs.put(bpSeq, bpSeqInfo);
+                uniqueInputs.put(bpSeq, outputMultiEntry);
             }
         }
 
-        final ConsensusInput consensusInput = new ConsensusInput(uniqueInputs.values());
-        final ConsensusFinder consensusFinder = new ArcDrawingConsensusFinder();
-        return Pair.of(consensusInput, consensusFinder.findConsensus(consensusInput));
+        return new OutputMulti()
+                .withEntries(new ArrayList<>(uniqueInputs.values()))
+                .withTitle(title);
     }
 
     // TODO: put in separate class with the one from tertiary
     private InputType determineInputType(String filename) {
-        for (InputType inputType: InputType.values()) {
+        for (InputType inputType : InputType.values()) {
             if (filename.toLowerCase().contains(inputType.getFileExtension())) {
                 return inputType;
             }
@@ -179,18 +164,16 @@ public class ConsensualStructureAnalysisService {
         throw new IllegalArgumentException("unknown file extension provided");
     }
 
-    private OutputMultiEntry mapBpSeqInfoAndConsensualImageIntoOutputMultiEntry(VisualizationTool visualizationTool,
-                                                                                BpSeqInfo bpSeqInfo) {
-        // TODO: using findFirst, because in future implementation using MILP the bpSeqInfo will only contain 1 dotBracket
-        //  object, refactor when rnapdbee-common code is merged with the engine's code
-        final DotBracket dotBracket = bpSeqInfo.uniqueDotBrackets().keySet()
-                .stream().findFirst()
-                .orElseThrow(new RuntimeException());
-        final ImageInformationOutput secondaryVisualization = imageService.visualizeCanonical(visualizationTool, dotBracket);
-
-        return analysisOutputsMapper.mapBpSeqInfoAndSecondaryStructureImageIntoOutputMultiEntry(bpSeqInfo, secondaryVisualization);
+    // TODO: using copied DP_NEW implementation from rnapdbee-common right now, change to MILP and remove whole
+    //  pl.poznan.put.rnapdbee.engine.shared.converter package!!!
+    private DotBracket convert(BpSeq bpSeq) {
+        RNAStructure structure = new RNAStructure(bpSeq);
+        structure = KnotRemoval.dynamicProgrammingOneBest(structure);
+        return ImmutableDefaultDotBracket.of(
+                structure.getSequence(), structure.getDotBracketStructure());
     }
 
+    // TODO: put in another class
     private Collection<Pair<AnalysisTool, BasePairAnalyzer>> prepareAnalyzerPairs() {
         return List.of(
                 Pair.of(AnalysisTool.MC_ANNOTATE,
@@ -209,10 +192,10 @@ public class ConsensualStructureAnalysisService {
 
     @Autowired
     public ConsensualStructureAnalysisService(ImageService imageService,
-                                              AnalysisOutputsMapper analysisOutputsMapper,
+                                              TertiaryFileParser tertiaryFileParser,
                                               BasePairAnalyzerFactory basePairAnalyzerFactory) {
         this.imageService = imageService;
-        this.analysisOutputsMapper = analysisOutputsMapper;
+        this.tertiaryFileParser = tertiaryFileParser;
         this.basePairAnalyzerFactory = basePairAnalyzerFactory;
-    }*/
+    }
 }

@@ -3,8 +3,12 @@ package pl.poznan.put.rnapdbee.engine.calculation.secondary.domain;
 
 import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
+import pl.poznan.put.structure.formats.BpSeq;
+import pl.poznan.put.structure.formats.Ct;
+import pl.poznan.put.structure.formats.DotBracket;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * DTO class representing response body secondary structure analysis.
@@ -48,14 +52,32 @@ public class Output2D {
         return this;
     }
 
+    public Output2D withStrandsFromDotBracket(DotBracket dotBracket) {
+        return withStrands(dotBracket.strands().stream()
+                .map(SingleStrandOutput::ofStrand)
+                .collect(Collectors.toList()));
+    }
+
     public Output2D withBpSeq(List<String> bpSeq) {
         this.bpSeq = bpSeq;
         return this;
     }
 
+    public Output2D withBpSeqFromBpSeqObject(BpSeq bpSeq) {
+        return withBpSeq(bpSeq.entries().stream()
+                .map(BpSeq.Entry::toString)
+                .collect(Collectors.toList()));
+    }
+
     public Output2D withCt(List<String> ct) {
         this.ct = ct;
         return this;
+    }
+
+    public Output2D withCtFromCt(Ct ct) {
+        return withCt(ct.entries().stream()
+                .map(Ct.ExtendedEntry::toString)
+                .collect(Collectors.toList()));
     }
 
     public Output2D withInteractions(List<String> interactions) {

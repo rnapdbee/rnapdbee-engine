@@ -48,7 +48,7 @@ public class AnalysisOutputsMapper {
 //        SingleSecondaryModelAnalysisOutput secondaryAnalysisOutput = new SingleSecondaryModelAnalysisOutput()
 //                .withBpSeq(mapBpSeqToListOfString(bpSeqInfo.getBpSeq()))
 //                .withCt(mapCtToListOfString(bpSeqInfo.getCt()))
-//                // TODO remove this need to get(0) when merging rnapdbee-common code to engine.
+//                // TODO: remove this need to get(0) when merging rnapdbee-common code to engine.
 //                .withStrands(mapDotBracketIntoStrandOutputs(bpSeqInfo.getDotBracketInfos().get(0).getDotBracket()))
 //                .withImageInformation(imageInformationOutput);
 //        Output2D output2D = new Output2D()

@@ -85,15 +85,9 @@ public class SecondaryStructureAnalysisService {
                         .map(interStrand -> interStrand.basePair().toString())
                         .collect(Collectors.toList()))
                 .withImageInformation(imageInformation)
-                .withStrands(dotBracket.strands().stream()
-                        .map(SingleStrandOutput::ofStrand)
-                        .collect(Collectors.toList()))
-                .withCt(ctFromCombined.entries().stream()
-                        .map(Ct.ExtendedEntry::toString)
-                        .collect(Collectors.toList()))
-                .withBpSeq(bpSeqFromCombined.entries().stream()
-                        .map(BpSeq.Entry::toString)
-                        .collect(Collectors.toList()));
+                .withStrandsFromDotBracket(dotBracket)
+                .withCtFromCt(ctFromCombined)
+                .withBpSeqFromBpSeqObject(bpSeqFromCombined);
     }
 
     private List<AnalyzedBasePair> analyzeInterStrandPairs(final DotBracket combinedStrand) {

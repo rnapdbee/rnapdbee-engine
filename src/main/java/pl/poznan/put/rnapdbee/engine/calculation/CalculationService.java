@@ -1,11 +1,10 @@
 package pl.poznan.put.rnapdbee.engine.calculation;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import pl.poznan.put.rnapdbee.engine.calculation.consensus.ConsensualStructureAnalysisService;
 import pl.poznan.put.rnapdbee.engine.calculation.secondary.SecondaryStructureAnalysisService;
 import pl.poznan.put.rnapdbee.engine.calculation.tertiary.TertiaryStructureAnalysisService;
-import pl.poznan.put.rnapdbee.engine.shared.map.AnalysisOutputsMapper;
 import pl.poznan.put.rnapdbee.engine.calculation.secondary.domain.Output2D;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
@@ -18,7 +17,7 @@ import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementsHandling;
 /**
  * Middleware between CalculationController and Structure Analysis Services.
  */
-@Component
+@Service
 public class CalculationService {
 
     private final SecondaryStructureAnalysisService secondaryStructureAnalysisService;
@@ -46,14 +45,13 @@ public class CalculationService {
                                                                  VisualizationTool visualizationTool,
                                                                  String filename,
                                                                  String content) {
-        return null;
-//        return consensualStructureAnalysisService
-//                .analyse(modelSelection,
-//                        includeNonCanonical,
-//                        removeIsolated,
-//                        visualizationTool,
-//                        filename,
-//                        content);
+        return consensualStructureAnalysisService
+                .analyse(modelSelection,
+                        includeNonCanonical,
+                        removeIsolated,
+                        visualizationTool,
+                        filename,
+                        content);
     }
 
     public Output3D handleTertiaryToDotBracketCalculation(ModelSelection modelSelection,
