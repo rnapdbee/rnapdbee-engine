@@ -1,7 +1,7 @@
 package pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensual;
 
-import pl.poznan.put.rnapdbee.engine.model.OutputMulti;
-import pl.poznan.put.rnapdbee.engine.model.OutputMultiEntry;
+import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.OutputMulti;
+import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.OutputMultiEntry;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ public class ConsensualAnalysisTestUtils {
 
     private static void assertSingleEntryOfAnalysisOutput(OutputMultiEntry outputMultiEntry,
                                              ConsensualAnalysisTestInformation expectedInformationAboutAnalysis) {
-        var output2DEntry = outputMultiEntry.getOutput2D().getAnalysis().get(0);
+        var output2DEntry = outputMultiEntry.getOutput2D();
         assertAll("The sizes of analysis's information lists must be the same as expected",
                 () -> assertEquals(expectedInformationAboutAnalysis.getBpSeqSize(), output2DEntry.getBpSeq().size(),
                         "bpSeq size is incorrect"),
