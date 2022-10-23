@@ -1,6 +1,5 @@
 package pl.poznan.put.rnapdbee.engine.calculation.logic;
 
-import edu.put.rnapdbee.visualization.SecondaryStructureImage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,15 +13,16 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import pl.poznan.put.rnapdbee.engine.calculation.testhelp.secondary.SecondaryAnalysisOutputTestInformation;
 import pl.poznan.put.rnapdbee.engine.calculation.testhelp.secondary.SecondaryAnalysisOutputTestInformationAggregator;
 import pl.poznan.put.rnapdbee.engine.calculation.testhelp.secondary.SecondaryAnalysisOutputTestUtils;
-import pl.poznan.put.rnapdbee.engine.image.logic.ImageService;
-import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
-import pl.poznan.put.rnapdbee.engine.model.StructuralElementsHandling;
+import pl.poznan.put.rnapdbee.engine.calculation.secondary.SecondaryStructureAnalysisService;
+import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
+import pl.poznan.put.rnapdbee.engine.shared.image.logic.ImageService;
+import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
+import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementsHandling;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
 
 
 @SpringBootTest
@@ -38,7 +38,7 @@ class SecondaryStructureAnalysisServiceTest {
 
     @BeforeEach
     void provideMocks() {
-        SecondaryStructureImage imageMock = Mockito.mock(SecondaryStructureImage.class);
+        ImageInformationOutput imageMock = Mockito.mock(ImageInformationOutput.class);
         Mockito.when(imageService.visualizeCanonical(Mockito.any(), Mockito.any())).thenReturn(imageMock);
     }
 
@@ -49,7 +49,7 @@ class SecondaryStructureAnalysisServiceTest {
                                                    String filename,
                                                    boolean shouldRemoveIsolated,
                                                    @AggregateWith(SecondaryAnalysisOutputTestInformationAggregator.class)
-                                                   List<SecondaryAnalysisOutputTestInformation> expectedInformationList)
+                                                       SecondaryAnalysisOutputTestInformation expectedInformationList)
             throws URISyntaxException, IOException {
         String content = Files.readString(Paths.get(getClass().getResource(String.format(EXAMPLE_FILE_PATH_FORMAT, filename)).toURI()));
         var actual = cut.analyseSecondaryStructureFile(structuralElementsHandling,
