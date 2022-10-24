@@ -92,4 +92,11 @@ public class StructuralElementOutput {
                 .withSingleStrands3p(structuralElementFinder.getSingleStrands3p().stream()
                         .map(StructuralElement::toString).collect(Collectors.toList()));
     }
+
+    public static StructuralElementOutput ofStructuralElementsFinderAndCoordinates(
+            StructuralElementFinder structuralElementFinder,
+            String coordinates) {
+        return ofStructuralElementsFinder(structuralElementFinder)
+                .withCoordinates(coordinates);
+    }
 }

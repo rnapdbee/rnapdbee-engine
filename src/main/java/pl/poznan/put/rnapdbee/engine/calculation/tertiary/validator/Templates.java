@@ -1,4 +1,4 @@
-package pl.poznan.put.rnapdbee.engine.calculation.tertiary.templates;
+package pl.poznan.put.rnapdbee.engine.calculation.tertiary.validator;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;

@@ -10,18 +10,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import pl.poznan.put.rnapdbee.engine.calculation.CalculationService;
-import pl.poznan.put.rnapdbee.engine.infrastructure.control.CalculationController;
-import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.calculation.secondary.domain.Output2D;
-import pl.poznan.put.rnapdbee.engine.calculation.secondary.domain.SingleSecondaryModelAnalysisOutput;
+import pl.poznan.put.rnapdbee.engine.infrastructure.control.CalculationController;
 import pl.poznan.put.rnapdbee.engine.calculation.secondary.domain.SingleStrandOutput;
-import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementOutput;
 
-import java.util.Collections;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
 import org.slf4j.Logger;
+import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementOutput;
+import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,8 +41,7 @@ class CalculationControllerTest {
     private final static List<String> MOCKED_BP_SEQ = List.of("1 G 0", "2 u 0");
     private final static List<String> MOCKED_CT = List.of("1 G 0 2 0 1", "2 u 1 3 0 2");
     private final static List<String> MOCKED_INTERACTIONS = List.of("A.A181 - Z.U418", "A.U182 - Z.A417");
-    private final static String MOCKED_PATH_TO_PNG = "path/to/png";
-    private final static String MOCKED_PATH_TO_SVG = "path/to/svg";
+    private final static byte[] MOCKED_SVG_FILE_ARRAY = "very funky file".getBytes(StandardCharsets.UTF_8);
     private final static VisualizationTool MOCKED_SUCCESSFUL_DRAWER = VisualizationTool.VARNA;
     private final static VisualizationTool MOCKED_FAILED_DRAWER = VisualizationTool.NONE;
 
@@ -63,61 +61,55 @@ class CalculationControllerTest {
             .withStructure("structure");
 
 
-//    @Test
-//    public void shouldPopulateResponseEntityWithTheMappedResponseWhenTheCalculateSecondaryToDotBracketCalculationIsSuccessful() {
-//        var analysisOutput = provideMockedOutput2D();
-//        var expectedSingleAnalysis = analysisOutput.getAnalysis().get(0);
-//        // mocked
-//        Mockito.when(calculationService.handleSecondaryToDotBracketCalculation(Mockito.any(),
-//                        Mockito.any(), Mockito.eq(true), Mockito.eq(mockedContent), Mockito.eq(mockedFilename)))
-//                .thenReturn(analysisOutput);
-//        // when
-//        ResponseEntity<Output2D> response = cut
-//                .calculateSecondaryToDotBracket(null, null, true,
-//                        "Attachment; filename=\"" + mockedFilename + "\"", mockedContent);
-//        // then
-//        var actualSingleAnalysis = Objects.requireNonNull(response.getBody()).getAnalysis().get(0);
-//        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-//        Assertions.assertEquals(expectedSingleAnalysis.getBpSeq(), actualSingleAnalysis.getBpSeq());
-//        Assertions.assertEquals(expectedSingleAnalysis.getCt(), actualSingleAnalysis.getCt());
-//        Assertions.assertEquals(expectedSingleAnalysis.getInteractions(), actualSingleAnalysis.getInteractions());
-//
-//        Assertions.assertEquals(expectedSingleAnalysis.getStrands().get(0).getName(), actualSingleAnalysis.getStrands().get(0).getName());
-//        Assertions.assertEquals(expectedSingleAnalysis.getStrands().get(0).getSequence(), actualSingleAnalysis.getStrands().get(0).getSequence());
-//        Assertions.assertEquals(expectedSingleAnalysis.getStrands().get(0).getStructure(), actualSingleAnalysis.getStrands().get(0).getStructure());
-//
-//        Assertions.assertEquals(expectedSingleAnalysis.getStructuralElements().getSingleStrands(), actualSingleAnalysis.getStructuralElements().getSingleStrands());
-//        Assertions.assertEquals(expectedSingleAnalysis.getStructuralElements().getSingleStrands5p(), actualSingleAnalysis.getStructuralElements().getSingleStrands5p());
-//        Assertions.assertEquals(expectedSingleAnalysis.getStructuralElements().getSingleStrands3p(), actualSingleAnalysis.getStructuralElements().getSingleStrands3p());
-//        Assertions.assertEquals(expectedSingleAnalysis.getStructuralElements().getLoops(), actualSingleAnalysis.getStructuralElements().getLoops());
-//        Assertions.assertEquals(expectedSingleAnalysis.getStructuralElements().getStems(), actualSingleAnalysis.getStructuralElements().getStems());
-//
-//        Assertions.assertEquals(expectedSingleAnalysis.getImageInformation().getFailedVisualizationTool(), actualSingleAnalysis.getImageInformation().getFailedVisualizationTool());
-//        Assertions.assertEquals(expectedSingleAnalysis.getImageInformation().getSuccessfulVisualizationTool(), actualSingleAnalysis.getImageInformation().getSuccessfulVisualizationTool());
-//        Assertions.assertEquals(expectedSingleAnalysis.getImageInformation().getPathToPNGImage(), actualSingleAnalysis.getImageInformation().getPathToPNGImage());
-//        Assertions.assertEquals(expectedSingleAnalysis.getImageInformation().getPathToSVGImage(), actualSingleAnalysis.getImageInformation().getPathToSVGImage());
-//    }
-//
-//
-//    private Output2D provideMockedOutput2D() {
-//        var mockedAnalysis = Collections.singletonList(new SingleSecondaryModelAnalysisOutput()
-//                .withBpSeq(MOCKED_BP_SEQ)
-//                .withCt(MOCKED_CT)
-//                .withImageInformation(new ImageInformationOutput()
-//                        .withPathToPNGImage(MOCKED_PATH_TO_PNG)
-//                        .withPathToSVGImage(MOCKED_PATH_TO_SVG)
-//                        .withSuccessfulDrawer(MOCKED_SUCCESSFUL_DRAWER)
-//                        .withFailedDrawer(MOCKED_FAILED_DRAWER))
-//                .withInteractions(MOCKED_INTERACTIONS)
-//                .withStructuralElement(new StructuralElementOutput()
-//                        .withLoops(MOCKED_LOOPS)
-//                        .withSingleStrands(MOCKED_SINGLE_STRANDS)
-//                        .withStems(MOCKED_STEMS)
-//                        .withSingleStrands5p(MOCKED_SINGLE_STRANDS_5_P)
-//                        .withSingleStrands3p(MOCKED_SINGLE_STRANDS_3_P))
-//                .withStrands(List.of(MOCKED_STRAND))
-//        );
-//        return new Output2D()
-//                .withAnalysis(mockedAnalysis);
-//    }
+    @Test
+    public void shouldPopulateResponseEntityWithTheMappedResponseWhenTheCalculateSecondaryToDotBracketCalculationIsSuccessful() {
+        var expectedSingleAnalysis = provideMockedOutput2D();
+        // mocked
+        Mockito.when(calculationService.handleSecondaryToDotBracketCalculation(Mockito.any(),
+                        Mockito.any(), Mockito.eq(true), Mockito.eq(mockedContent), Mockito.eq(mockedFilename)))
+                .thenReturn(expectedSingleAnalysis);
+        // when
+        ResponseEntity<Output2D> response = cut
+                .calculateSecondaryToDotBracket(null, null, true,
+                        "Attachment; filename=\"" + mockedFilename + "\"", mockedContent);
+        // then
+        var actualSingleAnalysis = Objects.requireNonNull(response.getBody());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertEquals(expectedSingleAnalysis.getBpSeq(), actualSingleAnalysis.getBpSeq());
+        Assertions.assertEquals(expectedSingleAnalysis.getCt(), actualSingleAnalysis.getCt());
+        Assertions.assertEquals(expectedSingleAnalysis.getInteractions(), actualSingleAnalysis.getInteractions());
+
+        Assertions.assertEquals(expectedSingleAnalysis.getStrands().get(0).getName(), actualSingleAnalysis.getStrands().get(0).getName());
+        Assertions.assertEquals(expectedSingleAnalysis.getStrands().get(0).getSequence(), actualSingleAnalysis.getStrands().get(0).getSequence());
+        Assertions.assertEquals(expectedSingleAnalysis.getStrands().get(0).getStructure(), actualSingleAnalysis.getStrands().get(0).getStructure());
+
+        Assertions.assertEquals(expectedSingleAnalysis.getStructuralElements().getSingleStrands(), actualSingleAnalysis.getStructuralElements().getSingleStrands());
+        Assertions.assertEquals(expectedSingleAnalysis.getStructuralElements().getSingleStrands5p(), actualSingleAnalysis.getStructuralElements().getSingleStrands5p());
+        Assertions.assertEquals(expectedSingleAnalysis.getStructuralElements().getSingleStrands3p(), actualSingleAnalysis.getStructuralElements().getSingleStrands3p());
+        Assertions.assertEquals(expectedSingleAnalysis.getStructuralElements().getLoops(), actualSingleAnalysis.getStructuralElements().getLoops());
+        Assertions.assertEquals(expectedSingleAnalysis.getStructuralElements().getStems(), actualSingleAnalysis.getStructuralElements().getStems());
+
+        Assertions.assertEquals(expectedSingleAnalysis.getImageInformation().getFailedVisualizationTool(), actualSingleAnalysis.getImageInformation().getFailedVisualizationTool());
+        Assertions.assertEquals(expectedSingleAnalysis.getImageInformation().getSuccessfulVisualizationTool(), actualSingleAnalysis.getImageInformation().getSuccessfulVisualizationTool());
+        Assertions.assertEquals(expectedSingleAnalysis.getImageInformation().getSvgFile(), actualSingleAnalysis.getImageInformation().getSvgFile());
+    }
+
+
+    private Output2D provideMockedOutput2D() {
+        return new Output2D()
+                .withBpSeq(MOCKED_BP_SEQ)
+                .withCt(MOCKED_CT)
+                .withImageInformation(new ImageInformationOutput()
+                        .withSvgFile(MOCKED_SVG_FILE_ARRAY)
+                        .withSuccessfulDrawer(MOCKED_SUCCESSFUL_DRAWER)
+                        .withFailedDrawer(MOCKED_FAILED_DRAWER))
+                .withInteractions(MOCKED_INTERACTIONS)
+                .withStructuralElement(new StructuralElementOutput()
+                        .withLoops(MOCKED_LOOPS)
+                        .withSingleStrands(MOCKED_SINGLE_STRANDS)
+                        .withStems(MOCKED_STEMS)
+                        .withSingleStrands5p(MOCKED_SINGLE_STRANDS_5_P)
+                        .withSingleStrands3p(MOCKED_SINGLE_STRANDS_3_P))
+                .withStrands(List.of(MOCKED_STRAND));
+    }
 }

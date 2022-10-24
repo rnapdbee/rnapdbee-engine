@@ -3,8 +3,10 @@ package pl.poznan.put.rnapdbee.engine.calculation.tertiary.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import pl.poznan.put.rnapdbee.engine.calculation.secondary.domain.Output2D;
+import pl.poznan.put.structure.AnalyzedBasePair;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * DTO class for SingleTertiaryModelOutput
@@ -39,64 +41,121 @@ public class SingleTertiaryModelOutput {
         return output2D;
     }
 
-    public void setOutput2D(Output2D output2D) {
-        this.output2D = output2D;
-    }
-
     public List<String> getMessages() {
         return messages;
-    }
-
-    public void setMessages(List<String> messages) {
-        this.messages = messages;
     }
 
     public List<OutputBasePair> getCanonicalInteractions() {
         return canonicalInteractions;
     }
 
-    public void setCanonicalInteractions(List<OutputBasePair> canonicalInteractions) {
-        this.canonicalInteractions = canonicalInteractions;
-    }
-
     public List<OutputBasePair> getNonCanonicalInteractions() {
         return nonCanonicalInteractions;
-    }
-
-    public void setNonCanonicalInteractions(List<OutputBasePair> nonCanonicalInteractions) {
-        this.nonCanonicalInteractions = nonCanonicalInteractions;
     }
 
     public List<OutputBasePair> getStackingInteractions() {
         return stackingInteractions;
     }
 
-    public void setStackingInteractions(List<OutputBasePair> stackingInteractions) {
-        this.stackingInteractions = stackingInteractions;
-    }
-
     public List<OutputBasePair> getBasePhosphateInteractions() {
         return basePhosphateInteractions;
-    }
-
-    public void setBasePhosphateInteractions(List<OutputBasePair> basePhosphateInteractions) {
-        this.basePhosphateInteractions = basePhosphateInteractions;
     }
 
     public List<OutputBasePair> getBaseRiboseInteractions() {
         return baseRiboseInteractions;
     }
 
-    public void setBaseRiboseInteractions(List<OutputBasePair> baseRiboseInteractions) {
-        this.baseRiboseInteractions = baseRiboseInteractions;
-    }
-
     public Integer getModelNumber() {
         return modelNumber;
     }
 
-    public void setModelNumber(Integer modelNumber) {
+    private SingleTertiaryModelOutput(Integer modelNumber,
+                                      Output2D output2D,
+                                      List<String> messages,
+                                      List<OutputBasePair> canonicalInteractions,
+                                      List<OutputBasePair> nonCanonicalInteractions,
+                                      List<OutputBasePair> stackingInteractions,
+                                      List<OutputBasePair> basePhosphateInteractions,
+                                      List<OutputBasePair> baseRiboseInteractions) {
         this.modelNumber = modelNumber;
+        this.output2D = output2D;
+        this.messages = messages;
+        this.canonicalInteractions = canonicalInteractions;
+        this.nonCanonicalInteractions = nonCanonicalInteractions;
+        this.stackingInteractions = stackingInteractions;
+        this.basePhosphateInteractions = basePhosphateInteractions;
+        this.baseRiboseInteractions = baseRiboseInteractions;
     }
 
+    public static class Builder {
+        private Integer modelNumber;
+        private Output2D output2D;
+        private List<String> messages;
+        private List<OutputBasePair> canonicalInteractions;
+        private List<OutputBasePair> nonCanonicalInteractions;
+        private List<OutputBasePair> stackingInteractions;
+        private List<OutputBasePair> basePhosphateInteractions;
+        private List<OutputBasePair> baseRiboseInteractions;
+
+        public Builder withModelNumber(Integer modelNumber) {
+            this.modelNumber = modelNumber;
+            return this;
+        }
+
+        public Builder withOutput2D(Output2D output2D) {
+            this.output2D = output2D;
+            return this;
+        }
+
+        public Builder withMessages(List<String> messages) {
+            this.messages = messages;
+            return this;
+        }
+
+        public Builder withCanonicalInteractions(List<AnalyzedBasePair> canonicalInteractions) {
+            this.canonicalInteractions = canonicalInteractions.stream()
+                    .map(OutputBasePair::fromClassifiedBasePair)
+                    .collect(Collectors.toList());
+            return this;
+        }
+
+        public Builder withNonCanonicalInteractions(List<AnalyzedBasePair> nonCanonicalInteractions) {
+            this.nonCanonicalInteractions = nonCanonicalInteractions.stream()
+                    .map(OutputBasePair::fromClassifiedBasePair)
+                    .collect(Collectors.toList());
+            return this;
+        }
+
+        public Builder withStackingInteractions(List<AnalyzedBasePair> stackingInteractions) {
+            this.stackingInteractions = stackingInteractions.stream()
+                    .map(OutputBasePair::fromClassifiedBasePair)
+                    .collect(Collectors.toList());
+            return this;
+        }
+
+        public Builder withBasePhosphateInteractions(List<AnalyzedBasePair> basePhosphateInteractions) {
+            this.basePhosphateInteractions = basePhosphateInteractions.stream()
+                    .map(OutputBasePair::fromClassifiedBasePair)
+                    .collect(Collectors.toList());
+            return this;
+        }
+
+        public Builder withBaseRiboseInteractions(List<AnalyzedBasePair> baseRiboseInteractions) {
+            this.baseRiboseInteractions = baseRiboseInteractions.stream()
+                    .map(OutputBasePair::fromClassifiedBasePair)
+                    .collect(Collectors.toList());
+            return this;
+        }
+
+        public SingleTertiaryModelOutput build() {
+            return new SingleTertiaryModelOutput(modelNumber,
+                    output2D,
+                    messages,
+                    canonicalInteractions,
+                    nonCanonicalInteractions,
+                    stackingInteractions,
+                    basePhosphateInteractions,
+                    baseRiboseInteractions);
+        }
+    }
 }

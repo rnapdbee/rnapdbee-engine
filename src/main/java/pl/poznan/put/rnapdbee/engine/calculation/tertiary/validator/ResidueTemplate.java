@@ -1,4 +1,4 @@
-package pl.poznan.put.rnapdbee.engine.calculation.tertiary.templates;
+package pl.poznan.put.rnapdbee.engine.calculation.tertiary.validator;
 
 import java.io.Serializable;
 import java.util.ArrayList;
