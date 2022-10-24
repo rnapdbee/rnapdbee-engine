@@ -6,7 +6,6 @@ import pl.poznan.put.pdb.ImmutablePdbNamedResidueIdentifier;
 import pl.poznan.put.pdb.PdbNamedResidueIdentifier;
 import pl.poznan.put.rnapdbee.engine.calculation.secondary.domain.Output2D;
 import pl.poznan.put.rnapdbee.engine.calculation.secondary.domain.SecondaryFileExtensionEnum;
-import pl.poznan.put.rnapdbee.engine.calculation.secondary.domain.SingleStrandOutput;
 import pl.poznan.put.rnapdbee.engine.shared.elements.StructuralElementFinder;
 import pl.poznan.put.rnapdbee.engine.shared.converter.KnotRemoval;
 import pl.poznan.put.rnapdbee.engine.shared.converter.RNAStructure;
@@ -54,16 +53,16 @@ public class SecondaryStructureAnalysisService {
      * @param filename                   name of loaded file structure
      * @return instance of {@link Output2D} class
      */
-    public Output2D analyseSecondaryStructureFile(StructuralElementsHandling structuralElementsHandling,
+    public Output2D analyzeSecondaryStructureFile(StructuralElementsHandling structuralElementsHandling,
                                                   VisualizationTool visualizationTool,
                                                   boolean removeIsolated,
                                                   String content,
                                                   String filename) {
         DotBracket dotBracket = convertSecondaryFileIntoDbnFormat(filename.split("\\.")[1], removeIsolated, content);
-        return analyseDotBracket(dotBracket, structuralElementsHandling, visualizationTool);
+        return analyzeDotBracket(dotBracket, structuralElementsHandling, visualizationTool);
     }
 
-    private Output2D analyseDotBracket(DotBracket dotBracket,
+    private Output2D analyzeDotBracket(DotBracket dotBracket,
                                        StructuralElementsHandling structuralElementsHandling,
                                        VisualizationTool visualizationTool) {
         final BpSeq bpSeqFromCombined = BpSeq.fromDotBracket(dotBracket);

@@ -50,15 +50,15 @@ public class ConsensualStructureAnalysisService {
     /**
      * Performs 3D -> multi 2D analysis.
      *
-     * @param modelSelection      enum indicating if first, or all models from file should be analysed
+     * @param modelSelection      enum indicating if first, or all models from file should be analyzed
      * @param includeNonCanonical boolean flag indicating if non-canonical pairs should be kept in analysis
      * @param removeIsolated      boolean flag indicating if isolated pairs should be removed from analysis
      * @param visualizationTool   enum indicating the tool/method that should be used in visualization
-     * @param filename            name of the analysed file
-     * @param content             content of the analysed file
+     * @param filename            name of the analyzed file
+     * @param content             content of the analyzed file
      * @return output of the analysis
      */
-    public OutputMulti analyse(ModelSelection modelSelection,
+    public OutputMulti analyze(ModelSelection modelSelection,
                                boolean includeNonCanonical,
                                boolean removeIsolated,
                                VisualizationTool visualizationTool,

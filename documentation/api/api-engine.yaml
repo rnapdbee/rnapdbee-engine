@@ -190,11 +190,11 @@ components:
       properties:
         title:
           type: "string"
-          description: "Title of the model taken from analysed pdb/mmcif file. Not every file contains the title."
+          description: "Title of the model taken from analyzed pdb/mmcif file. Not every file contains the title."
           example: "GLYCYL-TRNA(UCC)1B ANTICODON STEM-LOOP FROM STAPHYLOCOCCUS EPIDERMIDIS"
         models:
           type: "array"
-          description: "Analysed models."
+          description: "Analyzed models."
           items:
             $ref: "#/components/schemas/SingleTertiaryModelOutput"
       required:

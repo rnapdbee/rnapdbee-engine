@@ -37,7 +37,7 @@ public class RNAStructure {
         }
     }
 
-    // Initial function that analyse input file and parse lines to make connections and RNA sequence
+    // Initial function that analyze input file and parse lines to make connections and RNA sequence
     public RNAStructure(final String filename) {
         super();
         try {

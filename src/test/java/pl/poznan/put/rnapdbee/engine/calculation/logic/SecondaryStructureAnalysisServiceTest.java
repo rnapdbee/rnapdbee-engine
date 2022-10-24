@@ -52,7 +52,7 @@ class SecondaryStructureAnalysisServiceTest {
                                                        SecondaryAnalysisOutputTestInformation expectedInformationList)
             throws URISyntaxException, IOException {
         String content = Files.readString(Paths.get(getClass().getResource(String.format(EXAMPLE_FILE_PATH_FORMAT, filename)).toURI()));
-        var actual = cut.analyseSecondaryStructureFile(structuralElementsHandling,
+        var actual = cut.analyzeSecondaryStructureFile(structuralElementsHandling,
                 visualizationTool,
                 shouldRemoveIsolated,
                 content,
@@ -64,7 +64,7 @@ class SecondaryStructureAnalysisServiceTest {
     public void testSecondaryStructureFileAnalysisForWrongFileFormat() {
         Assertions.assertThrows(
                 IllegalArgumentException.class,
-                () -> cut.analyseSecondaryStructureFile(StructuralElementsHandling.USE_PSEUDOKNOTS,
+                () -> cut.analyzeSecondaryStructureFile(StructuralElementsHandling.USE_PSEUDOKNOTS,
                         VisualizationTool.VARNA,
                         true,
                         "Mocked content",

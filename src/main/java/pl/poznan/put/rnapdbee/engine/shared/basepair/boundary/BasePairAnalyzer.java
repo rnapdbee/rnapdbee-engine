@@ -138,7 +138,7 @@ public abstract class BasePairAnalyzer {
     }
 
     /**
-     * Calls rnapdbee-adapters in order to analyse the fileContent.
+     * Calls rnapdbee-adapters in order to analyze the fileContent.
      *
      * @param fileContent content of file
      * @return {@link AdaptersAnalysisDTO} - performed analysis as Java object

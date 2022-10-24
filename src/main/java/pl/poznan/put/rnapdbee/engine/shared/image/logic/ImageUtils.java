@@ -13,7 +13,7 @@ import java.io.IOException;
 /**
  * ImageUtils class containing utils methods that handle generating and exporting images
  */
-// TODO: analyse what is actually needed here. The class is copied from rnapdbee-web's ImageHelper class.
+// TODO: analyze what is actually needed here. The class is copied from rnapdbee-web's ImageHelper class.
 public final class ImageUtils {
 
     public static Pair<File, String> generateSvgUrl(final ServletContext context, final SVGDocument image)

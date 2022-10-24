@@ -31,7 +31,7 @@ public class CalculationService {
                                                            String filename) {
 
         return secondaryStructureAnalysisService
-                .analyseSecondaryStructureFile(
+                .analyzeSecondaryStructureFile(
                         structuralElementsHandling,
                         visualizationTool,
                         removeIsolated,
@@ -46,7 +46,7 @@ public class CalculationService {
                                                                  String filename,
                                                                  String content) {
         return consensualStructureAnalysisService
-                .analyse(modelSelection,
+                .analyze(modelSelection,
                         includeNonCanonical,
                         removeIsolated,
                         visualizationTool,
@@ -63,7 +63,7 @@ public class CalculationService {
                                                           String filename,
                                                           String fileContent) {
         return tertiaryStructureAnalysisService
-                .analyse(modelSelection,
+                .analyze(modelSelection,
                         analysisTool,
                         nonCanonicalHandling,
                         removeIsolated,
