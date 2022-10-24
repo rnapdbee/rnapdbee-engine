@@ -49,7 +49,7 @@ public class CalculationController {
      * @param removeIsolated             boolean flag indicating whether isolated pairs should be removed or not
      * @param structuralElementsHandling enum defining handling of pseudoknots
      * @param visualizationTool          visualization tool used when creating the image
-     * @param contentDispositionHeader   header containing name of the analysed file
+     * @param contentDispositionHeader   header containing name of the analyzed file
      * @param fileContent                content of the file
      * @return output3D
      */
@@ -87,7 +87,7 @@ public class CalculationController {
      * @param visualizationTool          enum for Visualization Tool
      * @param removeIsolated             boolean value indicating if the isolated residues should be removed or not
      * @param contentDispositionHeader   Content-Disposition header containing name of the file
-     * @param fileContent                content of the analysed file
+     * @param fileContent                content of the analyzed file
      * @return wrapped in an object list of image outputs
      */
     @Operation(summary = "Perform a 2D to Dot-Bracket calculation")
@@ -115,12 +115,12 @@ public class CalculationController {
     /**
      * Endpoint responsible for 3D -> multi 2D analysis.
      *
-     * @param modelSelection           enum indicating if first, or all models from file should be analysed
+     * @param modelSelection           enum indicating if first, or all models from file should be analyzed
      * @param includeNonCanonical      boolean flag indicating if non-canonical pairs should be kept in analysis
      * @param removeIsolated           boolean flag indicating if isolated pairs should be removed from analysis
      * @param visualizationTool        enum indicating the tool/method that should be used in visualization
      * @param contentDispositionHeader Content-Disposition header containing name of the file
-     * @param fileContent              content of the analysed file
+     * @param fileContent              content of the analyzed file
      * @return object with analysis output
      */
     @Operation(summary = "Perform a 3D to multi 2D calculation")

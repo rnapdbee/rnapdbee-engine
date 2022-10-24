@@ -43,7 +43,7 @@ class TertiaryStructureAnalysisServiceTest extends AbstractTertiaryStructureAnal
                                                   List<TertiaryAnalysisOutputTestInformation> expectedInformationList) {
         prepareMockWebServerStubs(exampleFilename);
         String fileContent = readFileContentFromFile(exampleFilename);
-        var result = cut.analyse(modelSelection,
+        var result = cut.analyze(modelSelection,
                 analysisTool,
                 nonCanonicalHandling,
                 removeIsolated,

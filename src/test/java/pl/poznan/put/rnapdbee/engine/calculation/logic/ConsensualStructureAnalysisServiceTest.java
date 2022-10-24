@@ -34,7 +34,7 @@ class ConsensualStructureAnalysisServiceTest extends AbstractTertiaryStructureAn
                                 List<ConsensualAnalysisTestInformation> expectedInformationList) {
         prepareMockWebServerStubs(exampleFilename);
         String fileContent = readFileContentFromFile(exampleFilename);
-        var result = cut.analyse(modelSelection, includeNonCanonical, removeIsolated, visualizationTool, exampleFilename, fileContent);
+        var result = cut.analyze(modelSelection, includeNonCanonical, removeIsolated, visualizationTool, exampleFilename, fileContent);
         // TODO: add assertions for adapterEnums when rnapdbee-common code is merged with rnapdbee-engine
         ConsensualAnalysisTestUtils.assertAnalysisOutput(result, expectedInformationList);
     }

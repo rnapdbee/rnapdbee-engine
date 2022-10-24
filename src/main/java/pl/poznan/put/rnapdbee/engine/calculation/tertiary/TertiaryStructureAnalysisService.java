@@ -51,7 +51,7 @@ public class TertiaryStructureAnalysisService {
 
     private final Templates templates;
 
-    public Output3D analyse(ModelSelection modelSelection,
+    public Output3D analyze(ModelSelection modelSelection,
                             AnalysisTool analysisTool,
                             NonCanonicalHandling nonCanonicalHandling,
                             boolean removeIsolated,
