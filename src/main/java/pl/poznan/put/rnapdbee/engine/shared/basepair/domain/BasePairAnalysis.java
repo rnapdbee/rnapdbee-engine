@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -22,7 +23,6 @@ import java.util.stream.Collectors;
  */
 public class BasePairAnalysis {
 
-    //private final NonCanonicalHandling nonCanonicalHandling;
     private final List<AnalyzedBasePair> represented;
     private final List<AnalyzedBasePair> canonical;
     private final List<AnalyzedBasePair> nonCanonical;
@@ -136,16 +136,15 @@ public class BasePairAnalysis {
 
         BasePairAnalysis that = (BasePairAnalysis) o;
 
-        if (represented != null ? !represented.equals(that.represented) : that.represented != null) return false;
-        if (canonical != null ? !canonical.equals(that.canonical) : that.canonical != null) return false;
-        if (nonCanonical != null ? !nonCanonical.equals(that.nonCanonical) : that.nonCanonical != null) return false;
-        if (stacking != null ? !stacking.equals(that.stacking) : that.stacking != null) return false;
-        if (basePhosphate != null ? !basePhosphate.equals(that.basePhosphate) : that.basePhosphate != null)
-            return false;
-        if (baseRibose != null ? !baseRibose.equals(that.baseRibose) : that.baseRibose != null) return false;
-        if (other != null ? !other.equals(that.other) : that.other != null) return false;
-        if (interStrand != null ? !interStrand.equals(that.interStrand) : that.interStrand != null) return false;
-        return messages != null ? messages.equals(that.messages) : that.messages == null;
+        if (!Objects.equals(represented, that.represented)) return false;
+        if (!Objects.equals(canonical, that.canonical)) return false;
+        if (!Objects.equals(nonCanonical, that.nonCanonical)) return false;
+        if (!Objects.equals(stacking, that.stacking)) return false;
+        if (!Objects.equals(basePhosphate, that.basePhosphate)) return false;
+        if (!Objects.equals(baseRibose, that.baseRibose)) return false;
+        if (!Objects.equals(other, that.other)) return false;
+        if (!Objects.equals(interStrand, that.interStrand)) return false;
+        return Objects.equals(messages, that.messages);
     }
 
     @Override
@@ -211,7 +210,6 @@ public class BasePairAnalysis {
                 interStrand.stream().filter(filter).collect(Collectors.toList());
 
         return new BasePairAnalysisBuilder()
-                //.withNonCanonicalHandling(nonCanonicalHandling)
                 .withRepresented(representedFiltered)
                 .withCanonical(canonicalFiltered)
                 .withNonCanonical(nonCanonicalFiltered)
@@ -223,10 +221,6 @@ public class BasePairAnalysis {
                 .withMessages(new ArrayList<>(messages))
                 .build();
     }
-
-   /* public NonCanonicalHandling getNonCanonicalHandling() {
-        return nonCanonicalHandling;
-    }*/
 
     public List<AnalyzedBasePair> getRepresented() {
         return represented;
@@ -264,7 +258,7 @@ public class BasePairAnalysis {
         return messages;
     }
 
-    private BasePairAnalysis(/*NonCanonicalHandling nonCanonicalHandling,*/
+    private BasePairAnalysis(
             List<AnalyzedBasePair> represented,
             List<AnalyzedBasePair> canonical,
             List<AnalyzedBasePair> nonCanonical,
@@ -274,7 +268,6 @@ public class BasePairAnalysis {
             List<AnalyzedBasePair> other,
             List<AnalyzedBasePair> interStrand,
             List<String> messages) {
-        //this.nonCanonicalHandling = nonCanonicalHandling;
         this.represented = represented;
         this.canonical = canonical;
         this.nonCanonical = nonCanonical;
@@ -287,7 +280,6 @@ public class BasePairAnalysis {
     }
 
     public static class BasePairAnalysisBuilder {
-        //private NonCanonicalHandling nonCanonicalHandling;
         private List<AnalyzedBasePair> represented;
         private List<AnalyzedBasePair> canonical;
         private List<AnalyzedBasePair> nonCanonical;
@@ -297,11 +289,6 @@ public class BasePairAnalysis {
         private List<AnalyzedBasePair> other;
         private List<AnalyzedBasePair> interStrand;
         private List<String> messages;
-
-        /*public BasePairAnalysisBuilder withNonCanonicalHandling(NonCanonicalHandling nonCanonicalHandling) {
-            this.nonCanonicalHandling = nonCanonicalHandling;
-            return this;
-        }*/
 
         public BasePairAnalysisBuilder withRepresented(List<AnalyzedBasePair> represented) {
             this.represented = represented;
@@ -349,7 +336,7 @@ public class BasePairAnalysis {
         }
 
         public BasePairAnalysis build() {
-            return new BasePairAnalysis(/*nonCanonicalHandling,*/ represented, canonical, nonCanonical, stacking, basePhosphate, baseRibose, other, interStrand, messages);
+            return new BasePairAnalysis(represented, canonical, nonCanonical, stacking, basePhosphate, baseRibose, other, interStrand, messages);
         }
     }
 }

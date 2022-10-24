@@ -62,17 +62,15 @@ public class CalculationService {
                                                           VisualizationTool visualizationTool,
                                                           String filename,
                                                           String fileContent) {
-        return null;
-
-//        return tertiaryStructureAnalysisService
-//                .analyse(modelSelection,
-//                        analysisTool,
-//                        nonCanonicalHandling,
-//                        removeIsolated,
-//                        structuralElementsHandling,
-//                        visualizationTool,
-//                        filename,
-//                        fileContent);
+        return tertiaryStructureAnalysisService
+                .analyse(modelSelection,
+                        analysisTool,
+                        nonCanonicalHandling,
+                        removeIsolated,
+                        structuralElementsHandling,
+                        visualizationTool,
+                        filename,
+                        fileContent);
     }
 
     @Autowired
