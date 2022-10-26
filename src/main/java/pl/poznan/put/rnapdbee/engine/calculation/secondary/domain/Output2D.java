@@ -94,4 +94,5 @@ public class Output2D {
         this.imageInformation = imageInformation;
         return this;
     }
+    // TODO refactor to builder pattern for consistency of Output2D, Output3D and OutputMulti
 }

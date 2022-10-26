@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.aggregator.AggregateWith;
 import org.junit.jupiter.params.provider.CsvFileSource;
-import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -22,7 +21,6 @@ import java.util.List;
 class ConsensualStructureAnalysisServiceTest extends AbstractTertiaryStructureAnalysisTestingClass {
 
     @Autowired
-    @InjectMocks
     ConsensualStructureAnalysisService cut;
 
     @ParameterizedTest

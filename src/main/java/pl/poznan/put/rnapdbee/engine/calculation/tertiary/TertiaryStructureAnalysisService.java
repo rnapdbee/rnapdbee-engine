@@ -1,6 +1,7 @@
 package pl.poznan.put.rnapdbee.engine.calculation.tertiary;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbModel;
@@ -38,8 +39,8 @@ import pl.poznan.put.structure.formats.ImmutableDefaultDotBracketFromPdb;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Component
@@ -48,8 +49,7 @@ public class TertiaryStructureAnalysisService {
     private final BasePairAnalyzerFactory basePairAnalyzerFactory;
     private final ImageService imageService;
     private final TertiaryFileParser tertiaryFileParser;
-
-    private final Templates templates;
+    private final RNAValidator rnaValidator;
 
     public Output3D analyze(ModelSelection modelSelection,
                             AnalysisTool analysisTool,
@@ -71,68 +71,73 @@ public class TertiaryStructureAnalysisService {
                                      VisualizationTool visualizationTool,
                                      String filename,
                                      String fileContent) {
-        final List<? extends PdbModel> models;
-        String title = null;
-        try {
-            models = tertiaryFileParser.parseFileContents(determineInputType(filename), fileContent);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        final List<? extends PdbModel> models = tertiaryFileParser
+                .parseFileContents(determineInputType(filename), fileContent);
 
-        if ((models.size() > 1) && (modelSelection == ModelSelection.FIRST)) {
-            models.retainAll(Collections.singleton(models.get(0)));
-        }
-        // TODO: is validating needed?
-        final RNAValidator validator = new RNAValidator(templates);
-        final List<SingleTertiaryModelOutput> results = new ArrayList<>(models.size());
+        final int modelsToBeProcessed = modelSelection == ModelSelection.FIRST
+                ? 1
+                : models.size();
+        AtomicReference<String> title = new AtomicReference<>();
+        final List<SingleTertiaryModelOutput> results = models.stream()
+                .limit(modelsToBeProcessed)
+                .filter(pdbModel -> pdbModel.containsAny(MoleculeType.RNA))
+                .flatMap(pdbModel -> {
+                    final PdbModel rna = pdbModel.filteredNewInstance(MoleculeType.RNA);
+                    final BasePairAnalysis basePairAnalysis = handleBasePairAnalysis(analysisTool,
+                            nonCanonicalHandling, removeIsolated, fileContent, rna);
 
-        for (final PdbModel model : models) {
-            if (!model.containsAny(MoleculeType.RNA)) {
-                continue;
-            }
-            final PdbModel rna = model.filteredNewInstance(MoleculeType.RNA);
-            final int modelNumber = rna.modelNumber();
+                    // assuming the atoms ale always being reordered
+                    final PdbModel finalModel = ChainReorderer.reorderAtoms(rna, basePairAnalysis.getRepresented());
+                    final BpSeq bpSeq = BpSeq.fromBasePairs(finalModel.namedResidueIdentifiers(),
+                            basePairAnalysis.getRepresented());
 
-            final BasePairAnalysis basePairAnalysis = basePairAnalyzerFactory.provideBasePairAnalyzer(analysisTool)
-                    .analyze(fileContent, nonCanonicalHandling.isAnalysis(), modelNumber);
+                    final DotBracket dotBracket = convert(bpSeq);
+                    final DefaultDotBracketFromPdb dotBracketFromPdb = ImmutableDefaultDotBracketFromPdb
+                            .of(dotBracket.sequence(), dotBracket.structure(), finalModel);
 
-            // handle isolated base pairs
-            if (removeIsolated) {
-                basePairAnalysis.removeIsolatedBasePairs(rna);
-            }
+                    final List<DotBracketFromPdb> combinedStrands = determineCombinedStrands(nonCanonicalHandling,
+                            basePairAnalysis.getNonCanonical(), dotBracketFromPdb);
+                    title.set(finalModel.title());
 
-            // add validation messages
-            final List<String> validationMessages = validator.validate(rna);
-            basePairAnalysis.insertMessages(validationMessages);
+                    return combinedStrands.stream()
+                            .map(combinedStrand -> processSingleCombinedStrand(
+                                    analysisTool, nonCanonicalHandling, structuralElementsHandling, visualizationTool,
+                                    finalModel, basePairAnalysis, dotBracketFromPdb, rna, combinedStrand));
+                })
+                .collect(Collectors.toList());
 
-            // assuming the atoms ale always being reordered
-            final PdbModel finalModel = ChainReorderer.reorderAtoms(rna, basePairAnalysis.getRepresented());
-            title = finalModel.title();
-            final BpSeq bpSeq =
-                    BpSeq.fromBasePairs(
-                            finalModel.namedResidueIdentifiers(), basePairAnalysis.getRepresented());
-
-            // convert to dot-bracket
-            final DotBracket dotBracket = convert(bpSeq);
-            final DefaultDotBracketFromPdb dotBracketFromPdb = ImmutableDefaultDotBracketFromPdb
-                    .of(dotBracket.sequence(), dotBracket.structure(), finalModel);
-
-            final List<DotBracketFromPdb> combinedStrands = determineCombinedStrands(nonCanonicalHandling,
-                    basePairAnalysis.getNonCanonical(), dotBracketFromPdb);
-
-            combinedStrands.forEach(combinedStrand -> {
-                var singleResult = processSingleCombinedStrand(
-                        analysisTool, nonCanonicalHandling, structuralElementsHandling, visualizationTool,
-                        finalModel, basePairAnalysis, dotBracketFromPdb, combinedStrand);
-                results.add(singleResult);
-            });
-        }
-
-        Output3D output3D = new Output3D();
-        output3D.setTitle(title);
+        final Output3D output3D = new Output3D();
+        output3D.setTitle(title.get());
         output3D.setModels(results);
 
         return output3D;
+    }
+
+    /**
+     * Creates {@link BasePairAnalysis} using {@link BasePairAnalyzerFactory}.
+     * Removes isolated pairs in regard to the removeIsolated flag.
+     * Adds validation messages to the analysis.
+     *
+     * @param analysisTool         enum indicating which tool should be uses to perform analysis
+     * @param nonCanonicalHandling enum indicating how the non-canonical pairs should be handled
+     * @param removeIsolated       boolean flag indicating whether isolated pairs should be removed or not
+     * @param fileContent          content of analyzed file
+     * @param rna                  RNA model
+     * @return complete {@link BasePairAnalysis}
+     */
+    private BasePairAnalysis handleBasePairAnalysis(AnalysisTool analysisTool,
+                                                    NonCanonicalHandling nonCanonicalHandling,
+                                                    boolean removeIsolated,
+                                                    String fileContent,
+                                                    PdbModel rna) {
+        final BasePairAnalysis basePairAnalysis = basePairAnalyzerFactory.provideBasePairAnalyzer(analysisTool)
+                .analyze(fileContent, nonCanonicalHandling.isAnalysis(), rna.modelNumber());
+
+        if (removeIsolated) {
+            basePairAnalysis.removeIsolatedBasePairs(rna);
+        }
+
+        return basePairAnalysis;
     }
 
     private SingleTertiaryModelOutput processSingleCombinedStrand(
@@ -143,6 +148,7 @@ public class TertiaryStructureAnalysisService {
             PdbModel structureModel,
             BasePairAnalysis basePairAnalysis,
             DefaultDotBracketFromPdb dotBracket,
+            PdbModel rna,
             DotBracketFromPdb combinedStrand) {
         final BasePairAnalysis filteredResults =
                 basePairAnalysis.filtered(combinedStrand.identifierSet());
@@ -153,7 +159,7 @@ public class TertiaryStructureAnalysisService {
         final BpSeq bpseq = BpSeq.fromDotBracket(combinedStrand);
         // todo: maybe fromBpSeq is sufficient? -> ask
         final Ct ct = Ct.fromBpSeqAndPdbModel(bpseq, structureModel);
-        final List<String> messages = generateMessageLog(filteredResults, image, analysisTool);
+        final List<String> messages = generateMessageLog(filteredResults, image, analysisTool, rna);
 
         final StructuralElementFinder structuralElementFinder =
                 new StructuralElementFinder(
@@ -215,9 +221,20 @@ public class TertiaryStructureAnalysisService {
                 structure.getSequence(), structure.getDotBracketStructure());
     }
 
+    /**
+     * Generates message log out of information about output image, messages about Multiplets contained in basePairAnalysis,
+     * messages generated by validation of {@link PdbModel} and information about used {@link AnalysisTool}.
+     *
+     * @param basePairAnalysis given basePairAnalysis, which contains influential messages
+     * @param image            given image with its metadata, which are used to generate messages
+     * @param analysisTool     analysis
+     * @param rna              rna model which is valiated
+     * @return message log generated using input parameters
+     */
     private List<String> generateMessageLog(BasePairAnalysis basePairAnalysis,
                                             ImageInformationOutput image,
-                                            AnalysisTool analysisTool) {
+                                            AnalysisTool analysisTool,
+                                            PdbModel rna) {
         final List<String> messages = new ArrayList<>();
         messages.add(String.format("Base-pairs identified by %s", analysisTool));
 
@@ -242,19 +259,24 @@ public class TertiaryStructureAnalysisService {
         }
 
         messages.addAll(basePairAnalysis.getMessages());
+        messages.addAll(rnaValidator.validate(rna));
         return messages;
     }
 
     @Autowired
     public TertiaryStructureAnalysisService(BasePairAnalyzerFactory basePairAnalyzerFactory,
                                             ImageService imageService,
-                                            TertiaryFileParser tertiaryFileParser) {
+                                            TertiaryFileParser tertiaryFileParser,
+                                            @Value("${templates.path}") String pathToTemplates) {
         this.basePairAnalyzerFactory = basePairAnalyzerFactory;
         this.imageService = imageService;
         this.tertiaryFileParser = tertiaryFileParser;
-        try (final InputStream stream =
-                     TertiaryStructureAnalysisService.class.getResourceAsStream("/completeAtomNames.dict")) {
-            templates = new Templates(stream);
+        this.rnaValidator = new RNAValidator(loadTemplates(pathToTemplates));
+    }
+
+    private Templates loadTemplates(String pathToTemplates) {
+        try (final InputStream stream = getClass().getResourceAsStream(pathToTemplates)) {
+            return new Templates(stream);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -86,12 +86,7 @@ public class ConsensualStructureAnalysisService {
             VisualizationTool visualizationTool) {
         String title = null;
 
-        final List<? extends PdbModel> models;
-        try {
-            models = tertiaryFileParser.parseFileContents(inputType, fileContents);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        final List<? extends PdbModel> models = tertiaryFileParser.parseFileContents(inputType, fileContents);
 
         if ((models.size() > 1) && (modelSelection == ModelSelection.FIRST)) {
             models.retainAll(Collections.singletonList(models.get(0)));
