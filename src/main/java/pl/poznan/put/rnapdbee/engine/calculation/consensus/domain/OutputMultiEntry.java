@@ -35,4 +35,5 @@ public class OutputMultiEntry {
         this.adapterEnums = adapterEnums;
         return this;
     }
+    // TODO refactor to builder pattern for consistency of Output2D, Output3D and OutputMulti
 }

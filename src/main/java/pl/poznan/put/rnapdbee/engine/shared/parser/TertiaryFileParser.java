@@ -21,12 +21,16 @@ public class TertiaryFileParser {
     @Nonnull
     @Cacheable("fileContents")
     public List<? extends PdbModel> parseFileContents(
-            final InputType inputType, final String fileContents) throws IOException {
+            final InputType inputType, final String fileContents) {
         switch (inputType) {
             case PDB:
                 return pdbParser.parse(fileContents);
             case MMCIF:
-                return cifParser.parse(fileContents);
+                try {
+                    return cifParser.parse(fileContents);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             case DOT_BRACKET:
             case BPSEQ:
             case CT:

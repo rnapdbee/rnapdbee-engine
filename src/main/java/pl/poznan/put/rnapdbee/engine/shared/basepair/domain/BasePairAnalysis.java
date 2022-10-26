@@ -33,33 +33,6 @@ public class BasePairAnalysis {
     private final List<AnalyzedBasePair> interStrand;
     private final List<String> messages;
 
-    public final void insertMessages(final Collection<String> otherMessages) {
-        messages.addAll(otherMessages);
-    }
-
-    /**
-     * Look for isolated base pairs selected to be represented in text format (BPSEQ/CT/dot-bracket).
-     * Then remove it from that list, but make sure that these base pairs remain visualized.
-     *
-     * @param model An instance of {@link DefaultPdbModel} required to get unique indices for
-     *              residues.
-     */
-    public final void removeIsolatedBasePairsFromTextOnly(final DefaultPdbModel model) {
-        final Collection<AnalyzedBasePair> toUnrepresent =
-                BasePairAnalysis.findIsolatedBasePairs(model, represented);
-
-        // unrepresent base pairs
-        for (final AnalyzedBasePair classifiedBasePair : toUnrepresent) {
-            represented.remove(classifiedBasePair);
-            represented.remove(classifiedBasePair.invert());
-            // code below ensure that the base pair will not be present in dot-bracket, but will be
-            // drawn as non-canonical
-            if (classifiedBasePair.isCanonical()) {
-                nonCanonical.add(classifiedBasePair);
-            }
-        }
-    }
-
     /**
      * Scan provided base pairs to find isolated ones. Here, isolated means that the nucleotides
      * involved (a) do not form multiplets and (b) their predecessor and successor nucleotides are
