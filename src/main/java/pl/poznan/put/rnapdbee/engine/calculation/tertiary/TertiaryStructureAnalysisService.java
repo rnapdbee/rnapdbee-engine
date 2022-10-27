@@ -180,6 +180,7 @@ public class TertiaryStructureAnalysisService {
                 .withMessages(messages)
                 .withCanonicalInteractions(basePairAnalysis.getCanonical())
                 .withNonCanonicalInteractions(basePairAnalysis.getNonCanonical())
+                .withInterStrandInteractions(basePairAnalysis.getInterStrand())
                 .withBasePhosphateInteractions(basePairAnalysis.getBasePhosphate())
                 .withBaseRiboseInteractions(basePairAnalysis.getBaseRibose())
                 .withStackingInteractions(basePairAnalysis.getStacking())

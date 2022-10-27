@@ -28,6 +28,9 @@ public class SingleTertiaryModelOutput {
     @JsonProperty("nonCanonicalInteractions")
     private List<OutputBasePair> nonCanonicalInteractions;
 
+    @JsonProperty("interStrandInteractions")
+    private List<OutputBasePair> interStrandInteractions;
+
     @JsonProperty("stackingInteractions")
     private List<OutputBasePair> stackingInteractions;
 
@@ -53,6 +56,10 @@ public class SingleTertiaryModelOutput {
         return nonCanonicalInteractions;
     }
 
+    public List<OutputBasePair> getInterStrandInteractions() {
+        return interStrandInteractions;
+    }
+
     public List<OutputBasePair> getStackingInteractions() {
         return stackingInteractions;
     }
@@ -74,6 +81,7 @@ public class SingleTertiaryModelOutput {
                                       List<String> messages,
                                       List<OutputBasePair> canonicalInteractions,
                                       List<OutputBasePair> nonCanonicalInteractions,
+                                      List<OutputBasePair> interStrandInteractions,
                                       List<OutputBasePair> stackingInteractions,
                                       List<OutputBasePair> basePhosphateInteractions,
                                       List<OutputBasePair> baseRiboseInteractions) {
@@ -82,6 +90,7 @@ public class SingleTertiaryModelOutput {
         this.messages = messages;
         this.canonicalInteractions = canonicalInteractions;
         this.nonCanonicalInteractions = nonCanonicalInteractions;
+        this.interStrandInteractions = interStrandInteractions;
         this.stackingInteractions = stackingInteractions;
         this.basePhosphateInteractions = basePhosphateInteractions;
         this.baseRiboseInteractions = baseRiboseInteractions;
@@ -93,6 +102,7 @@ public class SingleTertiaryModelOutput {
         private List<String> messages;
         private List<OutputBasePair> canonicalInteractions;
         private List<OutputBasePair> nonCanonicalInteractions;
+        private List<OutputBasePair> interStrandInteractions;
         private List<OutputBasePair> stackingInteractions;
         private List<OutputBasePair> basePhosphateInteractions;
         private List<OutputBasePair> baseRiboseInteractions;
@@ -126,6 +136,13 @@ public class SingleTertiaryModelOutput {
             return this;
         }
 
+        public Builder withInterStrandInteractions(List<AnalyzedBasePair> interStrandInteractions) {
+            this.interStrandInteractions = interStrandInteractions.stream()
+                    .map(OutputBasePair::fromClassifiedBasePair)
+                    .collect(Collectors.toList());
+            return this;
+        }
+
         public Builder withStackingInteractions(List<AnalyzedBasePair> stackingInteractions) {
             this.stackingInteractions = stackingInteractions.stream()
                     .map(OutputBasePair::fromClassifiedBasePair)
@@ -153,6 +170,7 @@ public class SingleTertiaryModelOutput {
                     messages,
                     canonicalInteractions,
                     nonCanonicalInteractions,
+                    interStrandInteractions,
                     stackingInteractions,
                     basePhosphateInteractions,
                     baseRiboseInteractions);
