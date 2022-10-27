@@ -57,6 +57,9 @@ public class TertiaryAnalysisOutputTestUtils {
                 () -> assertEquals(expectedInformation.getNonCanonicalInteractionsSize(), singleTertiaryModelOutput
                                 .getNonCanonicalInteractions().size(),
                         "Non-canonical interactions size is incorrect"),
+                () -> assertEquals(expectedInformation.getInterStrandInteractionsSize(), singleTertiaryModelOutput
+                                .getInterStrandInteractions().size(),
+                        "Inter strand interactions size is incorrect"),
                 () -> assertEquals(expectedInformation.getStackingInteractionsSize(), singleTertiaryModelOutput
                                 .getStackingInteractions().size(),
                         "Stacking interactions size is incorrect"),

@@ -13,6 +13,7 @@ public class TertiaryAnalysisOutputTestInformation {
     private int messagesSize;
     private int canonicalInteractionsSize;
     private int nonCanonicalInteractionsSize;
+    private int interStrandInteractionsSize;
     private int stackingInteractionsSize;
     private int basePhosphateInteractionsSize;
     private int baseRiboseInteractionsSize;
@@ -59,6 +60,10 @@ public class TertiaryAnalysisOutputTestInformation {
 
     public int getNonCanonicalInteractionsSize() {
         return nonCanonicalInteractionsSize;
+    }
+
+    public int getInterStrandInteractionsSize() {
+        return interStrandInteractionsSize;
     }
 
     public int getStackingInteractionsSize() {
@@ -125,6 +130,11 @@ public class TertiaryAnalysisOutputTestInformation {
 
     public TertiaryAnalysisOutputTestInformation withNonCanonicalInteractionsSize(int nonCanonicalInteractionsSize) {
         this.nonCanonicalInteractionsSize = nonCanonicalInteractionsSize;
+        return this;
+    }
+
+    public TertiaryAnalysisOutputTestInformation withInterStrandInteractionsSize(int interStrandInteractionsSize) {
+        this.interStrandInteractionsSize = interStrandInteractionsSize;
         return this;
     }
 
