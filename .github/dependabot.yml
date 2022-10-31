@@ -7,14 +7,16 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 15
     commit-message:
       prefix: "build"
-    target-branch: "develop"
+    target-branch: "dependabot/updates"
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 15
     commit-message:
       prefix: "build"
-    target-branch: "develop"
+    target-branch: "dependabot/updates"
