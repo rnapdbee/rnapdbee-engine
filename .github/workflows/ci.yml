@@ -2,17 +2,20 @@ name: CI
 
 on:
   push:
+    paths-ignore:
+      - 'README.md'
     branches:
       - main
-      - develop
+
   pull_request:
     branches:
       - main
-      - develop
+      - 'dependabot/updates'
+
   workflow_dispatch:
 
 jobs:
-  build:
+  CI:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -38,7 +41,38 @@ jobs:
         with:
           name: rnapdbee-engine-package
           path: ./target/*.jar
-          retention-days: 2
+          retention-days: 1
 
       - name: Docker Build
         run: DOCKER_BUILDKIT=1 docker-compose up -d
+
+  ci-dependabot:
+    if: ${{ github.actor == 'dependabot[bot]' && github.base_ref == 'dependabot/updates'}}
+    needs: CI
+
+    runs-on: ubuntu-20.04
+
+    permissions:
+      contents: write
+      checks: write
+      pull-requests: write
+
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v1.3.4
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Approve a PR
+        run: gh pr review --approve "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Enable auto-merge for Dependabot PRs
+        if: steps.metadata.outputs.update-type != 'version-update:semver-major'
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
