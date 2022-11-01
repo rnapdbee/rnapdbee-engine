@@ -28,7 +28,6 @@ public enum BR {
     @JsonProperty("9")
     NINE;
 
-    // TODO: get rid of this when merging rnapdbee-common code to engine
     public static pl.poznan.put.notation.BR mapToBioCommonsBr(BR brFromEngineModel) {
         if (brFromEngineModel == null) {
             return pl.poznan.put.notation.BR.UNKNOWN;
@@ -59,7 +58,6 @@ public enum BR {
         }
     }
 
-    // TODO: get rid of this when merging rnapdbee-common code to engine
     public static BR mapBioCommonsBrToEngineBr(pl.poznan.put.notation.BR brFromEngineModel) {
         switch (brFromEngineModel) {
             case _0:
