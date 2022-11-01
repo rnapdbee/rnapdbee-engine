@@ -3,17 +3,24 @@ package pl.poznan.put.rnapdbee.engine.shared.basepair.boundary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
 
 
 @Component
 public class MCAnnotateBasePairAnalyzer extends BasePairAnalyzer {
 
+    @Override
+    @Cacheable("AnalysisMCAnnotate")
+    public BasePairAnalysis analyze(String fileContent, boolean includeNonCanonical, int modelNumber) {
+        return super.performAnalysis(fileContent, includeNonCanonical, modelNumber);
+    }
+
     @Autowired
     public MCAnnotateBasePairAnalyzer(@Value("${rnapdbee.adapters.global.mcannotate.path}") String pathToMCAnnotateAdapter,
                                       @Autowired @Qualifier("adaptersWebClient") WebClient adaptersWebClient) {
-        super(adaptersWebClient);
-        this.adapterURI = pathToMCAnnotateAdapter;
+        super(adaptersWebClient, pathToMCAnnotateAdapter);
     }
 }
