@@ -7,6 +7,7 @@ import pl.poznan.put.notation.BPh;
 import pl.poznan.put.notation.BR;
 import pl.poznan.put.notation.LeontisWesthof;
 import pl.poznan.put.notation.Saenger;
+import pl.poznan.put.notation.StackingTopology;
 import pl.poznan.put.pdb.PdbNamedResidueIdentifier;
 import pl.poznan.put.rna.InteractionType;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.AdaptersAnalysisDTO;
@@ -23,6 +24,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static pl.poznan.put.rnapdbee.engine.shared.basepair.domain.StackingTopology.convertToBioCommonsEntity;
 
 // TODO: WebFlux would be really efficient with the 3D->multi 2D analysis as we there perform multiple calls to the
 //  adapters, it could be done in parallel and then joined up after each call is performed. We would save a tone of
@@ -66,7 +69,8 @@ public abstract class BasePairAnalyzer {
                         .withSaenger(basePair.getSaenger())
                         .withLeontisWesthof(basePair.getLeontisWesthof())
                         .withBph(BPh.UNKNOWN)
-                        .withBr(BR.UNKNOWN))
+                        .withBr(BR.UNKNOWN)
+                        .withStackingTopology(StackingTopology.UNKNOWN))
                 .collect(Collectors.toList());
         List<AnalyzedBasePair> nonCanonical = responseFromAdapter.getBasePairs().stream()
                 .filter(basePair -> !basePair.isCanonical())
@@ -75,42 +79,48 @@ public abstract class BasePairAnalyzer {
                         .withSaenger(basePair.getSaenger())
                         .withLeontisWesthof(basePair.getLeontisWesthof())
                         .withBph(BPh.UNKNOWN)
-                        .withBr(BR.UNKNOWN))
+                        .withBr(BR.UNKNOWN)
+                        .withStackingTopology(StackingTopology.UNKNOWN))
                 .collect(Collectors.toList());
         List<AnalyzedBasePair> stackings = responseFromAdapter.getStackings().stream()
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.STACKING)
                         .withSaenger(Saenger.UNKNOWN)
                         .withLeontisWesthof(LeontisWesthof.UNKNOWN)
                         .withBph(BPh.UNKNOWN)
-                        .withBr(BR.UNKNOWN))
+                        .withBr(BR.UNKNOWN)
+                        .withStackingTopology(convertToBioCommonsEntity(basePair.getTopology())))
                 .collect(Collectors.toList());
         List<AnalyzedBasePair> basePhosphate = responseFromAdapter.getBasePhosphateInteractions().stream()
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.BASE_PHOSPHATE)
                         .withSaenger(Saenger.UNKNOWN)
                         .withLeontisWesthof(LeontisWesthof.UNKNOWN)
                         .withBph(pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BPh.mapToBioCommonsBph(basePair.getBph()))
-                        .withBr(BR.UNKNOWN))
+                        .withBr(BR.UNKNOWN)
+                        .withStackingTopology(StackingTopology.UNKNOWN))
                 .collect(Collectors.toList());
         List<AnalyzedBasePair> baseRibose = responseFromAdapter.getBaseRiboseInteractions().stream()
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.BASE_RIBOSE)
                         .withSaenger(Saenger.UNKNOWN)
                         .withLeontisWesthof(LeontisWesthof.UNKNOWN)
                         .withBph(BPh.UNKNOWN)
-                        .withBr(pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BR.mapToBioCommonsBr(basePair.getBr())))
+                        .withBr(pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BR.mapToBioCommonsBr(basePair.getBr()))
+                        .withStackingTopology(StackingTopology.UNKNOWN))
                 .collect(Collectors.toList());
         List<AnalyzedBasePair> otherInteractions = responseFromAdapter.getOther().stream()
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.OTHER)
                         .withSaenger(Saenger.UNKNOWN)
                         .withLeontisWesthof(LeontisWesthof.UNKNOWN)
                         .withBph(BPh.UNKNOWN)
-                        .withBr(BR.UNKNOWN))
+                        .withBr(BR.UNKNOWN)
+                        .withStackingTopology(StackingTopology.UNKNOWN))
                 .collect(Collectors.toList());
         List<AnalyzedBasePair> interStrand = responseFromAdapter.getBasePairs().stream()
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.BASE_BASE)
                         .withSaenger(basePair.getSaenger())
                         .withLeontisWesthof(basePair.getLeontisWesthof())
                         .withBph(BPh.UNKNOWN)
-                        .withBr(BR.UNKNOWN))
+                        .withBr(BR.UNKNOWN)
+                        .withStackingTopology(StackingTopology.UNKNOWN))
                 .filter(basePair -> !basePair.basePair().left().chainIdentifier().equals(basePair.basePair().right().chainIdentifier()))
                 .collect(Collectors.toList());
         List<AnalyzedBasePair> represented = determineRepresentedPairs(canonical, nonCanonical, includeNonCanonical);
