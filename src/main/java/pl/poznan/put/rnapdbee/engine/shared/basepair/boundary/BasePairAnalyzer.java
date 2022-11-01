@@ -1,5 +1,7 @@
 package pl.poznan.put.rnapdbee.engine.shared.basepair.boundary;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -17,6 +19,7 @@ import pl.poznan.put.rnapdbee.engine.shared.multiplet.MultipletSet;
 import pl.poznan.put.structure.AnalyzedBasePair;
 import pl.poznan.put.structure.ImmutableAnalyzedBasePair;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -32,19 +35,25 @@ import static pl.poznan.put.rnapdbee.engine.shared.basepair.domain.StackingTopol
 //  time with this approach if the adapters were scalable horizontally in the future.
 public abstract class BasePairAnalyzer {
 
-    WebClient adaptersWebClient;
+    protected final static Logger logger = LoggerFactory.getLogger(BasePairAnalyzer.class);
+
+    protected final WebClient adaptersWebClient;
 
     /**
      * URI/path of the specific adapter - e.g. analyze/mc-annotate. Set in this class' implementation.
      */
-    protected String adapterURI;
+    protected final String adapterURI;
 
     // TODO: think about using WebFlux advancements when refactoring
-    public BasePairAnalysis analyze(String fileContent,
-                                    boolean includeNonCanonical,
-                                    int modelNumber) {
+    public abstract BasePairAnalysis analyze(String fileContent,
+                                             boolean includeNonCanonical,
+                                             int modelNumber);
+
+    protected BasePairAnalysis performAnalysis(String fileContent,
+                                               boolean includeNonCanonical,
+                                               int modelNumber) {
+        logger.info("base pair analysis started");
         AdaptersAnalysisDTO adaptersAnalysis = performAnalysisOnAdapter(fileContent, modelNumber);
-        assert adaptersAnalysis != null;
         return performPostAnalysisOnResponseFromAdapter(adaptersAnalysis, includeNonCanonical);
     }
 
@@ -162,6 +171,7 @@ public abstract class BasePairAnalyzer {
                 .body(BodyInserters.fromValue(fileContent))
                 .retrieve()
                 .bodyToMono(AdaptersAnalysisDTO.class)
+                .cache(Duration.ofSeconds(240))
                 .block();
     }
 
@@ -190,7 +200,8 @@ public abstract class BasePairAnalyzer {
         return pairsClassifiedAsRepresented;
     }
 
-    BasePairAnalyzer(WebClient adaptersWebClient) {
+    BasePairAnalyzer(WebClient adaptersWebClient, String adapterURI) {
         this.adaptersWebClient = adaptersWebClient;
+        this.adapterURI = adapterURI;
     }
 }
