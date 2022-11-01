@@ -10,7 +10,6 @@ import java.util.List;
 
 public class TertiaryAnalysisOutputTestInformationAggregator implements ArgumentsAggregator {
 
-    // each entry has only 1 bpseq, 1 ct and 1 dot bracket which are aggregated.
     private static final int NUMBER_OF_AGGREGATED_ARGUMENTS_FOR_EACH_MODEL = 15;
 
     @Override

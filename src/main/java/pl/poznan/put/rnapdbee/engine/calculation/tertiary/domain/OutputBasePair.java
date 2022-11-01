@@ -4,6 +4,7 @@ import pl.poznan.put.notation.LeontisWesthof;
 import pl.poznan.put.notation.Saenger;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BPh;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BR;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.StackingTopology;
 import pl.poznan.put.structure.ClassifiedBasePair;
 
 
@@ -17,6 +18,7 @@ public class OutputBasePair {
     LeontisWesthof leontisWesthof;
     BPh bPh;
     BR br;
+    StackingTopology stackingTopology;
     OutputNamedResidue leftResidue;
     OutputNamedResidue rightResidue;
 
@@ -28,6 +30,8 @@ public class OutputBasePair {
         outputBasePair.setLeontisWesthof(classifiedBasePair.leontisWesthof());
         outputBasePair.setbPh(BPh.mapBioCommonsBphToEngineBph(classifiedBasePair.bph()));
         outputBasePair.setBr(BR.mapBioCommonsBrToEngineBr(classifiedBasePair.br()));
+        outputBasePair.setStackingTopology(StackingTopology.convertFromBioCommonsEntity(classifiedBasePair
+                .stackingTopology()));
 
         OutputNamedResidue leftResidue = OutputNamedResidue.fromPdbNamedResidueIdentifier(
                 classifiedBasePair.basePair().left());
@@ -78,6 +82,14 @@ public class OutputBasePair {
 
     public void setBr(BR br) {
         this.br = br;
+    }
+
+    public StackingTopology getStackingTopology() {
+        return stackingTopology;
+    }
+
+    public void setStackingTopology(StackingTopology stackingTopology) {
+        this.stackingTopology = stackingTopology;
     }
 
     public OutputNamedResidue getLeftResidue() {
