@@ -27,7 +27,6 @@ import pl.poznan.put.structure.formats.DotBracket;
 import pl.poznan.put.structure.formats.ImmutableDefaultDotBracket;
 import pl.poznan.put.structure.formats.ImmutableDefaultDotBracketFromPdb;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

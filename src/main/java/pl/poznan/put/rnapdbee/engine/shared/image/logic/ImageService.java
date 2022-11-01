@@ -36,8 +36,7 @@ public class ImageService {
                 : drawerManager.drawCanonical(visualizationTool, combinedStrand);
     }
 
-    public ImageInformationOutput visualizeCanonical(VisualizationTool visualizationTool,
-                                                     DotBracket combinedStrand) {
+    public ImageInformationOutput visualizeCanonical(VisualizationTool visualizationTool, DotBracket combinedStrand) {
         if (visualizationTool == VisualizationTool.NONE) {
             return ImageInformationOutput.EMPTY_INSTANCE;
         }
