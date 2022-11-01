@@ -162,7 +162,6 @@ public abstract class BasePairAnalyzer {
      * @param fileContent content of file
      * @return {@link AdaptersAnalysisDTO} - performed analysis as Java object
      */
-    // TODO: make cache that is different for all adapters (inheritors of this class).
     private AdaptersAnalysisDTO performAnalysisOnAdapter(String fileContent, int modelNumber) {
         return adaptersWebClient
                 .post()
