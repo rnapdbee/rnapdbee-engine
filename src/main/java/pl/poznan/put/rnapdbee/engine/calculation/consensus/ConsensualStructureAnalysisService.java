@@ -103,9 +103,10 @@ public class ConsensualStructureAnalysisService {
                             includeNonCanonical, removeIsolated, visualizationTool, uniqueInputs, rna, modelNumber));
                 });
 
-        return new OutputMulti()
+        return new OutputMulti.OutputMultiBuilder()
                 .withEntries(new ArrayList<>(uniqueInputs.values()))
-                .withTitle(title.get());
+                .withTitle(title.get())
+                .build();
     }
 
     private void performSingularAnalysis(final Pair<AnalysisTool, BasePairAnalyzer> analyzerPair,
@@ -143,15 +144,17 @@ public class ConsensualStructureAnalysisService {
         final List<AnalysisTool> analyzerNames = new ArrayList<>();
         analyzerNames.add(analyzerEnum);
 
-        final Output2D output2D = new Output2D()
+        final Output2D output2D = new Output2D.Output2DBuilder()
                 .withImageInformation(imageInformation)
                 .withBpSeqFromBpSeqObject(bpSeq)
                 .withStrandsFromDotBracket(dotBracketFromPdb)
-                .withCtFromCt(ct);
+                .withCtFromCt(ct)
+                .build();
 
-        final OutputMultiEntry outputMultiEntry = new OutputMultiEntry()
+        final OutputMultiEntry outputMultiEntry = new OutputMultiEntry.OutputMultiEntryBuilder()
                 .withOutput2D(output2D)
-                .withAdapterEnums(analyzerNames);
+                .withAdapterEnums(analyzerNames)
+                .build();
 
         uniqueInputs.put(bpSeq, outputMultiEntry);
     }

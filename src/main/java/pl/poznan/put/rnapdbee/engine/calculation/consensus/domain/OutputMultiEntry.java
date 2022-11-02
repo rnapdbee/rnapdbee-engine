@@ -22,18 +22,32 @@ public class OutputMultiEntry {
         return output2D;
     }
 
-    public OutputMultiEntry withOutput2D(Output2D output2D) {
-        this.output2D = output2D;
-        return this;
-    }
-
     public List<AnalysisTool> getAdapterEnums() {
         return adapterEnums;
     }
 
-    public OutputMultiEntry withAdapterEnums(List<AnalysisTool> adapterEnums) {
+    private OutputMultiEntry(Output2D output2D, List<AnalysisTool> adapterEnums) {
+        this.output2D = output2D;
         this.adapterEnums = adapterEnums;
-        return this;
     }
-    // TODO refactor to builder pattern for consistency of Output2D, Output3D and OutputMulti
+
+
+    public static class OutputMultiEntryBuilder {
+        private Output2D output2D;
+        private List<AnalysisTool> adapterEnums;
+
+        public OutputMultiEntryBuilder withOutput2D(Output2D output2D) {
+            this.output2D = output2D;
+            return this;
+        }
+
+        public OutputMultiEntryBuilder withAdapterEnums(List<AnalysisTool> adapterEnums) {
+            this.adapterEnums = adapterEnums;
+            return this;
+        }
+
+        public OutputMultiEntry build() {
+            return new OutputMultiEntry(output2D, adapterEnums);
+        }
+    }
 }

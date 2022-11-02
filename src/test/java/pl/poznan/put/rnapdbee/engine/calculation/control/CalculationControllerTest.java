@@ -96,7 +96,7 @@ class CalculationControllerTest {
 
 
     private Output2D provideMockedOutput2D() {
-        return new Output2D()
+        return new Output2D.Output2DBuilder()
                 .withBpSeq(MOCKED_BP_SEQ)
                 .withCt(MOCKED_CT)
                 .withImageInformation(new ImageInformationOutput()
@@ -110,6 +110,7 @@ class CalculationControllerTest {
                         .withStems(MOCKED_STEMS)
                         .withSingleStrands5p(MOCKED_SINGLE_STRANDS_5_P)
                         .withSingleStrands3p(MOCKED_SINGLE_STRANDS_3_P))
-                .withStrands(List.of(MOCKED_STRAND));
+                .withStrands(List.of(MOCKED_STRAND))
+                .build();
     }
 }
