@@ -14,6 +14,11 @@ import java.awt.Color;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Implementation of SecondaryStructureDrawer that provides empty SVG document.
+ * <p>
+ * The implementation has been taken from RNApdbee 2.0.
+ */
 @Component
 public class EmptyDrawer implements SecondaryStructureDrawer {
 

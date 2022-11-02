@@ -15,6 +15,7 @@ import pl.poznan.put.rnapdbee.engine.shared.converter.KnotRemoval;
 import pl.poznan.put.rnapdbee.engine.shared.converter.RNAStructure;
 import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.shared.domain.InputType;
+import pl.poznan.put.rnapdbee.engine.shared.domain.InputTypeDeterminer;
 import pl.poznan.put.rnapdbee.engine.shared.domain.ModelSelection;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
@@ -41,10 +42,9 @@ import java.util.Map;
 public class ConsensualStructureAnalysisService {
 
     private final ImageService imageService;
-
     private final TertiaryFileParser tertiaryFileParser;
-
     private final BasePairAnalyzerFactory basePairAnalyzerFactory;
+    private final InputTypeDeterminer inputTypeDeterminer;
 
     /**
      * Performs 3D -> multi 2D analysis.
@@ -64,9 +64,10 @@ public class ConsensualStructureAnalysisService {
                                String filename,
                                String content) {
         final var analyzerPairs = prepareAnalyzerPairs();
+        final var inputType = inputTypeDeterminer.detectTertiaryInputTypeFromFileName(filename);
 
         return findConsensus(modelSelection,
-                determineInputType(filename),
+                inputType,
                 content,
                 analyzerPairs,
                 includeNonCanonical,
@@ -148,16 +149,6 @@ public class ConsensualStructureAnalysisService {
                 .withTitle(title);
     }
 
-    // TODO: put in separate class with the one from tertiary
-    private InputType determineInputType(String filename) {
-        for (InputType inputType : InputType.values()) {
-            if (filename.toLowerCase().contains(inputType.getFileExtension())) {
-                return inputType;
-            }
-        }
-        throw new IllegalArgumentException("unknown file extension provided");
-    }
-
     // TODO: using copied DP_NEW implementation from rnapdbee-common right now, change to MILP and remove whole
     //  pl.poznan.put.rnapdbee.engine.shared.converter package!!!
     private DotBracket convert(BpSeq bpSeq) {
@@ -187,9 +178,10 @@ public class ConsensualStructureAnalysisService {
     @Autowired
     public ConsensualStructureAnalysisService(ImageService imageService,
                                               TertiaryFileParser tertiaryFileParser,
-                                              BasePairAnalyzerFactory basePairAnalyzerFactory) {
+                                              BasePairAnalyzerFactory basePairAnalyzerFactory, InputTypeDeterminer inputTypeDeterminer) {
         this.imageService = imageService;
         this.tertiaryFileParser = tertiaryFileParser;
         this.basePairAnalyzerFactory = basePairAnalyzerFactory;
+        this.inputTypeDeterminer = inputTypeDeterminer;
     }
 }

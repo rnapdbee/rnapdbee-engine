@@ -5,6 +5,10 @@ import pl.poznan.put.structure.formats.BpSeq;
 import pl.poznan.put.structure.formats.Ct;
 import pl.poznan.put.structure.formats.DefaultDotBracket;
 
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 /**
  *
  */
@@ -14,6 +18,11 @@ public enum InputType {
     BPSEQ(StructureType.STRUCTURE_2D, ".bpseq"),
     CT(StructureType.STRUCTURE_2D, ".ct"),
     DOT_BRACKET(StructureType.STRUCTURE_2D, ".dbn");
+
+    public static final Set<InputType> SECONDARY_INPUT_TYPES = Arrays.stream(InputType.values())
+            .filter(inputType -> inputType.getStructureType() == StructureType.STRUCTURE_2D).collect(Collectors.toSet());
+    public static final Set<InputType> TERTIARY_INPUT_TYPES = Arrays.stream(InputType.values())
+            .filter(inputType -> inputType.getStructureType() == StructureType.STRUCTURE_3D).collect(Collectors.toSet());
 
     private final StructureType structureType;
     private final String fileExtension;

@@ -17,6 +17,7 @@ import pl.poznan.put.rnapdbee.engine.shared.converter.KnotRemoval;
 import pl.poznan.put.rnapdbee.engine.shared.converter.RNAStructure;
 import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.shared.domain.InputType;
+import pl.poznan.put.rnapdbee.engine.shared.domain.InputTypeDeterminer;
 import pl.poznan.put.rnapdbee.engine.shared.domain.ModelSelection;
 import pl.poznan.put.rnapdbee.engine.shared.domain.NonCanonicalHandling;
 import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementOutput;
@@ -50,6 +51,7 @@ public class TertiaryStructureAnalysisService {
     private final ImageService imageService;
     private final TertiaryFileParser tertiaryFileParser;
     private final RNAValidator rnaValidator;
+    private final InputTypeDeterminer inputTypeDeterminer;
 
     public Output3D analyze(ModelSelection modelSelection,
                             AnalysisTool analysisTool,
@@ -59,8 +61,9 @@ public class TertiaryStructureAnalysisService {
                             VisualizationTool visualizationTool,
                             String filename,
                             String fileContent) {
+        var inputType = inputTypeDeterminer.detectTertiaryInputTypeFromFileName(filename);
         return performAnalysis(modelSelection, analysisTool, nonCanonicalHandling, removeIsolated,
-                structuralElementsHandling, visualizationTool, filename, fileContent);
+                structuralElementsHandling, visualizationTool, inputType, fileContent);
     }
 
     private Output3D performAnalysis(ModelSelection modelSelection,
@@ -69,10 +72,9 @@ public class TertiaryStructureAnalysisService {
                                      boolean removeIsolated,
                                      StructuralElementsHandling structuralElementsHandling,
                                      VisualizationTool visualizationTool,
-                                     String filename,
+                                     InputType inputType,
                                      String fileContent) {
-        final List<? extends PdbModel> models = tertiaryFileParser
-                .parseFileContents(determineInputType(filename), fileContent);
+        final List<? extends PdbModel> models = tertiaryFileParser.parseFileContents(inputType, fileContent);
 
         final int modelsToBeProcessed = modelSelection == ModelSelection.FIRST
                 ? 1
@@ -203,16 +205,6 @@ public class TertiaryStructureAnalysisService {
                 .collect(Collectors.toList());
     }
 
-    // TODO: put this and the one from multi2D to new file.
-    private InputType determineInputType(String filename) {
-        for (InputType inputType : InputType.values()) {
-            if (filename.toLowerCase().contains(inputType.getFileExtension())) {
-                return inputType;
-            }
-        }
-        throw new IllegalArgumentException("unknown file extension provided");
-    }
-
     // TODO: using copied DP_NEW implementation from rnapdbee-common right now, change to MILP and remove whole
     //  pl.poznan.put.rnapdbee.engine.shared.converter package!!!
     private DotBracket convert(BpSeq bpSeq) {
@@ -268,11 +260,12 @@ public class TertiaryStructureAnalysisService {
     public TertiaryStructureAnalysisService(BasePairAnalyzerFactory basePairAnalyzerFactory,
                                             ImageService imageService,
                                             TertiaryFileParser tertiaryFileParser,
-                                            @Value("${templates.path}") String pathToTemplates) {
+                                            @Value("${templates.path}") String pathToTemplates, InputTypeDeterminer inputTypeDeterminer) {
         this.basePairAnalyzerFactory = basePairAnalyzerFactory;
         this.imageService = imageService;
         this.tertiaryFileParser = tertiaryFileParser;
         this.rnaValidator = new RNAValidator(loadTemplates(pathToTemplates));
+        this.inputTypeDeterminer = inputTypeDeterminer;
     }
 
     private Templates loadTemplates(String pathToTemplates) {
