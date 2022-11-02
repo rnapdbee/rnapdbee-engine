@@ -25,26 +25,42 @@ public class OutputMulti {
         return entries;
     }
 
-    public OutputMulti withEntries(List<OutputMultiEntry> entries) {
-        this.entries = entries;
-        return this;
-    }
-
     public String getTitle() {
         return title;
-    }
-
-    public OutputMulti withTitle(String title) {
-        this.title = title;
-        return this;
     }
 
     public ConsensualVisualization getConsensualVisualization() {
         return consensualVisualization;
     }
 
-    public OutputMulti withConsensualVisualization(ConsensualVisualization consensualVisualization) {
+    private OutputMulti(List<OutputMultiEntry> entries, String title, ConsensualVisualization consensualVisualization) {
+        this.entries = entries;
+        this.title = title;
         this.consensualVisualization = consensualVisualization;
-        return this;
+    }
+
+    public static class OutputMultiBuilder {
+        private List<OutputMultiEntry> entries;
+        private String title;
+        private ConsensualVisualization consensualVisualization;
+
+        public OutputMultiBuilder withEntries(List<OutputMultiEntry> entries) {
+            this.entries = entries;
+            return this;
+        }
+
+        public OutputMultiBuilder withTitle(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public OutputMultiBuilder withConsensualVisualization(ConsensualVisualization consensualVisualization) {
+            this.consensualVisualization = consensualVisualization;
+            return this;
+        }
+
+        public OutputMulti build() {
+            return new OutputMulti(entries, title, consensualVisualization);
+        }
     }
 }

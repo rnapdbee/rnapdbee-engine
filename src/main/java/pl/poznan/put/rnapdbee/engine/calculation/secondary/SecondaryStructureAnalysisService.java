@@ -78,7 +78,7 @@ public class SecondaryStructureAnalysisService {
 
         final List<AnalyzedBasePair> interStrands = analyzeInterStrandPairs(dotBracket);
 
-        return new Output2D()
+        return new Output2D.Output2DBuilder()
                 .withStructuralElement(StructuralElementOutput.ofStructuralElementsFinder(structuralElementFinder))
                 .withInteractions(interStrands.stream()
                         .map(interStrand -> interStrand.basePair().toString())
@@ -86,7 +86,8 @@ public class SecondaryStructureAnalysisService {
                 .withImageInformation(imageInformation)
                 .withStrandsFromDotBracket(dotBracket)
                 .withCtFromCt(ctFromCombined)
-                .withBpSeqFromBpSeqObject(bpSeqFromCombined);
+                .withBpSeqFromBpSeqObject(bpSeqFromCombined)
+                .build();
     }
 
     private List<AnalyzedBasePair> analyzeInterStrandPairs(final DotBracket combinedStrand) {

@@ -16,12 +16,12 @@ import java.util.stream.Collectors;
  */
 public class Output2D {
 
-    private List<SingleStrandOutput> strands;
-    private List<String> bpSeq;
-    private List<String> ct;
-    private List<String> interactions;
-    private StructuralElementOutput structuralElements;
-    private ImageInformationOutput imageInformation;
+    private final List<SingleStrandOutput> strands;
+    private final List<String> bpSeq;
+    private final List<String> ct;
+    private final List<String> interactions;
+    private final StructuralElementOutput structuralElements;
+    private final ImageInformationOutput imageInformation;
 
     public List<SingleStrandOutput> getStrands() {
         return strands;
@@ -47,52 +47,79 @@ public class Output2D {
         return imageInformation;
     }
 
-    public Output2D withStrands(List<SingleStrandOutput> strands) {
+    private Output2D(List<SingleStrandOutput> strands,
+                     List<String> bpSeq,
+                     List<String> ct,
+                     List<String> interactions,
+                     StructuralElementOutput structuralElements,
+                     ImageInformationOutput imageInformation) {
         this.strands = strands;
-        return this;
-    }
-
-    public Output2D withStrandsFromDotBracket(DotBracket dotBracket) {
-        return withStrands(dotBracket.strands().stream()
-                .map(SingleStrandOutput::ofStrand)
-                .collect(Collectors.toList()));
-    }
-
-    public Output2D withBpSeq(List<String> bpSeq) {
         this.bpSeq = bpSeq;
-        return this;
-    }
-
-    public Output2D withBpSeqFromBpSeqObject(BpSeq bpSeq) {
-        return withBpSeq(bpSeq.entries().stream()
-                .map(BpSeq.Entry::toString)
-                .collect(Collectors.toList()));
-    }
-
-    public Output2D withCt(List<String> ct) {
         this.ct = ct;
-        return this;
-    }
-
-    public Output2D withCtFromCt(Ct ct) {
-        return withCt(ct.entries().stream()
-                .map(Ct.ExtendedEntry::toString)
-                .collect(Collectors.toList()));
-    }
-
-    public Output2D withInteractions(List<String> interactions) {
         this.interactions = interactions;
-        return this;
-    }
-
-    public Output2D withStructuralElement(StructuralElementOutput structuralElements) {
         this.structuralElements = structuralElements;
-        return this;
+        this.imageInformation = imageInformation;
     }
 
-    public Output2D withImageInformation(ImageInformationOutput imageInformation) {
-        this.imageInformation = imageInformation;
-        return this;
+    public static class Output2DBuilder {
+
+        private List<SingleStrandOutput> strands;
+        private List<String> bpSeq;
+        private List<String> ct;
+        private List<String> interactions;
+        private StructuralElementOutput structuralElements;
+        private ImageInformationOutput imageInformation;
+
+        public Output2DBuilder withStrands(List<SingleStrandOutput> strands) {
+            this.strands = strands;
+            return this;
+        }
+
+        public Output2DBuilder withStrandsFromDotBracket(DotBracket dotBracket) {
+            return withStrands(dotBracket.strands().stream()
+                    .map(SingleStrandOutput::ofStrand)
+                    .collect(Collectors.toList()));
+        }
+
+        public Output2DBuilder withBpSeq(List<String> bpSeq) {
+            this.bpSeq = bpSeq;
+            return this;
+        }
+
+        public Output2DBuilder withBpSeqFromBpSeqObject(BpSeq bpSeq) {
+            return withBpSeq(bpSeq.entries().stream()
+                    .map(BpSeq.Entry::toString)
+                    .collect(Collectors.toList()));
+        }
+
+        public Output2DBuilder withCt(List<String> ct) {
+            this.ct = ct;
+            return this;
+        }
+
+        public Output2DBuilder withCtFromCt(Ct ct) {
+            return withCt(ct.entries().stream()
+                    .map(Ct.ExtendedEntry::toString)
+                    .collect(Collectors.toList()));
+        }
+
+        public Output2DBuilder withInteractions(List<String> interactions) {
+            this.interactions = interactions;
+            return this;
+        }
+
+        public Output2DBuilder withStructuralElement(StructuralElementOutput structuralElements) {
+            this.structuralElements = structuralElements;
+            return this;
+        }
+
+        public Output2DBuilder withImageInformation(ImageInformationOutput imageInformation) {
+            this.imageInformation = imageInformation;
+            return this;
+        }
+
+        public Output2D build() {
+            return new Output2D(strands, bpSeq, ct, interactions, structuralElements, imageInformation);
+        }
     }
-    // TODO refactor to builder pattern for consistency of Output2D, Output3D and OutputMulti
 }

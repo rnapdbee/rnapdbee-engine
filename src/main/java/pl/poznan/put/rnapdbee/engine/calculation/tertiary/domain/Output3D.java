@@ -16,15 +16,31 @@ public class Output3D {
         return models;
     }
 
-    public void setModels(List<SingleTertiaryModelOutput> models) {
-        this.models = models;
-    }
-
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
+    private Output3D(List<SingleTertiaryModelOutput> models, String title) {
+        this.models = models;
         this.title = title;
+    }
+
+    public static class Output3DBuilder {
+        private List<SingleTertiaryModelOutput> models;
+        private String title;
+
+        public Output3DBuilder withModels(List<SingleTertiaryModelOutput> models) {
+            this.models = models;
+            return this;
+        }
+
+        public Output3DBuilder withTitle(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public Output3D build() {
+            return new Output3D(models, title);
+        }
     }
 }

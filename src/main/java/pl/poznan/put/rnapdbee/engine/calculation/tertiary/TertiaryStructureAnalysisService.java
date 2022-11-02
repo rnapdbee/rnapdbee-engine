@@ -108,11 +108,10 @@ public class TertiaryStructureAnalysisService {
                 })
                 .collect(Collectors.toList());
 
-        final Output3D output3D = new Output3D();
-        output3D.setTitle(title.get());
-        output3D.setModels(results);
-
-        return output3D;
+        return new Output3D.Output3DBuilder()
+                .withModels(results)
+                .withTitle(title.get())
+                .build();
     }
 
     /**
@@ -170,12 +169,13 @@ public class TertiaryStructureAnalysisService {
                         structuralElementsHandling.isReuseSingleStrandsFromLoopsEnabled());
         structuralElementFinder.generatePdb(structureModel);
 
-        Output2D output2D = new Output2D()
+        Output2D output2D = new Output2D.Output2DBuilder()
                 .withImageInformation(image)
                 .withCtFromCt(ct)
                 .withBpSeqFromBpSeqObject(bpseq)
                 .withStructuralElement(StructuralElementOutput.ofStructuralElementsFinderAndCoordinates(
-                        structuralElementFinder, structuralElementFinder.getPdb()));
+                        structuralElementFinder, structuralElementFinder.getPdb()))
+                .build();
 
         return new SingleTertiaryModelOutput.Builder()
                 .withModelNumber(structureModel.modelNumber())
