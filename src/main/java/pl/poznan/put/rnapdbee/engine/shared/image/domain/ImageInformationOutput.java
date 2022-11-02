@@ -16,7 +16,7 @@ public class ImageInformationOutput {
     private VisualizationTool successfulVisualizationTool;
     @JsonProperty("failedVisualizationTool")
     private VisualizationTool failedVisualizationTool;
-    @JsonProperty
+    @JsonProperty("drawingResult")
     private DrawingResult drawingResult;
 
     public static ImageInformationOutput FAILED_INSTANCE = new ImageInformationOutput()

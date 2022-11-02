@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   description: "This is API of the engine service of RNApdbee v3.0."
-  version: "1.0.10"
+  version: "1.0.11"
   title: "RNApdbee Engine API"
 
 
@@ -242,6 +242,8 @@ components:
             $ref: "#/components/schemas/BPh"
           br:
             $ref: "#/components/schemas/BR"
+          stackingTopology:
+            $ref: "#/components/schemas/StackingTopology"
           leftResidue:
             $ref: "#/components/schemas/Residue"
           rightResidue:
@@ -282,7 +284,17 @@ components:
         - "output2D"
         - "adapterEnums"
 
-    Output2DEntry:
+    ConsensualVisualization:
+      type: "object"
+      properties:
+        pathToPngImage:
+          type: "string"
+          example: "/resources/tmp/RNApdbee5553721596686458067.png"
+        pathToSvgImage:
+          type: "string"
+          example: "/resources/tmp/RNApdbee5553721596686458067.svg"
+
+    Output2D:
       type: "object"
       properties:
         strands:
@@ -303,40 +315,19 @@ components:
         - "structuralElements"
         - "imageInformation"
 
-    ConsensualVisualization:
-      type: "object"
-      properties:
-        pathToPngImage:
-          type: "string"
-          example: "/resources/tmp/RNApdbee5553721596686458067.png"
-        pathToSvgImage:
-          type: "string"
-          example: "/resources/tmp/RNApdbee5553721596686458067.svg"
-
-    Output2D:
-      type: "object"
-      description: "Output2D object has currently list of Output2DEntry, which has always length of 1. Will be refactored in further version of API."
-      properties:
-        analysis:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Output2DEntry"
-      required:
-        - "analysis"
-
     ImageInformation:
       type: "object"
       properties:
-        pathToPNGImage:
+        svgFile:
           type: "string"
-          example: "/resources/tmp/RNApdbee7525567015472955018.png"
-        pathToSVGImage:
-          type: "string"
-          example: "/resources/tmp/RNApdbee2052380807386422791.svg"
-        successfulDrawer:
+          description: "base64-encoded SVG file"
+          example: "S29jaGFtIFBvbGl0ZWNobmlrxJkgUG96bmHFhHNrxIU="
+        successfulVisualizationTool:
           $ref: "#/components/schemas/VisualizationTool"
-        failedDrawer:
+        failedVisualizationTool:
           $ref: "#/components/schemas/VisualizationTool"
+        drawingResult:
+          $ref: "#/components/schemas/DrawingResult"
 
     BPSEQ:
       type: "array"
@@ -517,6 +508,10 @@ components:
     VisualizationTool:
       type: "string"
       enum: [ "VARNA", "PSEUDO_VIEWER", "R_CHIE", "RNA_GLIB", "FORNA", "RNA_PUZZLER", "RNA_TURTLE", "RNA_TRAVELER", "BARNABA", "NONE" ]
+
+    DrawingResult:
+      type: "string"
+      enum: [ "DONE_BY_MAIN_DRAWER", "DONE_BY_BACKUP_DRAWER", "FAILED_BY_BOTH_DRAWERS", "NOT_DRAWN" ]
 
 externalDocs:
   description: "Find out more about Swagger"
