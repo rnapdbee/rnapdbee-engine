@@ -30,10 +30,10 @@ import pl.poznan.put.structure.formats.ImmutableDefaultDotBracketFromPdb;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Service which purpose is to handle 3D -> Multi 2D analysis.
@@ -57,12 +57,12 @@ public class ConsensualStructureAnalysisService {
      * @param content             content of the analyzed file
      * @return output of the analysis
      */
-    public OutputMulti analyze(ModelSelection modelSelection,
-                               boolean includeNonCanonical,
-                               boolean removeIsolated,
-                               VisualizationTool visualizationTool,
-                               String filename,
-                               String content) {
+    public OutputMulti analyze(final ModelSelection modelSelection,
+                               final boolean includeNonCanonical,
+                               final boolean removeIsolated,
+                               final VisualizationTool visualizationTool,
+                               final String filename,
+                               final String content) {
         final var analyzerPairs = prepareAnalyzerPairs();
         final var inputType = inputTypeDeterminer.detectTertiaryInputTypeFromFileName(filename);
 
@@ -75,78 +75,85 @@ public class ConsensualStructureAnalysisService {
                 visualizationTool);
     }
 
-    // TODO: refactor to streams
     private OutputMulti findConsensus(
             final ModelSelection modelSelection,
             final InputType inputType,
             final String fileContents,
-            final Iterable<? extends Pair<AnalysisTool, BasePairAnalyzer>> analyzerPairs,
+            final Collection<? extends Pair<AnalysisTool, BasePairAnalyzer>> analyzerPairs,
             final boolean includeNonCanonical,
             final boolean removeIsolated,
-            VisualizationTool visualizationTool) {
-        String title = null;
+            final VisualizationTool visualizationTool) {
+        AtomicReference<String> title = new AtomicReference<>("");
 
         final List<? extends PdbModel> models = tertiaryFileParser.parseFileContents(inputType, fileContents);
 
-        if ((models.size() > 1) && (modelSelection == ModelSelection.FIRST)) {
-            models.retainAll(Collections.singletonList(models.get(0)));
-        }
+        final int modelsToBeProcessed = modelSelection == ModelSelection.FIRST
+                ? 1
+                : models.size();
 
         final Map<BpSeq, OutputMultiEntry> uniqueInputs = new LinkedHashMap<>();
-        for (final PdbModel model : models) {
-            if (!model.containsAny(MoleculeType.RNA)) {
-                continue;
-            }
-            final PdbModel rna = model.filteredNewInstance(MoleculeType.RNA);
-            title = rna.title();
-            final int modelNumber = rna.modelNumber();
-
-            for (final Pair<AnalysisTool, BasePairAnalyzer> analyzerPair : analyzerPairs) {
-
-                final AnalysisTool analyzerEnum = analyzerPair.getLeft();
-                final BasePairAnalyzer analyzer = analyzerPair.getRight();
-                final BasePairAnalysis analysisResults =
-                        analyzer.analyze(fileContents, includeNonCanonical, modelNumber);
-                if (removeIsolated) {
-                    analysisResults.removeIsolatedBasePairs(rna);
-                }
-
-                final List<AnalyzedBasePair> represented = analysisResults.getRepresented();
-                final BpSeq bpSeq = BpSeq.fromBasePairs(rna.namedResidueIdentifiers(), represented);
-
-                if (uniqueInputs.containsKey(bpSeq)) {
-                    final OutputMultiEntry bpSeqInfo = uniqueInputs.get(bpSeq);
-                    bpSeqInfo.getAdapterEnums().add(analyzerEnum);
-                    continue;
-                }
-
-                final Ct ct = Ct.fromBpSeqAndPdbModel(bpSeq, rna);
-                final DotBracket convertedDotBracket = convert(bpSeq);
-                final DotBracket dotBracketFromPdb = ImmutableDefaultDotBracketFromPdb
-                        .of(convertedDotBracket.sequence(), convertedDotBracket.structure(), rna);
-
-                final ImageInformationOutput imageInformation = imageService.visualizeCanonical(visualizationTool,
-                        dotBracketFromPdb);
-                final List<AnalysisTool> analyzerNames = new ArrayList<>();
-                analyzerNames.add(analyzerEnum);
-
-                final Output2D output2D = new Output2D()
-                        .withImageInformation(imageInformation)
-                        .withBpSeqFromBpSeqObject(bpSeq)
-                        .withStrandsFromDotBracket(dotBracketFromPdb)
-                        .withCtFromCt(ct);
-
-                final OutputMultiEntry outputMultiEntry = new OutputMultiEntry()
-                        .withOutput2D(output2D)
-                        .withAdapterEnums(analyzerNames);
-
-                uniqueInputs.put(bpSeq, outputMultiEntry);
-            }
-        }
+        models.stream()
+                .limit(modelsToBeProcessed)
+                .filter(pdbModel -> pdbModel.containsAny(MoleculeType.RNA))
+                .forEach(model -> {
+                    final PdbModel rna = model.filteredNewInstance(MoleculeType.RNA);
+                    title.set(rna.title());
+                    final int modelNumber = rna.modelNumber();
+                    analyzerPairs.forEach(analyzerPair -> performSingularAnalysis(analyzerPair, fileContents,
+                            includeNonCanonical, removeIsolated, visualizationTool, uniqueInputs, rna, modelNumber));
+                });
 
         return new OutputMulti()
                 .withEntries(new ArrayList<>(uniqueInputs.values()))
-                .withTitle(title);
+                .withTitle(title.get());
+    }
+
+    private void performSingularAnalysis(final Pair<AnalysisTool, BasePairAnalyzer> analyzerPair,
+                                         final String fileContents,
+                                         final boolean includeNonCanonical,
+                                         final boolean removeIsolated,
+                                         final VisualizationTool visualizationTool,
+                                         final Map<BpSeq, OutputMultiEntry> uniqueInputs,
+                                         final PdbModel rna,
+                                         final int modelNumber) {
+        final AnalysisTool analyzerEnum = analyzerPair.getLeft();
+        final BasePairAnalyzer analyzer = analyzerPair.getRight();
+        final BasePairAnalysis analysisResults =
+                analyzer.analyze(fileContents, includeNonCanonical, modelNumber);
+        if (removeIsolated) {
+            analysisResults.removeIsolatedBasePairs(rna);
+        }
+
+        final List<AnalyzedBasePair> represented = analysisResults.getRepresented();
+        final BpSeq bpSeq = BpSeq.fromBasePairs(rna.namedResidueIdentifiers(), represented);
+
+        if (uniqueInputs.containsKey(bpSeq)) {
+            final OutputMultiEntry bpSeqInfo = uniqueInputs.get(bpSeq);
+            bpSeqInfo.getAdapterEnums().add(analyzerEnum);
+            return;
+        }
+
+        final Ct ct = Ct.fromBpSeqAndPdbModel(bpSeq, rna);
+        final DotBracket convertedDotBracket = convert(bpSeq);
+        final DotBracket dotBracketFromPdb = ImmutableDefaultDotBracketFromPdb
+                .of(convertedDotBracket.sequence(), convertedDotBracket.structure(), rna);
+
+        final ImageInformationOutput imageInformation = imageService.visualizeCanonical(visualizationTool,
+                dotBracketFromPdb);
+        final List<AnalysisTool> analyzerNames = new ArrayList<>();
+        analyzerNames.add(analyzerEnum);
+
+        final Output2D output2D = new Output2D()
+                .withImageInformation(imageInformation)
+                .withBpSeqFromBpSeqObject(bpSeq)
+                .withStrandsFromDotBracket(dotBracketFromPdb)
+                .withCtFromCt(ct);
+
+        final OutputMultiEntry outputMultiEntry = new OutputMultiEntry()
+                .withOutput2D(output2D)
+                .withAdapterEnums(analyzerNames);
+
+        uniqueInputs.put(bpSeq, outputMultiEntry);
     }
 
     // TODO: using copied DP_NEW implementation from rnapdbee-common right now, change to MILP and remove whole
