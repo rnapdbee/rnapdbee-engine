@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Interface for classes that provide possibility to generate an SVG document from result of analysis.
+ */
 public interface SecondaryStructureDrawer {
     SVGDocument drawSecondaryStructure(DotBracket dotBracket)
             throws IOException;

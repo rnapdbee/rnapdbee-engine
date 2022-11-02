@@ -26,7 +26,7 @@ import pl.poznan.put.structure.formats.DotBracketFromPdb;
 import pl.poznan.put.structure.formats.Strand;
 import pl.poznan.put.utility.svg.SVGHelper;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,12 +36,101 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Implementation of SecondaryStructureDrawer using VARNA-based algorithm.
+ * <p>
+ * The implementation has been taken from RNApdbee 2.0.
+ */
 @Component
 public class DrawerVarnaTz implements SecondaryStructureDrawer {
 
     private final Logger logger;
 
     private final Color missingOutlineColor = new Color(222, 45, 38);
+
+    @Override
+    public final SVGDocument drawSecondaryStructure(final DotBracket dotBracket)
+            throws IOException {
+        final List<SVGDocument> svgs = new ArrayList<>();
+        for (final DotBracket combinedStrand : dotBracket.combineStrands()) {
+            svgs.add(drawStructure(combinedStrand));
+        }
+        return SVGHelper.merge(svgs);
+    }
+
+    @Override
+    public final SVGDocument drawSecondaryStructure(
+            final DotBracketFromPdb dotBracket,
+            final PdbModel structureModel,
+            final List<? extends ClassifiedBasePair> nonCanonicalBasePairs)
+            throws IOException {
+        final List<ClassifiedBasePair> availableNonCanonical =
+                nonCanonicalBasePairs.stream()
+                        .filter(ClassifiedBasePair::isPairing)
+                        .collect(Collectors.toList());
+        final List<DotBracketFromPdb> combinedStrands =
+                dotBracket.combineStrands(availableNonCanonical);
+
+        // prepare maps to distinguish non-canonical base pairs in different strands
+        final Map<PdbResidueIdentifier, DotBracket> residueToStrand = new HashMap<>();
+        final Map<PdbResidueIdentifier, Integer> residueToIndex = new HashMap<>();
+        for (final DotBracketFromPdb combinedStrand : combinedStrands) {
+            int i = 0;
+            for (final DotBracketSymbol symbol : combinedStrand.symbols()) {
+                final PdbResidueIdentifier identifier =
+                        PdbResidueIdentifier.from(combinedStrand.identifier(symbol));
+                residueToStrand.put(identifier, combinedStrand);
+                residueToIndex.put(identifier, i);
+                i += 1;
+            }
+        }
+
+        final List<SVGDocument> svgs = new ArrayList<>();
+        for (final DotBracket combinedStrand : combinedStrands) {
+            svgs.add(
+                    drawStructure(combinedStrand, availableNonCanonical, residueToStrand, residueToIndex));
+        }
+        return SVGHelper.merge(svgs);
+    }
+
+    @Override
+    public final SVGDocument drawSecondaryStructure(
+            final DotBracket dotBracket, final Map<DotBracketSymbol, Color> colorMap)
+            throws IOException {
+        final File tempFile = File.createTempFile("varna", ".svg");
+
+        try {
+            final VARNAConfig config = new VARNAConfig();
+            config._bondColor = Color.DARK_GRAY.brighter();
+            final RNA rna = new RNA(true);
+            rna.setRNA(dotBracket.sequence(), dotBracket.structure());
+
+            final List<DotBracketSymbol> symbols = dotBracket.symbols();
+            for (final Map.Entry<DotBracketSymbol, Color> entry : colorMap.entrySet()) {
+                final DotBracketSymbol symbol = entry.getKey();
+                final Color color = entry.getValue();
+                final int index = symbols.indexOf(symbol);
+                rna.getBaseAt(index).getStyleBase().setBaseInnerColor(color);
+            }
+
+            rna.drawRNANAView(config);
+            rna.saveRNASVG(tempFile.getAbsolutePath(), config);
+            return SVGHelper.fromFile(tempFile);
+        } catch (final ExceptionUnmatchedClosingParentheses
+                       | ExceptionWritingForbidden
+                       | ExceptionNAViewAlgorithm
+                       | ExceptionFileFormatOrSyntax e) {
+            throw new RuntimeException("Failed to draw secondary structure with VARNA", e);
+        } finally {
+            FileUtils.forceDelete(tempFile);
+        }
+    }
+
+    @Override
+    public final VisualizationTool getEnum() {
+        return VisualizationTool.VARNA;
+    }
+
 
     private void addNonCanonical(
             final DotBracket combinedStrand,
@@ -128,90 +217,6 @@ public class DrawerVarnaTz implements SecondaryStructureDrawer {
         }
         throw new IllegalArgumentException("Invalid argument: " + edge);
     }
-
-    @Override
-    public final SVGDocument drawSecondaryStructure(final DotBracket dotBracket)
-            throws IOException {
-        final List<SVGDocument> svgs = new ArrayList<>();
-        for (final DotBracket combinedStrand : dotBracket.combineStrands()) {
-            svgs.add(drawStructure(combinedStrand));
-        }
-        return SVGHelper.merge(svgs);
-    }
-
-    @Override
-    public final SVGDocument drawSecondaryStructure(
-            final DotBracketFromPdb dotBracket,
-            final PdbModel structureModel,
-            final List<? extends ClassifiedBasePair> nonCanonicalBasePairs)
-            throws IOException {
-        final List<ClassifiedBasePair> availableNonCanonical =
-                nonCanonicalBasePairs.stream()
-                        .filter(ClassifiedBasePair::isPairing)
-                        .collect(Collectors.toList());
-        final List<DotBracketFromPdb> combinedStrands =
-                dotBracket.combineStrands(availableNonCanonical);
-
-        // prepare maps to distinguish non-canonical base pairs in different strands
-        final Map<PdbResidueIdentifier, DotBracket> residueToStrand = new HashMap<>();
-        final Map<PdbResidueIdentifier, Integer> residueToIndex = new HashMap<>();
-        for (final DotBracketFromPdb combinedStrand : combinedStrands) {
-            int i = 0;
-            for (final DotBracketSymbol symbol : combinedStrand.symbols()) {
-                final PdbResidueIdentifier identifier =
-                        PdbResidueIdentifier.from(combinedStrand.identifier(symbol));
-                residueToStrand.put(identifier, combinedStrand);
-                residueToIndex.put(identifier, i);
-                i += 1;
-            }
-        }
-
-        final List<SVGDocument> svgs = new ArrayList<>();
-        for (final DotBracket combinedStrand : combinedStrands) {
-            svgs.add(
-                    drawStructure(combinedStrand, availableNonCanonical, residueToStrand, residueToIndex));
-        }
-        return SVGHelper.merge(svgs);
-    }
-
-    @Override
-    public final SVGDocument drawSecondaryStructure(
-            final DotBracket dotBracket, final Map<DotBracketSymbol, Color> colorMap)
-            throws IOException {
-        final File tempFile = File.createTempFile("varna", ".svg");
-
-        try {
-            final VARNAConfig config = new VARNAConfig();
-            config._bondColor = Color.DARK_GRAY.brighter();
-            final RNA rna = new RNA(true);
-            rna.setRNA(dotBracket.sequence(), dotBracket.structure());
-
-            final List<DotBracketSymbol> symbols = dotBracket.symbols();
-            for (final Map.Entry<DotBracketSymbol, Color> entry : colorMap.entrySet()) {
-                final DotBracketSymbol symbol = entry.getKey();
-                final Color color = entry.getValue();
-                final int index = symbols.indexOf(symbol);
-                rna.getBaseAt(index).getStyleBase().setBaseInnerColor(color);
-            }
-
-            rna.drawRNANAView(config);
-            rna.saveRNASVG(tempFile.getAbsolutePath(), config);
-            return SVGHelper.fromFile(tempFile);
-        } catch (final ExceptionUnmatchedClosingParentheses
-                       | ExceptionWritingForbidden
-                       | ExceptionNAViewAlgorithm
-                       | ExceptionFileFormatOrSyntax e) {
-            throw new RuntimeException("Failed to draw secondary structure with VARNA", e);
-        } finally {
-            FileUtils.forceDelete(tempFile);
-        }
-    }
-
-    @Override
-    public final VisualizationTool getEnum() {
-        return VisualizationTool.VARNA;
-    }
-
 
     private SVGDocument drawStructure(final DotBracket combinedStrand)
             throws IOException {
