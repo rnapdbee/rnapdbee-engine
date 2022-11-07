@@ -2,29 +2,28 @@ package pl.poznan.put.rnapdbee.engine.calculation.tertiary.validator;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 class AtomTemplate implements Serializable {
-    private List<String> atomNames = null;
-    private String templateAtomName = null;
-    private String originalAtomName = null;
+    private final List<String> atomNames;
+    private final String templateAtomName;
+    private final String originalAtomName;
 
     AtomTemplate(String atNames, String tAtomName) {
         originalAtomName = tAtomName;
         templateAtomName = tAtomName.trim();
-        atomNames = new ArrayList<String>();
+        atomNames = new ArrayList<>();
         String[] elems = atNames.split(",");
         if (elems.length > 0) {
-            for (String elem : elems) {
-                atomNames.add(elem);
-            }
+            Collections.addAll(atomNames, elems);
         }
     }
 
     boolean isProperAtomName(String atomName) {
         String name = atomName.trim().toUpperCase();
-        for (int i = 0; i < atomNames.size(); i++) {
-            if (name.equals(atomNames.get(i))) {
+        for (String s : atomNames) {
+            if (name.equals(s)) {
                 return true;
             }
         }
@@ -33,8 +32,8 @@ class AtomTemplate implements Serializable {
 
     boolean isPossiblyProperAtomName(String atomName) {
         String name = atomName.trim().toUpperCase();
-        for (int i = 0; i < atomNames.size(); i++) {
-            if (atomNames.get(i).indexOf(name) >= 0) {
+        for (String s : atomNames) {
+            if (s.contains(name)) {
                 return true;
             }
         }

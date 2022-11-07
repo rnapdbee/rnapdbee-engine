@@ -27,7 +27,7 @@ import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementsHandling;
  * Controller class for the Calculation API.
  */
 @RestController
-@RequestMapping("api/v1/calculation")
+@RequestMapping("calculation-api/v1/")
 public class CalculationController {
 
     private final Logger logger;

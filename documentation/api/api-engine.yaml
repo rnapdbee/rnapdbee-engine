@@ -11,18 +11,20 @@ tags:
     description: "RNApdbee engine API which is able to perform sequential calculations"
 
 servers:
-  - url: '{protocol}://{URL}/api/v1/calculation'
+  - url: '{protocol}://{URL}:{port}/calculation-api/v1/'
     variables:
       port:
         enum:
           - '8080'
           - '8081'
         default: '8080'
+      URL:
+        default: 'localhost'
       protocol:
         enum:
-          - http
-          - https
-        default: http
+          - 'http'
+          - 'https'
+        default: 'http'
 
 paths:
   /3d/:
