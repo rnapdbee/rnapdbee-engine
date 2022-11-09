@@ -7,15 +7,22 @@ import pl.poznan.put.structure.formats.Strand;
  */
 public class SingleStrandOutput {
 
-    private String name;
-    private String sequence;
-    private String structure;
+    private final String name;
+    private final String sequence;
+    private final String structure;
 
     public static SingleStrandOutput ofStrand(Strand strand) {
-        return new SingleStrandOutput()
+        return new SingleStrandOutputBuilder()
                 .withName(strand.name())
                 .withSequence(strand.sequence())
-                .withStructure(strand.structure());
+                .withStructure(strand.structure())
+                .build();
+    }
+
+    private SingleStrandOutput(String name, String sequence, String structure) {
+        this.name = name;
+        this.sequence = sequence;
+        this.structure = structure;
     }
 
     public String getName() {
@@ -30,18 +37,28 @@ public class SingleStrandOutput {
         return structure;
     }
 
-    public SingleStrandOutput withName(String name) {
-        this.name = name;
-        return this;
-    }
+    public static class SingleStrandOutputBuilder {
+        private String name;
+        private String sequence;
+        private String structure;
 
-    public SingleStrandOutput withSequence(String sequence) {
-        this.sequence = sequence;
-        return this;
-    }
+        public SingleStrandOutputBuilder withName(String name) {
+            this.name = name;
+            return this;
+        }
 
-    public SingleStrandOutput withStructure(String structure) {
-        this.structure = structure;
-        return this;
+        public SingleStrandOutputBuilder withSequence(String sequence) {
+            this.sequence = sequence;
+            return this;
+        }
+
+        public SingleStrandOutputBuilder withStructure(String structure) {
+            this.structure = structure;
+            return this;
+        }
+
+        public SingleStrandOutput build() {
+            return new SingleStrandOutput(name, sequence, structure);
+        }
     }
 }

@@ -55,10 +55,11 @@ class CalculationControllerTest {
     private final static List<String> MOCKED_SINGLE_STRANDS_5_P = List.of("2 3 uG .{ YR", "2 6 uGUGC .{[.( YRYRY");
     private final static List<String> MOCKED_SINGLE_STRANDS_3_P = List.of("387 390 UGUG )... YRYR", "418 421 UUUU ]... YYYY");
 
-    private final static SingleStrandOutput MOCKED_STRAND = new SingleStrandOutput()
+    private final static SingleStrandOutput MOCKED_STRAND = new SingleStrandOutput.SingleStrandOutputBuilder()
             .withName("A")
             .withSequence("sequence")
-            .withStructure("structure");
+            .withStructure("structure")
+            .build();
 
 
     @Test
