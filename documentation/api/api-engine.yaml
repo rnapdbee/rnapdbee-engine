@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   description: "This is API of the engine service of RNApdbee v3.0."
-  version: "1.0.11"
+  version: "1.0.12"
   title: "RNApdbee Engine API"
 
 
@@ -289,12 +289,10 @@ components:
     ConsensualVisualization:
       type: "object"
       properties:
-        pathToPngImage:
+        svgFile:
           type: "string"
-          example: "/resources/tmp/RNApdbee5553721596686458067.png"
-        pathToSvgImage:
-          type: "string"
-          example: "/resources/tmp/RNApdbee5553721596686458067.svg"
+          description: "base64-encoded SVG file"
+          example: "S29jaGFtIFBvbGl0ZWNobmlrxJkgUG96bmHFhHNrxIU="
 
     Output2D:
       type: "object"
