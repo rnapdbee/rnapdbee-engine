@@ -24,7 +24,7 @@ public class OpenApiConfiguration {
         return GroupedOpenApi.builder()
                 .group("Calculation controller")
                 .pathsToMatch("/**")
-                .packagesToScan("pl.poznan.put.rnapdbee.engine.calculation.control")
+                .packagesToScan("pl.poznan.put.rnapdbee.engine")
                 .build();
     }
 }
