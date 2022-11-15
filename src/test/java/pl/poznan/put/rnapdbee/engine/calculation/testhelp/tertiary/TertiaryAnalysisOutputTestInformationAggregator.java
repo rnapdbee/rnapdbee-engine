@@ -10,8 +10,7 @@ import java.util.List;
 
 public class TertiaryAnalysisOutputTestInformationAggregator implements ArgumentsAggregator {
 
-    // each entry has only 1 bpseq, 1 ct and 1 dot bracket which are aggregated.
-    private static final int NUMBER_OF_AGGREGATED_ARGUMENTS_FOR_EACH_MODEL = 14;
+    private static final int NUMBER_OF_AGGREGATED_ARGUMENTS_FOR_EACH_MODEL = 15;
 
     @Override
     public Object aggregateArguments(ArgumentsAccessor argumentsAccessor, ParameterContext parameterContext)
@@ -37,9 +36,10 @@ public class TertiaryAnalysisOutputTestInformationAggregator implements Argument
             int messagesSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 8);
             int canonicalInteractionsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 9);
             int nonCanonicalInteractionsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 10);
-            int stackingInteractionsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 11);
-            int basePhosphateInteractionsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 12);
-            int baseRiboseInteractionsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 13);
+            int interStrandInteractionsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 11);
+            int stackingInteractionsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 12);
+            int basePhosphateInteractionsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 13);
+            int baseRiboseInteractionsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 14);
 
             var tertiaryAnalysisOutputTestInformation = new TertiaryAnalysisOutputTestInformation()
                     .withBpSeqSize(bpSeqSize)
@@ -53,6 +53,7 @@ public class TertiaryAnalysisOutputTestInformationAggregator implements Argument
                     .withMessagesSize(messagesSize)
                     .withCanonicalInteractionsSize(canonicalInteractionsSize)
                     .withNonCanonicalInteractionsSize(nonCanonicalInteractionsSize)
+                    .withInterStrandInteractionsSize(interStrandInteractionsSize)
                     .withStackingInteractionsSize(stackingInteractionsSize)
                     .withBasePhosphateInteractionsSize(basePhosphateInteractionsSize)
                     .withBaseRiboseInteractionsSize(baseRiboseInteractionsSize);

@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   description: "This is API of the engine service of RNApdbee v3.0."
-  version: "1.0.10"
+  version: "1.0.12"
   title: "RNApdbee Engine API"
 
 
@@ -11,18 +11,20 @@ tags:
     description: "RNApdbee engine API which is able to perform sequential calculations"
 
 servers:
-  - url: '{protocol}://{URL}/api/v1/calculation'
+  - url: '{protocol}://{URL}:{port}/calculation-api/v1/'
     variables:
       port:
         enum:
           - '8080'
           - '8081'
         default: '8080'
+      URL:
+        default: 'localhost'
       protocol:
         enum:
-          - http
-          - https
-        default: http
+          - 'http'
+          - 'https'
+        default: 'http'
 
 paths:
   /3d/:
@@ -190,11 +192,11 @@ components:
       properties:
         title:
           type: "string"
-          description: "Title of the model taken from analysed pdb/mmcif file. Not every file contains the title."
+          description: "Title of the model taken from analyzed pdb/mmcif file. Not every file contains the title."
           example: "GLYCYL-TRNA(UCC)1B ANTICODON STEM-LOOP FROM STAPHYLOCOCCUS EPIDERMIDIS"
         models:
           type: "array"
-          description: "Analysed models."
+          description: "Analyzed models."
           items:
             $ref: "#/components/schemas/SingleTertiaryModelOutput"
       required:
@@ -242,6 +244,8 @@ components:
             $ref: "#/components/schemas/BPh"
           br:
             $ref: "#/components/schemas/BR"
+          stackingTopology:
+            $ref: "#/components/schemas/StackingTopology"
           leftResidue:
             $ref: "#/components/schemas/Residue"
           rightResidue:
@@ -282,7 +286,15 @@ components:
         - "output2D"
         - "adapterEnums"
 
-    Output2DEntry:
+    ConsensualVisualization:
+      type: "object"
+      properties:
+        svgFile:
+          type: "string"
+          description: "base64-encoded SVG file"
+          example: "S29jaGFtIFBvbGl0ZWNobmlrxJkgUG96bmHFhHNrxIU="
+
+    Output2D:
       type: "object"
       properties:
         strands:
@@ -303,40 +315,19 @@ components:
         - "structuralElements"
         - "imageInformation"
 
-    ConsensualVisualization:
-      type: "object"
-      properties:
-        pathToPngImage:
-          type: "string"
-          example: "/resources/tmp/RNApdbee5553721596686458067.png"
-        pathToSvgImage:
-          type: "string"
-          example: "/resources/tmp/RNApdbee5553721596686458067.svg"
-
-    Output2D:
-      type: "object"
-      description: "Output2D object has currently list of Output2DEntry, which has always length of 1. Will be refactored in further version of API."
-      properties:
-        analysis:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Output2DEntry"
-      required:
-        - "analysis"
-
     ImageInformation:
       type: "object"
       properties:
-        pathToPNGImage:
+        svgFile:
           type: "string"
-          example: "/resources/tmp/RNApdbee7525567015472955018.png"
-        pathToSVGImage:
-          type: "string"
-          example: "/resources/tmp/RNApdbee2052380807386422791.svg"
-        successfulDrawer:
+          description: "base64-encoded SVG file"
+          example: "S29jaGFtIFBvbGl0ZWNobmlrxJkgUG96bmHFhHNrxIU="
+        successfulVisualizationTool:
           $ref: "#/components/schemas/VisualizationTool"
-        failedDrawer:
+        failedVisualizationTool:
           $ref: "#/components/schemas/VisualizationTool"
+        drawingResult:
+          $ref: "#/components/schemas/DrawingResult"
 
     BPSEQ:
       type: "array"
@@ -517,6 +508,10 @@ components:
     VisualizationTool:
       type: "string"
       enum: [ "VARNA", "PSEUDO_VIEWER", "R_CHIE", "RNA_GLIB", "FORNA", "RNA_PUZZLER", "RNA_TURTLE", "RNA_TRAVELER", "BARNABA", "NONE" ]
+
+    DrawingResult:
+      type: "string"
+      enum: [ "DONE_BY_MAIN_DRAWER", "DONE_BY_BACKUP_DRAWER", "FAILED_BY_BOTH_DRAWERS", "NOT_DRAWN" ]
 
 externalDocs:
   description: "Find out more about Swagger"

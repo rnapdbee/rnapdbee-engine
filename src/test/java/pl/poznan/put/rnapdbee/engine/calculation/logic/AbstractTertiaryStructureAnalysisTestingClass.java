@@ -13,11 +13,12 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.web.reactive.function.client.WebClient;
-import pl.poznan.put.rnapdbee.engine.basepair.boundary.BPNetBasePairAnalyzer;
-import pl.poznan.put.rnapdbee.engine.basepair.boundary.BarnabaBasePairAnalyzer;
-import pl.poznan.put.rnapdbee.engine.basepair.boundary.MCAnnotateBasePairAnalyzer;
-import pl.poznan.put.rnapdbee.engine.basepair.boundary.RnaViewBasePairAnalyzer;
-import pl.poznan.put.rnapdbee.engine.basepair.webclient.AdapterWebClientConfiguration;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BPNetBasePairAnalyzer;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BarnabaBasePairAnalyzer;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.MCAnnotateBasePairAnalyzer;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BasePairAnalyzer;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.RnaViewBasePairAnalyzer;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.webclient.AdapterWebClientConfiguration;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -28,7 +29,7 @@ import java.util.function.Supplier;
 
 /**
  * Abstract testing Class mocking the calls to rnapdbee-adapters thanks to {@link MockWebServer}.
- * Overrides {@link pl.poznan.put.rnapdbee.engine.basepair.boundary.RNApdbeeAdapterBasePairAnalyzer} beans with beans that
+ * Overrides {@link BasePairAnalyzer} beans with beans that
  * depends on state of mockWebServer. Cleanup of those beans is assured by usage of {@link DirtiesContext} annotation.
  */
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)

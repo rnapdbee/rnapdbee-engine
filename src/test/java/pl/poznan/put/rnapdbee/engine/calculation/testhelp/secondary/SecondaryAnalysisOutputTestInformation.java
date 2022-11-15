@@ -63,11 +63,6 @@ public class SecondaryAnalysisOutputTestInformation {
         return this;
     }
 
-    public SecondaryAnalysisOutputTestInformation withDotBracketLength(int dotBracketLength) {
-        this.dotBracketLength = dotBracketLength;
-        return this;
-    }
-
     public SecondaryAnalysisOutputTestInformation withStrandsSize(int strandsSize) {
         this.strandsSize = strandsSize;
         return this;

@@ -1,7 +1,7 @@
 package pl.poznan.put.rnapdbee.engine.calculation.testhelp.tertiary;
 
-import pl.poznan.put.rnapdbee.engine.model.Output3D;
-import pl.poznan.put.rnapdbee.engine.model.SingleTertiaryModelOutput;
+import pl.poznan.put.rnapdbee.engine.calculation.tertiary.domain.Output3D;
+import pl.poznan.put.rnapdbee.engine.calculation.tertiary.domain.SingleTertiaryModelOutput;
 
 import java.util.List;
 
@@ -25,28 +25,28 @@ public class TertiaryAnalysisOutputTestUtils {
                                              TertiaryAnalysisOutputTestInformation expectedInformation) {
         assertAll("The sizes of analysis's information lists must be the same as expected",
                 () -> assertEquals(expectedInformation.getBpSeqSize(), singleTertiaryModelOutput.getOutput2D()
-                                .getAnalysis().get(0).getBpSeq().size(),
+                                .getBpSeq().size(),
                         "bpSeq size is incorrect"),
                 () -> assertEquals(expectedInformation.getCtSize(), singleTertiaryModelOutput.getOutput2D()
-                                .getAnalysis().get(0).getCt().size(),
+                                .getCt().size(),
                         "CT size is incorrect"),
                 () -> assertEquals(expectedInformation.getStructuralElementStemsSize(), singleTertiaryModelOutput
-                                .getOutput2D().getAnalysis().get(0).getStructuralElements().getStems().size(),
+                                .getOutput2D().getStructuralElements().getStems().size(),
                         "Structural Element's Stems size is incorrect"),
                 () -> assertEquals(expectedInformation.getStructuralElementSLoopsSize(), singleTertiaryModelOutput
-                                .getOutput2D().getAnalysis().get(0).getStructuralElements().getLoops().size(),
+                                .getOutput2D().getStructuralElements().getLoops().size(),
                         "Structural Element's Loops size is incorrect"),
                 () -> assertEquals(expectedInformation.getStructuralElementSingleStrandsSize(), singleTertiaryModelOutput
-                                .getOutput2D().getAnalysis().get(0).getStructuralElements().getSingleStrands().size(),
+                                .getOutput2D().getStructuralElements().getSingleStrands().size(),
                         "Structural Element's Single Strands size is incorrect"),
                 () -> assertEquals(expectedInformation.getStructuralElementSingleStrands5pSize(), singleTertiaryModelOutput
-                                .getOutput2D().getAnalysis().get(0).getStructuralElements().getSingleStrands5p().size(),
+                                .getOutput2D().getStructuralElements().getSingleStrands5p().size(),
                         "Structural Element's Single Strands 5p size is incorrect"),
                 () -> assertEquals(expectedInformation.getStructuralElementSingleStrands3pSize(), singleTertiaryModelOutput
-                                .getOutput2D().getAnalysis().get(0).getStructuralElements().getSingleStrands3p().size(),
+                                .getOutput2D().getStructuralElements().getSingleStrands3p().size(),
                         "Structural Element's Single Strands 3p size is incorrect"),
                 () -> assertEquals(expectedInformation.getCoordinatesLineLength(), singleTertiaryModelOutput
-                                .getOutput2D().getAnalysis().get(0).getStructuralElements().getCoordinates().length(),
+                                .getOutput2D().getStructuralElements().getCoordinates().length(),
                         "Length of coordinates (output pdb file) is incorrect"),
                 () -> assertEquals(expectedInformation.getMessagesSize(), singleTertiaryModelOutput
                                 .getMessages().size(),
@@ -57,6 +57,9 @@ public class TertiaryAnalysisOutputTestUtils {
                 () -> assertEquals(expectedInformation.getNonCanonicalInteractionsSize(), singleTertiaryModelOutput
                                 .getNonCanonicalInteractions().size(),
                         "Non-canonical interactions size is incorrect"),
+                () -> assertEquals(expectedInformation.getInterStrandInteractionsSize(), singleTertiaryModelOutput
+                                .getInterStrandInteractions().size(),
+                        "Inter strand interactions size is incorrect"),
                 () -> assertEquals(expectedInformation.getStackingInteractionsSize(), singleTertiaryModelOutput
                                 .getStackingInteractions().size(),
                         "Stacking interactions size is incorrect"),

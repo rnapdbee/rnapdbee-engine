@@ -2,16 +2,16 @@
 ### Currently the tests are checking if length of analysis's lists with parameters (bpseq, interactions...) is equal to expected lengths.
 ### It is possible to assert multiple analysis outputs - just provide new set of sizes (bpseq size, ct size etc.) at the end. The test is flexible and will assert sizes of multiple analysis outputs.
 # First test case
-USE_PSEUDOKNOTS,VARNA,2Z74.bpseq,true,152,152,0,152,1,8,13,6,1,1
+USE_PSEUDOKNOTS,VARNA,2Z74.bpseq,true,152,152,0,1,8,13,6,1,1
 # Second test case
-USE_PSEUDOKNOTS,VARNA,2Z74.bpseq,false,152,152,0,152,1,8,13,7,1,1
+USE_PSEUDOKNOTS,VARNA,2Z74.bpseq,false,152,152,0,1,8,13,7,1,1
 # Third test case
-USE_PSEUDOKNOTS,VARNA,3G78.ct,false,421,421,5,421,2,26,50,29,2,2
+USE_PSEUDOKNOTS,VARNA,3G78.ct,false,421,421,5,2,26,50,29,2,2
 # Fourth test case
-USE_PSEUDOKNOTS,VARNA,3G78.ct,true,421,421,5,421,2,26,41,25,2,1
+USE_PSEUDOKNOTS,VARNA,3G78.ct,true,421,421,5,2,26,41,25,2,1
 # Fifth test case
-USE_PSEUDOKNOTS,VARNA,3G78.dbn,false,421,421,5,421,2,26,49,29,2,3
+USE_PSEUDOKNOTS,VARNA,3G78.dbn,false,421,421,5,2,26,49,29,2,3
 # Add each new test case with hash at the beginning so we don't get lost in this file.
 # Sixth test case
-USE_PSEUDOKNOTS,VARNA,3G78.dbn,true,421,421,5,421,2,26,46,27,2,3
+USE_PSEUDOKNOTS,VARNA,3G78.dbn,true,421,421,5,2,26,46,27,2,3
 # Add each new test case with hash at the beginning so we don't get lost in this file.

@@ -4,15 +4,15 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.aggregator.AggregateWith;
 import org.junit.jupiter.params.provider.CsvFileSource;
-import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensual.ConsensualAnalysisTestInformation;
 import pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensual.ConsensualAnalysisTestInformationAggregator;
 import pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensual.ConsensualAnalysisTestUtils;
-import pl.poznan.put.rnapdbee.engine.image.model.VisualizationTool;
-import pl.poznan.put.rnapdbee.engine.model.ModelSelection;
+import pl.poznan.put.rnapdbee.engine.calculation.consensus.ConsensualStructureAnalysisService;
+import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
+import pl.poznan.put.rnapdbee.engine.shared.domain.ModelSelection;
 
 import java.util.List;
 
@@ -21,7 +21,6 @@ import java.util.List;
 class ConsensualStructureAnalysisServiceTest extends AbstractTertiaryStructureAnalysisTestingClass {
 
     @Autowired
-    @InjectMocks
     ConsensualStructureAnalysisService cut;
 
     @ParameterizedTest
@@ -30,10 +29,10 @@ class ConsensualStructureAnalysisServiceTest extends AbstractTertiaryStructureAn
     void testConsensualAnalysis(String exampleFilename, ModelSelection modelSelection, boolean includeNonCanonical,
                                 boolean removeIsolated, VisualizationTool visualizationTool,
                                 @AggregateWith(ConsensualAnalysisTestInformationAggregator.class)
-                               List<ConsensualAnalysisTestInformation> expectedInformationList) {
+                                List<ConsensualAnalysisTestInformation> expectedInformationList) {
         prepareMockWebServerStubs(exampleFilename);
         String fileContent = readFileContentFromFile(exampleFilename);
-        var result = cut.analyse(modelSelection, includeNonCanonical, removeIsolated, visualizationTool, exampleFilename, fileContent);
+        var result = cut.analyze(modelSelection, includeNonCanonical, removeIsolated, visualizationTool, exampleFilename, fileContent);
         // TODO: add assertions for adapterEnums when rnapdbee-common code is merged with rnapdbee-engine
         ConsensualAnalysisTestUtils.assertAnalysisOutput(result, expectedInformationList);
     }
