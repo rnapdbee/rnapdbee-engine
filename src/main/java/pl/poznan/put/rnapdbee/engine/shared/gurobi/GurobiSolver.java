@@ -7,8 +7,11 @@ import gurobi.GRBLinExpr;
 import gurobi.GRBModel;
 import gurobi.GRBVar;
 import pl.poznan.put.structure.formats.BpSeq;
+import pl.poznan.put.structure.formats.DefaultDotBracket;
+import pl.poznan.put.structure.formats.DotBracket;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -59,7 +62,7 @@ public class GurobiSolver {
                                 .mapToObj(bracketIndex -> {
                                     String name = String.format("n_%s_t_%s", integer, bracketIndex);
                                     try {
-                                        return model.addVar(0.0, 1.0, 1.0, GRB.BINARY, name);
+                                        return model.addVar(0.0, 1.0, 0.0, GRB.BINARY, name);
                                     } catch (GRBException e) {
                                         throw new RuntimeException(e);
                                     }
@@ -77,6 +80,7 @@ public class GurobiSolver {
                     }
                 }
                 model.setObjective(expr, GRB.MAXIMIZE);
+
 
                 /* create each arc one type constraint */
                 for (int i = 0; i < component.size(); ++i) {
@@ -105,11 +109,43 @@ public class GurobiSolver {
                 }
                 model.optimize();
 
+                // set bracketing
+                for (int i = 0; i < component.size(); ++i) {
+                    for (int j = 0; j < MAX_BRACKET; ++j) {
+                        if (variables.get(i * MAX_BRACKET + j).get(GRB.DoubleAttr.X) != 0.0) {
+                            intervalGraph.getNodes().get(component.get(i)).setBracketing(j);
+                        }
+                    }
+                }
+
                 /* free the resources */
                 model.dispose();
                 env.dispose();
             }
+            // create bracketing
+            char[] bracketing = new char[TEST_BP_SEQ.size()];
+            Arrays.fill(bracketing, '.');
+            for (Node node : intervalGraph.getNodes()) {
+                for (int i = 0; i < node.weight; i++) {
+                    bracketing[node.start + i] = getStartingBracket(node.bracketing);
+                    bracketing[node.end - i] = getEndingBracket(node.bracketing);
+                }
+            }
 
+            // print bracketing
+            System.out.println(">strand");
+            TEST_BP_SEQ.entries().forEach(entry -> System.out.print(entry.seq()));
+            System.out.println();
+            System.out.println(bracketing);
+
+            StringBuilder dotBracketBuilder = new StringBuilder();
+            dotBracketBuilder.append(">strand\n");
+            TEST_BP_SEQ.entries().forEach(entry -> dotBracketBuilder.append(entry.seq()));
+            dotBracketBuilder.append("\n");
+            dotBracketBuilder.append(bracketing);
+            dotBracketBuilder.append("\n");
+            // TODO: return dotBracket
+            DotBracket dotBracket = DefaultDotBracket.fromString(dotBracketBuilder.toString());
 
         } catch (GRBException e) {
             System.out.println("Error code: " + e.getErrorCode() + ". " +
@@ -130,141 +166,81 @@ public class GurobiSolver {
         });
     }
 
-    private static final BpSeq TEST_BP_SEQ = BpSeq.fromString("1 c 69\n" +
-            "2 U 0\n" +
-            "3 G 68\n" +
-            "4 A 67\n" +
-            "5 C 0\n" +
-            "6 U 65\n" +
-            "7 A 64\n" +
-            "8 U 0\n" +
-            "9 G 0\n" +
-            "10 U 0\n" +
-            "11 G 0\n" +
-            "12 A 0\n" +
-            "13 U 0\n" +
-            "14 C 59\n" +
-            "15 U 58\n" +
-            "16 U 56\n" +
-            "17 A 55\n" +
-            "18 U 54\n" +
-            "19 U 0\n" +
-            "20 A 0\n" +
-            "21 A 51\n" +
-            "22 A 50\n" +
-            "23 A 49\n" +
-            "24 U 48\n" +
-            "25 U 47\n" +
-            "26 A 46\n" +
-            "27 G 45\n" +
-            "28 G 29\n" +
-            "29 U 28\n" +
-            "30 U 0\n" +
-            "31 A 0\n" +
-            "32 A 0\n" +
-            "33 A 0\n" +
-            "34 c 0\n" +
-            "35 G 0\n" +
-            "36 A 0\n" +
-            "37 G 0\n" +
-            "38 G 0\n" +
-            "39 U 0\n" +
-            "40 U 0\n" +
-            "41 A 0\n" +
-            "42 A 0\n" +
-            "43 A 0\n" +
-            "44 A 0\n" +
-            "45 A 27\n" +
-            "46 U 26\n" +
-            "47 A 25\n" +
-            "48 G 24\n" +
-            "49 U 23\n" +
-            "50 U 22\n" +
-            "51 U 21\n" +
-            "52 U 0\n" +
-            "53 A 0\n" +
-            "54 A 18\n" +
-            "55 U 17\n" +
-            "56 A 16\n" +
-            "57 U 0\n" +
-            "58 U 15\n" +
-            "59 G 14\n" +
-            "60 C 0\n" +
-            "61 U 0\n" +
-            "62 A 0\n" +
-            "63 U 0\n" +
-            "64 A 7\n" +
-            "65 G 6\n" +
-            "66 U 0\n" +
-            "67 a 4\n" +
-            "68 G 3\n" +
-            "69 A 1\n" +
-            "70 G 102\n" +
-            "71 G 101\n" +
-            "72 U 100\n" +
-            "73 C 99\n" +
-            "74 U 98\n" +
-            "75 U 84\n" +
-            "76 G 83\n" +
-            "77 C 82\n" +
-            "78 G 81\n" +
-            "79 A 0\n" +
-            "80 A 0\n" +
-            "81 A 78\n" +
-            "82 G 77\n" +
-            "83 C 76\n" +
-            "84 U 75\n" +
-            "85 U 124\n" +
-            "86 A 93\n" +
-            "87 C 0\n" +
-            "88 C 0\n" +
-            "89 A 128\n" +
-            "90 C 127\n" +
-            "91 A 125\n" +
-            "92 C 0\n" +
-            "93 A 86\n" +
-            "94 A 123\n" +
-            "95 G 122\n" +
-            "96 A 121\n" +
-            "97 U 120\n" +
-            "98 G 74\n" +
-            "99 G 73\n" +
-            "100 A 72\n" +
-            "101 C 71\n" +
-            "102 C 70\n" +
-            "103 G 116\n" +
-            "104 G 115\n" +
-            "105 A 0\n" +
-            "106 G 113\n" +
-            "107 C 112\n" +
-            "108 G 111\n" +
-            "109 A 0\n" +
-            "110 A 0\n" +
-            "111 A 108\n" +
-            "112 G 107\n" +
-            "113 C 106\n" +
-            "114 U 0\n" +
-            "115 C 104\n" +
-            "116 C 103\n" +
-            "117 A 0\n" +
-            "118 A 0\n" +
-            "119 U 0\n" +
-            "120 A 97\n" +
-            "121 U 96\n" +
-            "122 C 95\n" +
-            "123 U 94\n" +
-            "124 A 85\n" +
-            "125 G 91\n" +
-            "126 U 0\n" +
-            "127 G 90\n" +
-            "128 U 89\n" +
-            "129 A 0\n" +
-            "130 C 0\n" +
-            "131 C 0\n" +
-            "132 C 0\n" +
-            "133 U 0\n" +
-            "134 C 0\n" +
-            "135 G 0\n");
+    private static final BpSeq TEST_BP_SEQ = BpSeq.fromString(
+            "1 g 70\n" +
+                    "2 C 69\n" +
+                    "3 G 68\n" +
+                    "4 C 67\n" +
+                    "5 C 66\n" +
+                    "6 G 65\n" +
+                    "7 C 64\n" +
+                    "8 U 14\n" +
+                    "9 G 0\n" +
+                    "10 G 24\n" +
+                    "11 U 23\n" +
+                    "12 G 22\n" +
+                    "13 U 21\n" +
+                    "14 A 8\n" +
+                    "15 G 46\n" +
+                    "16 U 57\n" +
+                    "17 G 53\n" +
+                    "18 G 54\n" +
+                    "19 U 0\n" +
+                    "20 A 0\n" +
+                    "21 U 13\n" +
+                    "22 C 12\n" +
+                    "23 A 11\n" +
+                    "24 U 10\n" +
+                    "25 G 43\n" +
+                    "26 C 42\n" +
+                    "27 A 41\n" +
+                    "28 A 40\n" +
+                    "29 G 39\n" +
+                    "30 A 38\n" +
+                    "31 U 37\n" +
+                    "32 U 0\n" +
+                    "33 C 0\n" +
+                    "34 C 0\n" +
+                    "35 C 0\n" +
+                    "36 A 0\n" +
+                    "37 U 31\n" +
+                    "38 U 30\n" +
+                    "39 C 29\n" +
+                    "40 U 28\n" +
+                    "41 U 27\n" +
+                    "42 G 26\n" +
+                    "43 C 25\n" +
+                    "44 G 0\n" +
+                    "45 A 0\n" +
+                    "46 C 15\n" +
+                    "47 C 63\n" +
+                    "48 C 62\n" +
+                    "49 G 61\n" +
+                    "50 G 60\n" +
+                    "51 G 59\n" +
+                    "52 U 56\n" +
+                    "53 U 17\n" +
+                    "54 C 18\n" +
+                    "55 G 0\n" +
+                    "56 A 52\n" +
+                    "57 U 16\n" +
+                    "58 U 0\n" +
+                    "59 C 51\n" +
+                    "60 C 50\n" +
+                    "61 C 49\n" +
+                    "62 G 48\n" +
+                    "63 G 47\n" +
+                    "64 G 7\n" +
+                    "65 C 6\n" +
+                    "66 G 5\n" +
+                    "67 G 4\n" +
+                    "68 C 3\n" +
+                    "69 G 2\n" +
+                    "70 C 1\n" +
+                    "71 A 0\n" +
+                    "72 C 0\n" +
+                    "73 C 0\n" +
+                    "74 A 0\n");
 
     private static class Node {
         private int id;
@@ -355,14 +331,14 @@ public class GurobiSolver {
             int bpseqSize = bpseq.size();
             for (int i = 0; i < bpseqSize; i++) {
                 /* Arc merging */
-                while (i < bpseqSize && (entries.get(i).pair() == -1 || (entries.get(i).pair() != -1 && entries.get(i).pair() < i))) {
+                while (i < bpseqSize && (entries.get(i).pair() - 1 == -1 || (entries.get(i).pair() - 1 != -1 && entries.get(i).pair() - 1 < i))) {
                     i++;
                 }
                 if (i >= bpseqSize) break;
                 int j = i;
-                while ((j < bpseqSize) && (entries.get(j + 1).pair() != -1) && (entries.get(j).pair() == (entries.get(j + 1).pair() + 1)))
+                while ((j < bpseqSize) && (entries.get(j + 1).pair() - 1 != -1) && (entries.get(j).pair() - 1 == (entries.get(j + 1).pair() - 1 + 1)))
                     j++;
-                nodes.add(new Node(nodeNum++, i, entries.get(i).pair(), j - i + 1));
+                nodes.add(new Node(nodeNum++, i, entries.get(i).pair() - 1, j - i + 1));
                 i = j;
 
             /* No arc merging
@@ -400,5 +376,57 @@ public class GurobiSolver {
         public int getNodeNum() {
             return nodeNum;
         }
+    }
+
+    static char getStartingBracket(int i) {
+        switch (i) {
+            case 0:
+                return '(';
+            case 1:
+                return '[';
+            case 2:
+                return '{';
+            case 3:
+                return '<';
+            case 4:
+                return 'A';
+            case 5:
+                return 'B';
+            case 6:
+                return 'C';
+            case 7:
+                return 'D';
+            case 8:
+                return 'E';
+            case 9:
+                return 'F';
+        }
+        return 'Z';
+    }
+
+    static char getEndingBracket(int i) {
+        switch (i) {
+            case 0:
+                return ')';
+            case 1:
+                return ']';
+            case 2:
+                return '}';
+            case 3:
+                return '>';
+            case 4:
+                return 'a';
+            case 5:
+                return 'b';
+            case 6:
+                return 'c';
+            case 7:
+                return 'd';
+            case 8:
+                return 'e';
+            case 9:
+                return 'f';
+        }
+        return 'z';
     }
 }
