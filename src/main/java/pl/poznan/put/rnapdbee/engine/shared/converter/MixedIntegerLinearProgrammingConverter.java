@@ -1,4 +1,4 @@
-package pl.poznan.put.rnapdbee.engine.shared.gurobi;
+package pl.poznan.put.rnapdbee.engine.shared.converter;
 
 import gurobi.GRB;
 import gurobi.GRBEnv;
@@ -6,7 +6,9 @@ import gurobi.GRBException;
 import gurobi.GRBLinExpr;
 import gurobi.GRBModel;
 import gurobi.GRBVar;
+import org.springframework.stereotype.Service;
 import pl.poznan.put.structure.formats.BpSeq;
+import pl.poznan.put.structure.formats.Converter;
 import pl.poznan.put.structure.formats.DefaultDotBracket;
 import pl.poznan.put.structure.formats.DotBracket;
 
@@ -18,16 +20,20 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-
-public class GurobiSolver {
+/**
+ * Class implementing converting BpSeq structure into DotBracket structure using Mixed Integer Linear Programming approach.
+ * The implementation is written with Gurobi optimizer.
+ */
+@Service
+public class MixedIntegerLinearProgrammingConverter implements Converter {
 
     static int[] WEIGTHS = {10, -1, -2, -3, -4, -5, -6, -7, -8, -9};
     static int MAX_BRACKET = 10;
 
-    public static void main(String[] args) {
-        IntervalGraph intervalGraph = new IntervalGraph(TEST_BP_SEQ);
+    @Override
+    public DotBracket convert(BpSeq bpSeq) {
         try {
-
+            IntervalGraph intervalGraph = new IntervalGraph(bpSeq);
             List<Integer> component = new ArrayList<>();
             int[] position = new int[intervalGraph.getNodeNum()];
             HashSet<Integer> visited = new HashSet<>();
@@ -123,7 +129,7 @@ public class GurobiSolver {
                 env.dispose();
             }
             // create bracketing
-            char[] bracketing = new char[TEST_BP_SEQ.size()];
+            char[] bracketing = new char[bpSeq.size()];
             Arrays.fill(bracketing, '.');
             for (Node node : intervalGraph.getNodes()) {
                 for (int i = 0; i < node.weight; i++) {
@@ -132,24 +138,18 @@ public class GurobiSolver {
                 }
             }
 
-            // print bracketing
-            System.out.println(">strand");
-            TEST_BP_SEQ.entries().forEach(entry -> System.out.print(entry.seq()));
-            System.out.println();
-            System.out.println(bracketing);
-
             StringBuilder dotBracketBuilder = new StringBuilder();
             dotBracketBuilder.append(">strand\n");
-            TEST_BP_SEQ.entries().forEach(entry -> dotBracketBuilder.append(entry.seq()));
+            bpSeq.entries().forEach(entry -> dotBracketBuilder.append(entry.seq()));
             dotBracketBuilder.append("\n");
             dotBracketBuilder.append(bracketing);
             dotBracketBuilder.append("\n");
-            // TODO: return dotBracket
-            DotBracket dotBracket = DefaultDotBracket.fromString(dotBracketBuilder.toString());
 
+            return DefaultDotBracket.fromString(dotBracketBuilder.toString());
         } catch (GRBException e) {
             System.out.println("Error code: " + e.getErrorCode() + ". " +
                     e.getMessage());
+            throw new RuntimeException();
         }
     }
 
@@ -165,82 +165,6 @@ public class GurobiSolver {
             }
         });
     }
-
-    private static final BpSeq TEST_BP_SEQ = BpSeq.fromString(
-            "1 g 70\n" +
-                    "2 C 69\n" +
-                    "3 G 68\n" +
-                    "4 C 67\n" +
-                    "5 C 66\n" +
-                    "6 G 65\n" +
-                    "7 C 64\n" +
-                    "8 U 14\n" +
-                    "9 G 0\n" +
-                    "10 G 24\n" +
-                    "11 U 23\n" +
-                    "12 G 22\n" +
-                    "13 U 21\n" +
-                    "14 A 8\n" +
-                    "15 G 46\n" +
-                    "16 U 57\n" +
-                    "17 G 53\n" +
-                    "18 G 54\n" +
-                    "19 U 0\n" +
-                    "20 A 0\n" +
-                    "21 U 13\n" +
-                    "22 C 12\n" +
-                    "23 A 11\n" +
-                    "24 U 10\n" +
-                    "25 G 43\n" +
-                    "26 C 42\n" +
-                    "27 A 41\n" +
-                    "28 A 40\n" +
-                    "29 G 39\n" +
-                    "30 A 38\n" +
-                    "31 U 37\n" +
-                    "32 U 0\n" +
-                    "33 C 0\n" +
-                    "34 C 0\n" +
-                    "35 C 0\n" +
-                    "36 A 0\n" +
-                    "37 U 31\n" +
-                    "38 U 30\n" +
-                    "39 C 29\n" +
-                    "40 U 28\n" +
-                    "41 U 27\n" +
-                    "42 G 26\n" +
-                    "43 C 25\n" +
-                    "44 G 0\n" +
-                    "45 A 0\n" +
-                    "46 C 15\n" +
-                    "47 C 63\n" +
-                    "48 C 62\n" +
-                    "49 G 61\n" +
-                    "50 G 60\n" +
-                    "51 G 59\n" +
-                    "52 U 56\n" +
-                    "53 U 17\n" +
-                    "54 C 18\n" +
-                    "55 G 0\n" +
-                    "56 A 52\n" +
-                    "57 U 16\n" +
-                    "58 U 0\n" +
-                    "59 C 51\n" +
-                    "60 C 50\n" +
-                    "61 C 49\n" +
-                    "62 G 48\n" +
-                    "63 G 47\n" +
-                    "64 G 7\n" +
-                    "65 C 6\n" +
-                    "66 G 5\n" +
-                    "67 G 4\n" +
-                    "68 C 3\n" +
-                    "69 G 2\n" +
-                    "70 C 1\n" +
-                    "71 A 0\n" +
-                    "72 C 0\n" +
-                    "73 C 0\n" +
-                    "74 A 0\n");
 
     private static class Node {
         private int id;
@@ -307,21 +231,6 @@ public class GurobiSolver {
         List<Set<Integer>> edges;
         int nodeNum;
 
-//        void print(){
-//            cout << "Nodes:" << endl;
-//            for(auto n : nodes){
-//                cout << n.id << " " << n.start << " " << n.end << " " << n.weight << endl;
-//            }
-//            cout << "Edges:" << endl;
-//            for(int i = 0; i < edges.size(); ++i){
-//                cout << i << ": ";
-//                for(auto e : edges[i]){
-//                    cout << e << " ";
-//                }
-//                cout << endl;
-//            }
-//        }
-
         // TODO: rewrite to static factory method instead of constructor, clean up
         IntervalGraph(BpSeq bpseq) {
             nodes = new ArrayList<>();
@@ -340,12 +249,6 @@ public class GurobiSolver {
                     j++;
                 nodes.add(new Node(nodeNum++, i, entries.get(i).pair() - 1, j - i + 1));
                 i = j;
-
-            /* No arc merging
-            if(bpseq.pair[i] != -1 && bpseq.pair[i] > i){
-                nodes.push_back(Node(node_num++, i, bpseq.pair[i], 1));
-            }
-            */
             }
 
             /* Add edges **/
