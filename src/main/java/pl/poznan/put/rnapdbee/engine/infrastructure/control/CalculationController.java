@@ -126,7 +126,7 @@ public class CalculationController {
     @Operation(summary = "Perform a 3D to multi 2D calculation")
     @PostMapping(path = "/multi", produces = "application/json", consumes = "text/plain")
     public ResponseEntity<Object> calculateTertiaryToMultiSecondary(
-            @RequestParam("modelSelection") ModelSelection modelSelection,
+            @RequestParam(value = "modelSelection", defaultValue = "FIRST") ModelSelection modelSelection,
             @RequestParam("includeNonCanonical") boolean includeNonCanonical,
             @RequestParam("removeIsolated") boolean removeIsolated,
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
