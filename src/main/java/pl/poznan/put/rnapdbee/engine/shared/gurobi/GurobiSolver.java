@@ -1,19 +1,25 @@
 package pl.poznan.put.rnapdbee.engine.shared.gurobi;
 
+import gurobi.GRB;
 import gurobi.GRBEnv;
 import gurobi.GRBException;
+import gurobi.GRBLinExpr;
 import gurobi.GRBModel;
+import gurobi.GRBVar;
 import pl.poznan.put.structure.formats.BpSeq;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 
 public class GurobiSolver {
 
     static int[] WEIGTHS = {10, -1, -2, -3, -4, -5, -6, -7, -8, -9};
+    static int MAX_BRACKET = 10;
 
     public static void main(String[] args) {
         IntervalGraph intervalGraph = new IntervalGraph(TEST_BP_SEQ);
@@ -23,24 +29,22 @@ public class GurobiSolver {
             int[] position = new int[intervalGraph.getNodeNum()];
             HashSet<Integer> visited = new HashSet<>();
 
-            for (int i = 0; i < intervalGraph.getNodeNum(); ++i) {
+            for (int nodeIndex = 0; nodeIndex < intervalGraph.getNodeNum(); ++nodeIndex) {
 
-                if (visited.contains(i)) {
+                if (visited.contains(nodeIndex)) {
                     continue;
                 }
 
-                if (intervalGraph.edges.get(i).size() == 0) {
-                    visited.add(i);
-                    intervalGraph.nodes.get(i).setBracketing(0);
+                if (intervalGraph.edges.get(nodeIndex).size() == 0) {
+                    visited.add(nodeIndex);
+                    intervalGraph.nodes.get(nodeIndex).setBracketing(0);
                     continue;
                 }
 
-                if (!visited.contains(i)) {
-                    depthFirstSearch(i, intervalGraph, visited, component);
-                }
+                depthFirstSearch(nodeIndex, intervalGraph, visited, component);
 
-                for (int j = 0; j < component.size(); j++) {
-                    position[component.get(j)] = j;
+                for (int componentIndex = 0; componentIndex < component.size(); componentIndex++) {
+                    position[component.get(componentIndex)] = componentIndex;
                 }
 
                 System.out.println("start gurobi");
@@ -48,6 +52,62 @@ public class GurobiSolver {
                 env.set("logFile", "mip1.log");
                 env.start();
                 GRBModel model = new GRBModel(env);
+
+                /* create variables */
+                List<GRBVar> variables = component.stream()
+                        .flatMap(integer -> IntStream.range(0, MAX_BRACKET)
+                                .mapToObj(bracketIndex -> {
+                                    String name = String.format("n_%s_t_%s", integer, bracketIndex);
+                                    try {
+                                        return model.addVar(0.0, 1.0, 1.0, GRB.BINARY, name);
+                                    } catch (GRBException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }))
+                        .collect(Collectors.toList());
+
+                /* create objective function */
+                GRBLinExpr expr = new GRBLinExpr();
+                for (int i = 0; i < component.size(); ++i) {
+                    for (int j = 0; j < MAX_BRACKET; ++j) {
+                        GRBVar correspondingVariable = variables.get(i * MAX_BRACKET + j);
+                        expr.addTerm(
+                                WEIGTHS[j] * intervalGraph.getNodes().get(component.get(i)).weight,
+                                correspondingVariable);
+                    }
+                }
+                model.setObjective(expr, GRB.MAXIMIZE);
+
+                /* create each arc one type constraint */
+                for (int i = 0; i < component.size(); ++i) {
+                    GRBLinExpr constraintExpression = new GRBLinExpr();
+                    String name = String.format("c_arc_type_%s", i);
+                    for (int j = 0; j < MAX_BRACKET; ++j) {
+                        GRBVar correspondingVariable = variables.get(i * MAX_BRACKET + j);
+                        constraintExpression.addTerm(1.0, correspondingVariable);
+                    }
+                    model.addConstr(constraintExpression, GRB.EQUAL, 1.0, name);
+                }
+
+                /* create arcs can not cross constraint */
+                for (int i = 0; i < component.size(); ++i) {
+                    for (int k = 0; k < MAX_BRACKET; k++) {
+                        for (int j : intervalGraph.getEdges().get(component.get(i))) {
+                            String name = String.format("c_arc_cross_%s_%s_t_%s", i, j, k);
+                            GRBVar firstArc = variables.get(i * MAX_BRACKET + k);
+                            GRBVar secondArc = variables.get(position[j] * MAX_BRACKET + k);
+                            GRBLinExpr constraintExpression = new GRBLinExpr();
+                            constraintExpression.addTerm(1.0, firstArc);
+                            constraintExpression.addTerm(1.0, secondArc);
+                            model.addConstr(constraintExpression, GRB.LESS_EQUAL, 1.0, name);
+                        }
+                    }
+                }
+                model.optimize();
+
+                /* free the resources */
+                model.dispose();
+                env.dispose();
             }
 
 
@@ -261,9 +321,8 @@ public class GurobiSolver {
             return bracketing;
         }
 
-        public Node setBracketing(int bracketing) {
+        public void setBracketing(int bracketing) {
             this.bracketing = bracketing;
-            return this;
         }
     }
 
@@ -271,7 +330,6 @@ public class GurobiSolver {
         List<Node> nodes;
         List<Set<Integer>> edges;
         int nodeNum;
-
 
 //        void print(){
 //            cout << "Nodes:" << endl;
@@ -288,12 +346,10 @@ public class GurobiSolver {
 //            }
 //        }
 
-        //IntervalGraph(string filename) : IntervalGraph(BpSeq(filename)){};
-
-        // TODO: rewrite to static factory method instead of constructor
+        // TODO: rewrite to static factory method instead of constructor, clean up
         IntervalGraph(BpSeq bpseq) {
             nodes = new ArrayList<>();
-            /** Create nodes **/
+            /* Create nodes **/
             nodeNum = 0;
             List<BpSeq.Entry> entries = new ArrayList<>(bpseq.entries());
             int bpseqSize = bpseq.size();
@@ -316,7 +372,7 @@ public class GurobiSolver {
             */
             }
 
-            /** Add edges **/
+            /* Add edges **/
             edges = new ArrayList<>(nodeNum);
             for (int i = 0; i < nodeNum; ++i) {
                 edges.add(new HashSet<>());
@@ -324,7 +380,7 @@ public class GurobiSolver {
             }
             for (int i = 0; i < nodes.size(); ++i) {
                 for (int j = i + 1; j < nodes.size(); ++j) {
-                    /** node[i] will always start before node[j], therefore nodes will overlap when:**/
+                    /* node[i] will always start before node[j], therefore nodes will overlap when:**/
                     if (nodes.get(j).getStart() < nodes.get(i).getEnd() && nodes.get(i).end < nodes.get(j).end) {
                         edges.get(i).add(j);
                         edges.get(j).add(i);
