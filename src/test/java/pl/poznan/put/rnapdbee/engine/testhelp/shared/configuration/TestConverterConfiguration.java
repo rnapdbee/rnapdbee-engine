@@ -32,7 +32,7 @@ public class TestConverterConfiguration {
         boolean isGurobiUp = checkIfGurobiIsSetUpCorrectly();
         if (isGurobiUp) {
             logger.info(GUROBI_WORKING);
-            return new MixedIntegerLinearProgrammingConverter();
+            return new MixedIntegerLinearProgrammingConverter(logger);
         } else {
             logger.info(GUROBI_NOT_WORKING);
             return bpSeq -> {
