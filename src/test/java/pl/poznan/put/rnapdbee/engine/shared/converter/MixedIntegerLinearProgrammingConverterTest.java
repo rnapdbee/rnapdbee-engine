@@ -6,6 +6,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+import pl.poznan.put.rnapdbee.engine.shared.converter.boundary.MixedIntegerLinearProgrammingConverter;
 import pl.poznan.put.rnapdbee.engine.testhelp.SkipIfGurobiIsNotAvailable;
 import pl.poznan.put.structure.formats.BpSeq;
 import pl.poznan.put.structure.formats.DefaultDotBracket;

@@ -1,4 +1,4 @@
-package pl.poznan.put.rnapdbee.engine.shared.converter;
+package pl.poznan.put.rnapdbee.engine.shared.converter.domain;
 
 import pl.poznan.put.structure.formats.BpSeq;
 
@@ -12,7 +12,7 @@ public class IntervalGraph {
     private final List<Node> nodes;
     private final List<Set<Integer>> edges;
 
-    IntervalGraph(BpSeq bpseq) {
+    public IntervalGraph(BpSeq bpseq) {
         nodes = new ArrayList<>();
         /* Create nodes **/
         int nodeNum = 0;

@@ -1,4 +1,4 @@
-package pl.poznan.put.rnapdbee.engine.shared.converter;
+package pl.poznan.put.rnapdbee.engine.shared.converter.boundary;
 
 import gurobi.GRB;
 import gurobi.GRBEnv;
@@ -9,6 +9,9 @@ import gurobi.GRBVar;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pl.poznan.put.rnapdbee.engine.shared.converter.logic.BracketTranslation;
+import pl.poznan.put.rnapdbee.engine.shared.converter.domain.IntervalGraph;
+import pl.poznan.put.rnapdbee.engine.shared.converter.domain.Node;
 import pl.poznan.put.structure.formats.BpSeq;
 import pl.poznan.put.structure.formats.Converter;
 import pl.poznan.put.structure.formats.DefaultDotBracket;

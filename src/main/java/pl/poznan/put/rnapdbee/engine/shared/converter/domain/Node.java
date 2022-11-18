@@ -1,4 +1,4 @@
-package pl.poznan.put.rnapdbee.engine.shared.converter;
+package pl.poznan.put.rnapdbee.engine.shared.converter.domain;
 
 public class Node {
 
