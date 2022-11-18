@@ -10,10 +10,12 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ContextConfiguration;
 import pl.poznan.put.rnapdbee.engine.calculation.testhelp.secondary.SecondaryAnalysisOutputTestInformation;
 import pl.poznan.put.rnapdbee.engine.calculation.testhelp.secondary.SecondaryAnalysisOutputTestInformationAggregator;
 import pl.poznan.put.rnapdbee.engine.calculation.testhelp.secondary.SecondaryAnalysisOutputTestUtils;
 import pl.poznan.put.rnapdbee.engine.calculation.secondary.SecondaryStructureAnalysisService;
+import pl.poznan.put.rnapdbee.engine.calculation.testhelp.shared.configuration.TestConverterConfiguration;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.ImageService;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
@@ -26,6 +28,7 @@ import java.nio.file.Paths;
 
 
 @SpringBootTest
+@ContextConfiguration(classes = TestConverterConfiguration.class)
 class SecondaryStructureAnalysisServiceTest {
 
     static String EXAMPLE_FILE_PATH_FORMAT = "/secondaryTestFiles/%s";

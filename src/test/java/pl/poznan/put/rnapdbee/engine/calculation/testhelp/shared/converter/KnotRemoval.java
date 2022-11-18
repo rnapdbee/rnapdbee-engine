@@ -1,4 +1,4 @@
-package pl.poznan.put.rnapdbee.engine.shared.converter;
+package pl.poznan.put.rnapdbee.engine.calculation.testhelp.shared.converter;
 
 import java.util.ArrayList;
 import java.util.Arrays;

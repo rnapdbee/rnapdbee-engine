@@ -6,7 +6,8 @@ import org.junit.jupiter.params.aggregator.AggregateWith;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
+import pl.poznan.put.rnapdbee.engine.calculation.testhelp.shared.configuration.TestConverterConfiguration;
 import pl.poznan.put.rnapdbee.engine.calculation.testhelp.tertiary.TertiaryAnalysisOutputTestInformation;
 import pl.poznan.put.rnapdbee.engine.calculation.testhelp.tertiary.TertiaryAnalysisOutputTestInformationAggregator;
 import pl.poznan.put.rnapdbee.engine.calculation.testhelp.tertiary.TertiaryAnalysisOutputTestUtils;
@@ -21,7 +22,9 @@ import java.util.List;
 
 
 @SpringBootTest
-@Import(AbstractTertiaryStructureAnalysisTestingClass.BeansReplacement.class)
+@ContextConfiguration(classes = {
+        AbstractTertiaryStructureAnalysisTestingClass.BeansReplacement.class,
+        TestConverterConfiguration.class})
 class TertiaryStructureAnalysisServiceTest extends AbstractTertiaryStructureAnalysisTestingClass {
 
     @Autowired

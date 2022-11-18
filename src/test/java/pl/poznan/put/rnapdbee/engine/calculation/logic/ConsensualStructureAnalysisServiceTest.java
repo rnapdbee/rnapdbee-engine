@@ -6,18 +6,21 @@ import org.junit.jupiter.params.aggregator.AggregateWith;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
 import pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensual.ConsensualAnalysisTestInformation;
 import pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensual.ConsensualAnalysisTestInformationAggregator;
 import pl.poznan.put.rnapdbee.engine.calculation.testhelp.consensual.ConsensualAnalysisTestUtils;
 import pl.poznan.put.rnapdbee.engine.calculation.consensus.ConsensualStructureAnalysisService;
+import pl.poznan.put.rnapdbee.engine.calculation.testhelp.shared.configuration.TestConverterConfiguration;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.shared.domain.ModelSelection;
 
 import java.util.List;
 
 @SpringBootTest
-@Import(AbstractTertiaryStructureAnalysisTestingClass.BeansReplacement.class)
+@ContextConfiguration(classes = {
+        AbstractTertiaryStructureAnalysisTestingClass.BeansReplacement.class,
+        TestConverterConfiguration.class})
 class ConsensualStructureAnalysisServiceTest extends AbstractTertiaryStructureAnalysisTestingClass {
 
     @Autowired

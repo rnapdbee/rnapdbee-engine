@@ -1,4 +1,4 @@
-package pl.poznan.put.rnapdbee.engine.shared.converter;
+package pl.poznan.put.rnapdbee.engine.calculation.testhelp.shared.converter;
 
 public class Range implements Comparable<Range> {
     public final int left;
