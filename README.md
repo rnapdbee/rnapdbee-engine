@@ -25,7 +25,7 @@ The server starts on the localhost `8081` port -> http://localhost:8081/
 
 ### With docker
 
-There is currently no possibility to run this project properly in dockerized, local environment, as is needs Gurobi
+There is currently no possibility to run this project properly in dockerized, local environment, as it needs Gurobi
 license to run.
 
 [comment]: <> (To run project in command line type:
