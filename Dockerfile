@@ -2,7 +2,7 @@
 FROM ubuntu:20.04
 ARG LICENSE_PATH
 ENV DEBIAN_FRONTEND=noninteractive
-
+ENV ADAPTERS_HOST=http://localhost:8000
 # Set gurobi env variables
 ENV GUROBI_HOME=/opt/gurobi1000/linux64
 ENV PATH=$PATH:$GUROBI_HOME/bin
