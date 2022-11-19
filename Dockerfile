@@ -21,7 +21,10 @@ RUN apt-get update && \
 # Set up Gurobi WLS license file
 COPY $LICENSE_PATH /opt/gurobi100/license
 ENV GRB_LICENSE_FILE=/opt/gurobi100/license
+# Disable gurobi log messages
+RUN echo "OutputFlag 0" > gurobi.env
 
+# Copy & set entrypoint to jar file
 ARG JAR_FILE=target/*.jar
 COPY $JAR_FILE app.jar
 EXPOSE 8081
