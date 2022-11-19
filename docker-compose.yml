@@ -2,5 +2,21 @@ version: "3"
 services:
   engine:
     build: .
+    environment:
+      - server.port=8081
+      - application-version=@project.version@
+      - spring.jackson.mapper.ACCEPT_CASE_INSENSITIVE_ENUMS=true
+      - spring.jackson.default-property-inclusion=non_null
+      - templates.path=/completeAtomNames.dict
+      - rnapdbee.adapters.global.host=adapters:5432
+      - rnapdbee.adapters.global.mcannotate.path=analyze/mc-annotate
+      - rnapdbee.adapters.global.bpnet.path=analyze/bpnet
+      - rnapdbee.adapters.global.fr3d.path=analyze/fr3d
+      - rnapdbee.adapters.global.barnaba.path=analyze/barnaba
+      - rnapdbee.adapters.global.rnaview.path=analyze/rnaview
     ports:
       - "8081:8081"
+  adapters:
+    image: rnapdbee-adapter-server
+    ports:
+      - "8000:5432"

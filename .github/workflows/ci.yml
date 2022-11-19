@@ -29,7 +29,7 @@ jobs:
 
       - name: Download Gurobi 10.0.0 and add it to local Maven Repository
         run: |
-          wget -v https://packages.gurobi.com/10.0/gurobi10.0.0_linux64.tar.gz
+          curl -L https://packages.gurobi.com/10.0/gurobi10.0.0_linux64.tar.gz > gurobi10.0.0_linux64.tar.gz
           tar -xvf gurobi10.0.0_linux64.tar.gz
           mvn install:install-file "-Dfile=gurobi1000/linux64/lib/gurobi.jar" "-DgroupId=com" "-DartifactId=gurobi" "-Dversion=10.0.0" "-Dpackaging=jar" "-DgeneratePom=true"
 
