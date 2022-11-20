@@ -1,4 +1,4 @@
-package pl.poznan.put.rnapdbee.engine.shared.basepair.webclient;
+package pl.poznan.put.rnapdbee.engine.infrastructure.configuration;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;

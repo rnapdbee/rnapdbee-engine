@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbModel;
+import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.ConsensualVisualization;
+import pl.poznan.put.rnapdbee.engine.calculation.consensus.visualization.boundary.ConsensualVisualizationDrawer;
 import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.OutputMulti;
 import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.OutputMultiEntry;
 import pl.poznan.put.rnapdbee.engine.calculation.secondary.domain.Output2D;
@@ -27,7 +29,6 @@ import pl.poznan.put.structure.formats.Ct;
 import pl.poznan.put.structure.formats.DotBracket;
 import pl.poznan.put.structure.formats.ImmutableDefaultDotBracket;
 import pl.poznan.put.structure.formats.ImmutableDefaultDotBracketFromPdb;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -45,6 +46,7 @@ public class ConsensualStructureAnalysisService {
     private final TertiaryFileParser tertiaryFileParser;
     private final BasePairAnalyzerFactory basePairAnalyzerFactory;
     private final InputTypeDeterminer inputTypeDeterminer;
+    private final ConsensualVisualizationDrawer consensualVisualizationDrawer;
 
     /**
      * Performs 3D -> multi 2D analysis.
@@ -103,8 +105,12 @@ public class ConsensualStructureAnalysisService {
                             includeNonCanonical, removeIsolated, visualizationTool, uniqueInputs, rna, modelNumber));
                 });
 
+        List<OutputMultiEntry> outputMultiEntries = new ArrayList<>(uniqueInputs.values());
+        byte[] visualization = consensualVisualizationDrawer.performVisualization(outputMultiEntries);
+
         return new OutputMulti.OutputMultiBuilder()
-                .withEntries(new ArrayList<>(uniqueInputs.values()))
+                .withEntries(outputMultiEntries)
+                .withConsensualVisualization(new ConsensualVisualization(visualization))
                 .withTitle(title.get())
                 .build();
     }
@@ -171,10 +177,13 @@ public class ConsensualStructureAnalysisService {
     @Autowired
     public ConsensualStructureAnalysisService(ImageService imageService,
                                               TertiaryFileParser tertiaryFileParser,
-                                              BasePairAnalyzerFactory basePairAnalyzerFactory, InputTypeDeterminer inputTypeDeterminer) {
+                                              BasePairAnalyzerFactory basePairAnalyzerFactory,
+                                              InputTypeDeterminer inputTypeDeterminer,
+                                              ConsensualVisualizationDrawer consensualVisualizationDrawer) {
         this.imageService = imageService;
         this.tertiaryFileParser = tertiaryFileParser;
         this.basePairAnalyzerFactory = basePairAnalyzerFactory;
         this.inputTypeDeterminer = inputTypeDeterminer;
+        this.consensualVisualizationDrawer = consensualVisualizationDrawer;
     }
 }

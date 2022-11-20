@@ -8,32 +8,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class ConsensualVisualization {
 
-    @JsonProperty("pathToPngImage")
-    private String pathToPngImage;
-    @JsonProperty("pathToSvgImage")
-    private String pathToSvgImage;
+    @JsonProperty("svgFile")
+    private byte[] svgFile;
 
-    public void setPathToPNGImage(String pathToPNGImage) {
-        this.pathToPngImage = pathToPNGImage;
+    public ConsensualVisualization(byte[] svgFile) {
+        this.svgFile = svgFile;
     }
 
-    public void setPathToSVGImage(String pathToSVGImage) {
-        this.pathToSvgImage = pathToSVGImage;
+    public byte[] getSvgFile() {
+        return svgFile;
     }
 
-    public String getPathToPngImage() {
-        return pathToPngImage;
-    }
-
-    public String getPathToSvgImage() {
-        return pathToSvgImage;
-    }
-
-    public ConsensualVisualization() {
-    }
-
-    public ConsensualVisualization(String pathToPNGImage, String pathToSVGImage) {
-        this.pathToPngImage = pathToPNGImage;
-        this.pathToSvgImage = pathToSVGImage;
+    public ConsensualVisualization setSvgFile(byte[] svgFile) {
+        this.svgFile = svgFile;
+        return this;
     }
 }

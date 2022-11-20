@@ -1,5 +1,6 @@
 package pl.poznan.put.rnapdbee.engine.calculation.secondary.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import pl.poznan.put.structure.formats.Strand;
 
 /**
@@ -7,8 +8,11 @@ import pl.poznan.put.structure.formats.Strand;
  */
 public class SingleStrandOutput {
 
+    @JsonProperty("name")
     private final String name;
+    @JsonProperty("sequence")
     private final String sequence;
+    @JsonProperty("structure")
     private final String structure;
 
     public static SingleStrandOutput ofStrand(Strand strand) {
