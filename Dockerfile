@@ -9,6 +9,8 @@ ENV GUROBI_HOME=/opt/gurobi1000/linux64
 ENV PATH=$PATH:$GUROBI_HOME/bin
 ENV LD_LIBRARY_PATH=$GUROBI_HOME/lib
 
+# Copy application configuration to docker container
+COPY $CONFIG_DIRECTORY /config/app.properties
 # Install wget
 RUN apt-get update -y && \
     apt-get install -y curl
@@ -32,4 +34,4 @@ EXPOSE 8081
 ENTRYPOINT ["java", \
             "-jar", \
             "/app.jar", \
-            "--spring.config.location=file:$CONFIG_DIRECTORY/application.yml"]
+            "--spring.config.location=file:/config/app.properties"]
