@@ -13,13 +13,14 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.web.reactive.function.client.WebClient;
+import pl.poznan.put.rnapdbee.engine.calculation.consensus.visualization.boundary.WeblogoConsensualVisualizationDrawer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BPNetBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BarnabaBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.MCAnnotateBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.RnaViewBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.RnapolisBasePairAnalyzer;
-import pl.poznan.put.rnapdbee.engine.shared.basepair.webclient.AdapterWebClientConfiguration;
+import pl.poznan.put.rnapdbee.engine.infrastructure.configuration.AdapterWebClientConfiguration;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -44,6 +45,8 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
     protected String MC_ANNOTATE_RESPONSE_MOCK_PATH_FORMAT;
     protected String RNAVIEW_RESPONSE_MOCK_PATH_FORMAT;
     protected String RNAPOLIS_RESPONSE_MOCK_PATH_FORMAT;
+
+    private final String MOCKED_WEBLOGO_RESPONSE = "mock";
 
     protected String readFileContentFromFile(String exampleFilename) {
         if (exampleFilename.contains(".pdb")) {
@@ -102,6 +105,12 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
                             .addHeader("Content-Type", MediaType.APPLICATION_JSON)
                             .setBody(readFileAsString(String.format(RNAPOLIS_RESPONSE_MOCK_PATH_FORMAT, exampleFileName)));
                 }
+                if ("/visualization-api/v1/weblogo".equals(request.getPath())) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .addHeader("Content-Type", "image/svg+xml")
+                            .setBody(MOCKED_WEBLOGO_RESPONSE);
+                }
                 return new MockResponse().setResponseCode(404);
             }
         };
@@ -151,6 +160,12 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
         @Bean
         RnapolisBasePairAnalyzer mockRnapolisBasePairAnalyzer() {
             return new RnapolisBasePairAnalyzer("/analysis-api/v1/rnapolis", mockedWebClientSupplier.get());
+        }
+
+        @Primary
+        @Bean
+        WeblogoConsensualVisualizationDrawer mockWeblogoConsensualVisualizationDrawer() {
+            return new WeblogoConsensualVisualizationDrawer(mockedWebClientSupplier.get(), "/visualization-api/v1/weblogo");
         }
     }
 }
