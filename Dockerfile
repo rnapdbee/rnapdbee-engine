@@ -22,8 +22,8 @@ RUN apt-get update && \
     apt-get install -y openjdk-11-jre-headless && \
     apt-get clean;
 # Set up Gurobi WLS license file
-COPY $LICENSE_PATH /opt/gurobi100/license
-ENV GRB_LICENSE_FILE=/opt/gurobi100/license
+COPY $LICENSE_PATH /opt/gurobi1000/license
+ENV GRB_LICENSE_FILE=/opt/gurobi1000/license
 # Disable gurobi log messages
 RUN echo "OutputFlag 0" > gurobi.env
 
