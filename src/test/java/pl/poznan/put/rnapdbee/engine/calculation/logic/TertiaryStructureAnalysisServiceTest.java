@@ -60,5 +60,6 @@ class TertiaryStructureAnalysisServiceTest extends AbstractTertiaryStructureAnal
         BPNET_RESPONSE_MOCK_PATH_FORMAT = "/3DToSecondaryMocks/%s/bpnet_response.json";
         MC_ANNOTATE_RESPONSE_MOCK_PATH_FORMAT = "/3DToSecondaryMocks/%s/mc_annotate_response.json";
         RNAVIEW_RESPONSE_MOCK_PATH_FORMAT = "/3DToSecondaryMocks/%s/rnaview_response.json";
+        RNAPOLIS_RESPONSE_MOCK_PATH_FORMAT = "/3DToSecondaryMocks/%s/rnapolis_response.json";
     }
 }

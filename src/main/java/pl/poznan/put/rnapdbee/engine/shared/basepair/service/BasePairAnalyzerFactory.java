@@ -1,5 +1,6 @@
 package pl.poznan.put.rnapdbee.engine.shared.basepair.service;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.Fr3dBasePairAnalyzer;
@@ -8,7 +9,11 @@ import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BarnabaBasePairAna
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.MCAnnotateBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.RnaViewBasePairAnalyzer;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.RnapolisBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Component which handles loading right implementation of
@@ -22,6 +27,7 @@ public class BasePairAnalyzerFactory {
     private final Fr3dBasePairAnalyzer fr3dBasePairAnalyzer;
     private final BPNetBasePairAnalyzer bpNetBasePairAnalyzer;
     private final BarnabaBasePairAnalyzer barnabaBasePairAnalyzer;
+    private final RnapolisBasePairAnalyzer rnapolisBasePairAnalyzer;
 
     /**
      * Returns the appropriate implementation of {@link BasePairAnalyzer},
@@ -42,9 +48,23 @@ public class BasePairAnalyzerFactory {
                 return fr3dBasePairAnalyzer;
             case MC_ANNOTATE:
                 return mcAnnotateBasePairAnalyzer;
+            case RNAPOLIS:
+                return rnapolisBasePairAnalyzer;
             default:
                 throw new RuntimeException("unhandled enum passed to provideBasePairAnalyzer method");
         }
+    }
+
+    public Collection<Pair<AnalysisTool, BasePairAnalyzer>> prepareAnalyzerPairs() {
+        return List.of(
+                Pair.of(AnalysisTool.MC_ANNOTATE, mcAnnotateBasePairAnalyzer),
+                // fr3d-python is not yet mature software, disabled for now.
+                // Pair.of(AnalysisTool.FR3D_PYTHON, fr3dBasePairAnalyzer),
+                Pair.of(AnalysisTool.BARNABA, barnabaBasePairAnalyzer),
+                Pair.of(AnalysisTool.BPNET, bpNetBasePairAnalyzer),
+                Pair.of(AnalysisTool.RNAVIEW, rnaViewBasePairAnalyzer),
+                Pair.of(AnalysisTool.RNAPOLIS, rnapolisBasePairAnalyzer)
+        );
     }
 
     @Autowired
@@ -52,11 +72,12 @@ public class BasePairAnalyzerFactory {
                                    MCAnnotateBasePairAnalyzer mcAnnotateBasePairAnalyzer,
                                    Fr3dBasePairAnalyzer fr3dBasePairAnalyzer,
                                    BPNetBasePairAnalyzer bpNetBasePairAnalyzer,
-                                   BarnabaBasePairAnalyzer barnabaBasePairAnalyzer) {
+                                   BarnabaBasePairAnalyzer barnabaBasePairAnalyzer, RnapolisBasePairAnalyzer rnapolisBasePairAnalyzer) {
         this.rnaViewBasePairAnalyzer = rnaViewBasePairAnalyzer;
         this.mcAnnotateBasePairAnalyzer = mcAnnotateBasePairAnalyzer;
         this.fr3dBasePairAnalyzer = fr3dBasePairAnalyzer;
         this.bpNetBasePairAnalyzer = bpNetBasePairAnalyzer;
         this.barnabaBasePairAnalyzer = barnabaBasePairAnalyzer;
+        this.rnapolisBasePairAnalyzer = rnapolisBasePairAnalyzer;
     }
 }

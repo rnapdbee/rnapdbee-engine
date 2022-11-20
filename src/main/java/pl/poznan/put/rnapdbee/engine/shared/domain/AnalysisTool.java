@@ -9,5 +9,6 @@ public enum AnalysisTool {
     BPNET,
     BARNABA,
     RNAVIEW,
-    MC_ANNOTATE
+    MC_ANNOTATE,
+    RNAPOLIS
 }

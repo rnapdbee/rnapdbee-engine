@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   description: "This is API of the engine service of RNApdbee v3.0."
-  version: "1.0.12"
+  version: "1.0.13"
   title: "RNApdbee Engine API"
 
 
@@ -139,6 +139,7 @@ components:
           - "BARNABA"
           - "RNAVIEW"
           - "MC_ANNOTATE"
+          - "RNAPOLIS"
     nonCanonicalHandling:
       in: query
       name: nonCanonicalHandling

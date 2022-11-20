@@ -7,25 +7,25 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * enum for BR
  */
 public enum BR {
-    @JsonProperty("0")
+    @JsonProperty("0BR")
     ZERO,
-    @JsonProperty("1")
+    @JsonProperty("1BR")
     ONE,
-    @JsonProperty("2")
+    @JsonProperty("2BR")
     TWO,
-    @JsonProperty("3")
+    @JsonProperty("3BR")
     THREE,
-    @JsonProperty("4")
+    @JsonProperty("4BR")
     FOUR,
-    @JsonProperty("5")
+    @JsonProperty("5BR")
     FIVE,
-    @JsonProperty("6")
+    @JsonProperty("6BR")
     SIX,
-    @JsonProperty("7")
+    @JsonProperty("7BR")
     SEVEN,
-    @JsonProperty("8")
+    @JsonProperty("8BR")
     EIGHT,
-    @JsonProperty("9")
+    @JsonProperty("9BR")
     NINE;
 
     public static pl.poznan.put.notation.BR mapToBioCommonsBr(BR brFromEngineModel) {

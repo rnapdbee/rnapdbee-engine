@@ -1,0 +1,858 @@
+{
+  "basePairs": [
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 1,
+          "name": "G"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 1,
+          "icode": null,
+          "name": "G"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 17,
+          "name": "C"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 17,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "lw": "cWW",
+      "saenger": "XIX"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 2,
+          "name": "G"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 2,
+          "icode": null,
+          "name": "G"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 16,
+          "name": "U"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 16,
+          "icode": null,
+          "name": "U"
+        }
+      },
+      "lw": "cWW",
+      "saenger": "XXVIII"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 3,
+          "name": "G"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 3,
+          "icode": null,
+          "name": "G"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 15,
+          "name": "C"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 15,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "lw": "cWW",
+      "saenger": "XIX"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 4,
+          "name": "A"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 4,
+          "icode": null,
+          "name": "A"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 14,
+          "name": "U"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 14,
+          "icode": null,
+          "name": "U"
+        }
+      },
+      "lw": "cWW",
+      "saenger": "XX"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 5,
+          "name": "C"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 5,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 13,
+          "name": "G"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 13,
+          "icode": null,
+          "name": "G"
+        }
+      },
+      "lw": "cWW",
+      "saenger": "XIX"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 6,
+          "name": "C"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 6,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 12,
+          "name": "G"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 12,
+          "icode": null,
+          "name": "G"
+        }
+      },
+      "lw": "cWW",
+      "saenger": "XIX"
+    }
+  ],
+  "stackings": [
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 1,
+          "name": "G"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 1,
+          "icode": null,
+          "name": "G"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 2,
+          "name": "G"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 2,
+          "icode": null,
+          "name": "G"
+        }
+      },
+      "topology": "upward"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 2,
+          "name": "G"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 2,
+          "icode": null,
+          "name": "G"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 3,
+          "name": "G"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 3,
+          "icode": null,
+          "name": "G"
+        }
+      },
+      "topology": "upward"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 3,
+          "name": "G"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 3,
+          "icode": null,
+          "name": "G"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 4,
+          "name": "A"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 4,
+          "icode": null,
+          "name": "A"
+        }
+      },
+      "topology": "upward"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 4,
+          "name": "A"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 4,
+          "icode": null,
+          "name": "A"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 5,
+          "name": "C"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 5,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "topology": "upward"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 5,
+          "name": "C"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 5,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 6,
+          "name": "C"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 6,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "topology": "upward"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 6,
+          "name": "C"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 6,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 7,
+          "name": "U"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 7,
+          "icode": null,
+          "name": "U"
+        }
+      },
+      "topology": "upward"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 7,
+          "name": "U"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 7,
+          "icode": null,
+          "name": "U"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 8,
+          "name": "U"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 8,
+          "icode": null,
+          "name": "U"
+        }
+      },
+      "topology": "upward"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 10,
+          "name": "C"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 10,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 11,
+          "name": "C"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 11,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "topology": "upward"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 11,
+          "name": "C"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 11,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 12,
+          "name": "G"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 12,
+          "icode": null,
+          "name": "G"
+        }
+      },
+      "topology": "upward"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 12,
+          "name": "G"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 12,
+          "icode": null,
+          "name": "G"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 13,
+          "name": "G"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 13,
+          "icode": null,
+          "name": "G"
+        }
+      },
+      "topology": "upward"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 13,
+          "name": "G"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 13,
+          "icode": null,
+          "name": "G"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 14,
+          "name": "U"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 14,
+          "icode": null,
+          "name": "U"
+        }
+      },
+      "topology": "upward"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 14,
+          "name": "U"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 14,
+          "icode": null,
+          "name": "U"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 15,
+          "name": "C"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 15,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "topology": "upward"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 15,
+          "name": "C"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 15,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 16,
+          "name": "U"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 16,
+          "icode": null,
+          "name": "U"
+        }
+      },
+      "topology": "upward"
+    }
+  ],
+  "baseRiboseInteractions": [
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 9,
+          "name": "C"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 9,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 8,
+          "name": "U"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 8,
+          "icode": null,
+          "name": "U"
+        }
+      },
+      "br": "0BR"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 9,
+          "name": "C"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 9,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 8,
+          "name": "U"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 8,
+          "icode": null,
+          "name": "U"
+        }
+      },
+      "br": "0BR"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 9,
+          "name": "C"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 9,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 8,
+          "name": "U"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 8,
+          "icode": null,
+          "name": "U"
+        }
+      },
+      "br": "9BR"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 9,
+          "name": "C"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 9,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 8,
+          "name": "U"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 8,
+          "icode": null,
+          "name": "U"
+        }
+      },
+      "br": "9BR"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 14,
+          "name": "U"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 14,
+          "icode": null,
+          "name": "U"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 13,
+          "name": "G"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 13,
+          "icode": null,
+          "name": "G"
+        }
+      },
+      "br": "0BR"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 14,
+          "name": "U"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 14,
+          "icode": null,
+          "name": "U"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 13,
+          "name": "G"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 13,
+          "icode": null,
+          "name": "G"
+        }
+      },
+      "br": "0BR"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 17,
+          "name": "C"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 17,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 16,
+          "name": "U"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 16,
+          "icode": null,
+          "name": "U"
+        }
+      },
+      "br": "0BR"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 17,
+          "name": "C"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 17,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 16,
+          "name": "U"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 16,
+          "icode": null,
+          "name": "U"
+        }
+      },
+      "br": "0BR"
+    }
+  ],
+  "basePhosphateInteractions": [
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 9,
+          "name": "C"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 9,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 8,
+          "name": "U"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 8,
+          "icode": null,
+          "name": "U"
+        }
+      },
+      "bph": "0BPh"
+    },
+    {
+      "nt1": {
+        "label": {
+          "chain": "A",
+          "number": 9,
+          "name": "C"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 9,
+          "icode": null,
+          "name": "C"
+        }
+      },
+      "nt2": {
+        "label": {
+          "chain": "A",
+          "number": 8,
+          "name": "U"
+        },
+        "auth": {
+          "chain": "A",
+          "number": 8,
+          "icode": null,
+          "name": "U"
+        }
+      },
+      "bph": "9BPh"
+    }
+  ],
+  "otherInteractions": []
+}

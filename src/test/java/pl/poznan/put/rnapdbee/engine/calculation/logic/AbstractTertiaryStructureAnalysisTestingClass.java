@@ -18,6 +18,7 @@ import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BarnabaBasePairAna
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.MCAnnotateBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.RnaViewBasePairAnalyzer;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.RnapolisBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.webclient.AdapterWebClientConfiguration;
 
 import java.io.IOException;
@@ -42,6 +43,7 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
     protected String BPNET_RESPONSE_MOCK_PATH_FORMAT;
     protected String MC_ANNOTATE_RESPONSE_MOCK_PATH_FORMAT;
     protected String RNAVIEW_RESPONSE_MOCK_PATH_FORMAT;
+    protected String RNAPOLIS_RESPONSE_MOCK_PATH_FORMAT;
 
     protected String readFileContentFromFile(String exampleFilename) {
         if (exampleFilename.contains(".pdb")) {
@@ -70,29 +72,35 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
             @Override
             @NotNull
             public MockResponse dispatch(RecordedRequest request) {
-                if ("/analyze/barnaba".equals(request.getPath())) {
+                if ("/analysis-api/v1/barnaba".equals(request.getPath())) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .addHeader("Content-Type", MediaType.APPLICATION_JSON)
                             .setBody(readFileAsString(String.format(BARNABA_RESPONSE_MOCK_PATH_FORMAT, exampleFileName)));
                 }
-                if ("/analyze/bpnet".equals(request.getPath())) {
+                if ("/analysis-api/v1/bpnet".equals(request.getPath())) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .addHeader("Content-Type", MediaType.APPLICATION_JSON)
                             .setBody(readFileAsString(String.format(BPNET_RESPONSE_MOCK_PATH_FORMAT, exampleFileName)));
                 }
-                if ("/analyze/mc-annotate".equals(request.getPath())) {
+                if ("/analysis-api/v1/mc-annotate".equals(request.getPath())) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .addHeader("Content-Type", MediaType.APPLICATION_JSON)
                             .setBody(readFileAsString(String.format(MC_ANNOTATE_RESPONSE_MOCK_PATH_FORMAT, exampleFileName)));
                 }
-                if ("/analyze/rnaview".equals(request.getPath())) {
+                if ("/analysis-api/v1/rnaview".equals(request.getPath())) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .addHeader("Content-Type", MediaType.APPLICATION_JSON)
                             .setBody(readFileAsString(String.format(RNAVIEW_RESPONSE_MOCK_PATH_FORMAT, exampleFileName)));
+                }
+                if ("/analysis-api/v1/rnapolis".equals(request.getPath())) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .addHeader("Content-Type", MediaType.APPLICATION_JSON)
+                            .setBody(readFileAsString(String.format(RNAPOLIS_RESPONSE_MOCK_PATH_FORMAT, exampleFileName)));
                 }
                 return new MockResponse().setResponseCode(404);
             }
@@ -103,7 +111,7 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
     protected String readFileAsString(String pathToFile) {
         try {
             return Files.readString(Paths.get(Objects.requireNonNull(getClass().getResource(pathToFile)).toURI()));
-        } catch (IOException | URISyntaxException e) {
+        } catch (IOException | URISyntaxException | NullPointerException e) {
             throw new RuntimeException(e);
         }
     }
@@ -118,25 +126,31 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
         @Primary
         @Bean
         BarnabaBasePairAnalyzer mockBarnabaBasePairAnalyzer() {
-            return new BarnabaBasePairAnalyzer("/analyze/barnaba", mockedWebClientSupplier.get());
+            return new BarnabaBasePairAnalyzer("/analysis-api/v1/barnaba", mockedWebClientSupplier.get());
         }
 
         @Primary
         @Bean
         BPNetBasePairAnalyzer mockBPNetBasePairAnalyzer() {
-            return new BPNetBasePairAnalyzer("/analyze/bpnet", mockedWebClientSupplier.get());
+            return new BPNetBasePairAnalyzer("/analysis-api/v1/bpnet", mockedWebClientSupplier.get());
         }
 
         @Primary
         @Bean
         MCAnnotateBasePairAnalyzer mockMcAnnotateBasePairAnalyzer() {
-            return new MCAnnotateBasePairAnalyzer("/analyze/mc-annotate", mockedWebClientSupplier.get());
+            return new MCAnnotateBasePairAnalyzer("/analysis-api/v1/mc-annotate", mockedWebClientSupplier.get());
         }
 
         @Primary
         @Bean
         RnaViewBasePairAnalyzer mockRnaViewBasePairAnalyzer() {
-            return new RnaViewBasePairAnalyzer("/analyze/rnaview", mockedWebClientSupplier.get());
+            return new RnaViewBasePairAnalyzer("/analysis-api/v1/rnaview", mockedWebClientSupplier.get());
+        }
+
+        @Primary
+        @Bean
+        RnapolisBasePairAnalyzer mockRnapolisBasePairAnalyzer() {
+            return new RnapolisBasePairAnalyzer("/analysis-api/v1/rnapolis", mockedWebClientSupplier.get());
         }
     }
 }
