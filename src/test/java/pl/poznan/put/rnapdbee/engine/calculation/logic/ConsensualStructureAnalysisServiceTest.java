@@ -45,5 +45,6 @@ class ConsensualStructureAnalysisServiceTest extends AbstractTertiaryStructureAn
         BPNET_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/bpnet_response.json";
         MC_ANNOTATE_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/mc_annotate_response.json";
         RNAVIEW_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/rnaview_response.json";
+        RNAPOLIS_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/rnapolis_response.json";
     }
 }

@@ -8,25 +8,25 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public enum BPh {
 
-    @JsonProperty("0")
+    @JsonProperty("0BPh")
     ZERO,
-    @JsonProperty("1")
+    @JsonProperty("1BPh")
     ONE,
-    @JsonProperty("2")
+    @JsonProperty("2BPh")
     TWO,
-    @JsonProperty("3")
+    @JsonProperty("3BPh")
     THREE,
-    @JsonProperty("4")
+    @JsonProperty("4BPh")
     FOUR,
-    @JsonProperty("5")
+    @JsonProperty("5BPh")
     FIVE,
-    @JsonProperty("6")
+    @JsonProperty("6BPh")
     SIX,
-    @JsonProperty("7")
+    @JsonProperty("7BPh")
     SEVEN,
-    @JsonProperty("8")
+    @JsonProperty("8BPh")
     EIGHT,
-    @JsonProperty("9")
+    @JsonProperty("9BPh")
     NINE;
 
     public static pl.poznan.put.notation.BPh mapToBioCommonsBph(BPh bphFromEngineModel) {

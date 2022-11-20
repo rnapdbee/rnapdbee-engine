@@ -63,7 +63,7 @@ public class ConsensualStructureAnalysisService {
                                final VisualizationTool visualizationTool,
                                final String filename,
                                final String content) {
-        final var analyzerPairs = prepareAnalyzerPairs();
+        final var analyzerPairs = basePairAnalyzerFactory.prepareAnalyzerPairs();
         final var inputType = inputTypeDeterminer.detectTertiaryInputTypeFromFileName(filename);
 
         return findConsensus(modelSelection,
@@ -166,23 +166,6 @@ public class ConsensualStructureAnalysisService {
         structure = KnotRemoval.dynamicProgrammingOneBest(structure);
         return ImmutableDefaultDotBracket.of(
                 structure.getSequence(), structure.getDotBracketStructure());
-    }
-
-    // TODO: put in another class
-    private Collection<Pair<AnalysisTool, BasePairAnalyzer>> prepareAnalyzerPairs() {
-        return List.of(
-                Pair.of(AnalysisTool.MC_ANNOTATE,
-                        basePairAnalyzerFactory.provideBasePairAnalyzer(AnalysisTool.MC_ANNOTATE)),
-                // fr3d-python is not yet mature software, disabled for now.
-                // Pair.of(AnalysisTool.FR3D_PYTHON,
-                //      basePairLoader.provideBasePairAnalyzer(AnalysisTool.FR3D_PYTHON)),
-                Pair.of(AnalysisTool.BARNABA,
-                        basePairAnalyzerFactory.provideBasePairAnalyzer(AnalysisTool.BARNABA)),
-                Pair.of(AnalysisTool.BPNET,
-                        basePairAnalyzerFactory.provideBasePairAnalyzer(AnalysisTool.BPNET)),
-                Pair.of(AnalysisTool.RNAVIEW,
-                        basePairAnalyzerFactory.provideBasePairAnalyzer(AnalysisTool.RNAVIEW))
-        );
     }
 
     @Autowired
