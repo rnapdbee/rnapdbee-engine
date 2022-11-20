@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
 FROM ubuntu:20.04
 ARG LICENSE_PATH
+ARG CONFIG_DIRECTORY=config/application-dev.properties
 ENV DEBIAN_FRONTEND=noninteractive
 ENV ADAPTERS_HOST=http://localhost:8000
 # Set gurobi env variables
@@ -28,4 +29,7 @@ RUN echo "OutputFlag 0" > gurobi.env
 ARG JAR_FILE=target/*.jar
 COPY $JAR_FILE app.jar
 EXPOSE 8081
-ENTRYPOINT ["java","-jar","/app.jar"]
+ENTRYPOINT ["java",
+            "-jar",
+            "/app.jar",
+            "--spring.config.location=file:$CONFIG_DIRECTORY/application.yml"]
