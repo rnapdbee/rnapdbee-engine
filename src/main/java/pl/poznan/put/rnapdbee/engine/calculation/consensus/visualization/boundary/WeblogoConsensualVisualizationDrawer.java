@@ -38,8 +38,8 @@ public class WeblogoConsensualVisualizationDrawer implements ConsensualVisualiza
 
     @Autowired
     public WeblogoConsensualVisualizationDrawer(
-            @Autowired @Qualifier("adaptersWebClient") WebClient adaptersWebClient,
-            @Value("${rnapdbee.adapters.global.weblogo.path}") String pathToWeblogoEndpoint) {
+            @Value("${rnapdbee.adapters.global.weblogo.path}") String pathToWeblogoEndpoint,
+            @Autowired @Qualifier("adaptersWebClient") WebClient adaptersWebClient) {
         this.webClient = adaptersWebClient;
         this.pathToWeblogoEndpoint = pathToWeblogoEndpoint;
     }
