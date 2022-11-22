@@ -165,7 +165,7 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
         @Primary
         @Bean
         WeblogoConsensualVisualizationDrawer mockWeblogoConsensualVisualizationDrawer() {
-            return new WeblogoConsensualVisualizationDrawer(mockedWebClientSupplier.get(), "/visualization-api/v1/weblogo");
+            return new WeblogoConsensualVisualizationDrawer("/visualization-api/v1/weblogo", mockedWebClientSupplier.get());
         }
     }
 }

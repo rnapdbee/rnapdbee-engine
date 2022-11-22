@@ -19,8 +19,7 @@ public class ConsensualVisualization {
         return svgFile;
     }
 
-    public ConsensualVisualization setSvgFile(byte[] svgFile) {
+    public void setSvgFile(byte[] svgFile) {
         this.svgFile = svgFile;
-        return this;
     }
 }
