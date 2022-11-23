@@ -7,8 +7,6 @@ import pl.poznan.put.pdb.PdbNamedResidueIdentifier;
 import pl.poznan.put.rnapdbee.engine.calculation.secondary.domain.Output2D;
 import pl.poznan.put.rnapdbee.engine.calculation.secondary.domain.SecondaryFileExtensionEnum;
 import pl.poznan.put.rnapdbee.engine.shared.elements.StructuralElementFinder;
-import pl.poznan.put.rnapdbee.engine.shared.converter.KnotRemoval;
-import pl.poznan.put.rnapdbee.engine.shared.converter.RNAStructure;
 import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.ImageService;
@@ -20,10 +18,10 @@ import pl.poznan.put.structure.DotBracketSymbol;
 import pl.poznan.put.structure.ImmutableAnalyzedBasePair;
 import pl.poznan.put.structure.ImmutableBasePair;
 import pl.poznan.put.structure.formats.BpSeq;
+import pl.poznan.put.structure.formats.Converter;
 import pl.poznan.put.structure.formats.Ct;
 import pl.poznan.put.structure.formats.DefaultDotBracket;
 import pl.poznan.put.structure.formats.DotBracket;
-import pl.poznan.put.structure.formats.ImmutableDefaultDotBracket;
 import pl.poznan.put.structure.formats.Strand;
 
 import java.util.ArrayList;
@@ -38,10 +36,8 @@ import java.util.stream.Collectors;
 @Component
 public class SecondaryStructureAnalysisService {
 
-    ImageService imageService;
-
-    // TODO: replace converter method with Mixed-Integer Linear Programming (separate Task)
-    //final Converter CONVERTER = ConverterEnum.DPNEW;
+    private final ImageService imageService;
+    private final Converter converter;
 
     /**
      * performs analysis of Secondary RNA structures to Images
@@ -146,7 +142,7 @@ public class SecondaryStructureAnalysisService {
                 ? BpSeq.fromString(content).withoutIsolatedPairs()
                 : BpSeq.fromString(content);
         Ct ct = Ct.fromBpSeq(bpSeq);
-        return DefaultDotBracket.copyWithStrands(convert(bpSeq), ct);
+        return DefaultDotBracket.copyWithStrands(converter.convert(bpSeq), ct);
     }
 
     private DotBracket convertCtIntoDotBracket(String content, boolean removeIsolated) {
@@ -154,7 +150,7 @@ public class SecondaryStructureAnalysisService {
                 ? Ct.fromString(content).withoutIsolatedPairs()
                 : Ct.fromString(content);
         BpSeq bpSeq = BpSeq.fromCt(ct);
-        return DefaultDotBracket.copyWithStrands(convert(bpSeq), ct);
+        return DefaultDotBracket.copyWithStrands(converter.convert(bpSeq), ct);
     }
 
     private DotBracket readDotBracketContent(String content, boolean removeIsolated) {
@@ -166,17 +162,10 @@ public class SecondaryStructureAnalysisService {
         }
     }
 
-    // TODO: using copied DP_NEW implementation from rnapdbee-common right now, change to MILP and remove whole
-    //  pl.poznan.put.rnapdbee.engine.shared.converter package!!!
-    private DotBracket convert(BpSeq bpSeq) {
-        RNAStructure structure = new RNAStructure(bpSeq);
-        structure = KnotRemoval.dynamicProgrammingOneBest(structure);
-        return ImmutableDefaultDotBracket.of(
-                structure.getSequence(), structure.getDotBracketStructure());
-    }
-
     @Autowired
-    public SecondaryStructureAnalysisService(ImageService imageService) {
+    public SecondaryStructureAnalysisService(ImageService imageService,
+                                             Converter converter) {
         this.imageService = imageService;
+        this.converter = converter;
     }
 }

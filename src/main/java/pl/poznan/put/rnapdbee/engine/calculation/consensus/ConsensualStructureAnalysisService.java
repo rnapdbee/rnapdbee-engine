@@ -13,8 +13,6 @@ import pl.poznan.put.rnapdbee.engine.calculation.secondary.domain.Output2D;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.service.BasePairAnalyzerFactory;
-import pl.poznan.put.rnapdbee.engine.shared.converter.KnotRemoval;
-import pl.poznan.put.rnapdbee.engine.shared.converter.RNAStructure;
 import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.shared.domain.InputType;
 import pl.poznan.put.rnapdbee.engine.shared.domain.InputTypeDeterminer;
@@ -25,9 +23,9 @@ import pl.poznan.put.rnapdbee.engine.shared.image.logic.ImageService;
 import pl.poznan.put.rnapdbee.engine.shared.parser.TertiaryFileParser;
 import pl.poznan.put.structure.AnalyzedBasePair;
 import pl.poznan.put.structure.formats.BpSeq;
+import pl.poznan.put.structure.formats.Converter;
 import pl.poznan.put.structure.formats.Ct;
 import pl.poznan.put.structure.formats.DotBracket;
-import pl.poznan.put.structure.formats.ImmutableDefaultDotBracket;
 import pl.poznan.put.structure.formats.ImmutableDefaultDotBracketFromPdb;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,6 +44,7 @@ public class ConsensualStructureAnalysisService {
     private final TertiaryFileParser tertiaryFileParser;
     private final BasePairAnalyzerFactory basePairAnalyzerFactory;
     private final InputTypeDeterminer inputTypeDeterminer;
+    private final Converter converter;
     private final ConsensualVisualizationDrawer consensualVisualizationDrawer;
 
     /**
@@ -141,7 +140,7 @@ public class ConsensualStructureAnalysisService {
         }
 
         final Ct ct = Ct.fromBpSeqAndPdbModel(bpSeq, rna);
-        final DotBracket convertedDotBracket = convert(bpSeq);
+        final DotBracket convertedDotBracket = converter.convert(bpSeq);
         final DotBracket dotBracketFromPdb = ImmutableDefaultDotBracketFromPdb
                 .of(convertedDotBracket.sequence(), convertedDotBracket.structure(), rna);
 
@@ -165,25 +164,18 @@ public class ConsensualStructureAnalysisService {
         uniqueInputs.put(bpSeq, outputMultiEntry);
     }
 
-    // TODO: using copied DP_NEW implementation from rnapdbee-common right now, change to MILP and remove whole
-    //  pl.poznan.put.rnapdbee.engine.shared.converter package!!!
-    private DotBracket convert(BpSeq bpSeq) {
-        RNAStructure structure = new RNAStructure(bpSeq);
-        structure = KnotRemoval.dynamicProgrammingOneBest(structure);
-        return ImmutableDefaultDotBracket.of(
-                structure.getSequence(), structure.getDotBracketStructure());
-    }
-
     @Autowired
     public ConsensualStructureAnalysisService(ImageService imageService,
                                               TertiaryFileParser tertiaryFileParser,
                                               BasePairAnalyzerFactory basePairAnalyzerFactory,
                                               InputTypeDeterminer inputTypeDeterminer,
+                                              Converter converter,
                                               ConsensualVisualizationDrawer consensualVisualizationDrawer) {
         this.imageService = imageService;
         this.tertiaryFileParser = tertiaryFileParser;
         this.basePairAnalyzerFactory = basePairAnalyzerFactory;
         this.inputTypeDeterminer = inputTypeDeterminer;
+        this.converter = converter;
         this.consensualVisualizationDrawer = consensualVisualizationDrawer;
     }
 }
