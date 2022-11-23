@@ -250,7 +250,9 @@ public class TertiaryStructureAnalysisService {
     public TertiaryStructureAnalysisService(BasePairAnalyzerFactory basePairAnalyzerFactory,
                                             ImageService imageService,
                                             TertiaryFileParser tertiaryFileParser,
-                                            @Value("${templates.path}") String pathToTemplates, InputTypeDeterminer inputTypeDeterminer, Converter converter) {
+                                            @Value("${templates.path}") String pathToTemplates,
+                                            InputTypeDeterminer inputTypeDeterminer,
+                                            Converter converter) {
         this.basePairAnalyzerFactory = basePairAnalyzerFactory;
         this.imageService = imageService;
         this.tertiaryFileParser = tertiaryFileParser;
