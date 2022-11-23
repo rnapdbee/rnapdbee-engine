@@ -1,9 +1,17 @@
 # syntax=docker/dockerfile:1
 FROM ubuntu:20.04
-ARG LICENSE_PATH
 ARG CONFIG_DIRECTORY=config/application-dev.properties
 ENV DEBIAN_FRONTEND=noninteractive
+# Rnapdbee-adapters related environment variables
 ENV ADAPTERS_HOST=http://localhost:8000
+ENV RNAPDBEE_ADAPTERS_MONO_CACHE_DURATION=240
+ENV RNAPDBEE_ADAPTERS_MAX_CONNECTIONS=50
+ENV RNAPDBEE_ADAPTERS_MAX_IDLE_TIME=60
+ENV RNAPDBEE_ADAPTERS_MAX_LIFE_TIME=180
+ENV RNAPDBEE_ADAPTERS_PENDING_ACQUIRE_TIMEOUT=60
+ENV RNAPDBEE_ADAPTERS_EVICT_IN_BACKGROUND=120
+# Gurobi license path from which it is copied to the container
+ARG LICENSE_PATH
 # Set gurobi env variables
 ENV GUROBI_HOME=/opt/gurobi1000/linux64
 ENV PATH=$PATH:$GUROBI_HOME/bin

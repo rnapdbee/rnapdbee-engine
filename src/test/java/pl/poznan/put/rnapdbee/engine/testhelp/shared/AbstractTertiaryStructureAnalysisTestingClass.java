@@ -7,6 +7,7 @@ import okhttp3.mockwebserver.RecordedRequest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -14,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.web.reactive.function.client.WebClient;
 import pl.poznan.put.rnapdbee.engine.calculation.consensus.visualization.boundary.WeblogoConsensualVisualizationDrawer;
+import pl.poznan.put.rnapdbee.engine.infrastructure.configuration.RnapdbeeAdaptersProperties;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BPNetBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BarnabaBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.MCAnnotateBasePairAnalyzer;
@@ -127,6 +129,10 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
 
     @TestConfiguration
     public static class BeansReplacement {
+
+        @Autowired
+        RnapdbeeAdaptersProperties rnapdbeeAdaptersProperties;
+
         Supplier<WebClient> mockedWebClientSupplier = () -> WebClient.builder()
                 .baseUrl(String.format("http://localhost:%s", mockWebServer.getPort()))
                 .exchangeStrategies(AdapterWebClientConfiguration.EXCHANGE_STRATEGIES)
@@ -135,37 +141,37 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
         @Primary
         @Bean
         BarnabaBasePairAnalyzer mockBarnabaBasePairAnalyzer() {
-            return new BarnabaBasePairAnalyzer("/analysis-api/v1/barnaba", mockedWebClientSupplier.get());
+            return new BarnabaBasePairAnalyzer(rnapdbeeAdaptersProperties, mockedWebClientSupplier.get());
         }
 
         @Primary
         @Bean
         BPNetBasePairAnalyzer mockBPNetBasePairAnalyzer() {
-            return new BPNetBasePairAnalyzer("/analysis-api/v1/bpnet", mockedWebClientSupplier.get());
+            return new BPNetBasePairAnalyzer(rnapdbeeAdaptersProperties, mockedWebClientSupplier.get());
         }
 
         @Primary
         @Bean
         MCAnnotateBasePairAnalyzer mockMcAnnotateBasePairAnalyzer() {
-            return new MCAnnotateBasePairAnalyzer("/analysis-api/v1/mc-annotate", mockedWebClientSupplier.get());
+            return new MCAnnotateBasePairAnalyzer(rnapdbeeAdaptersProperties, mockedWebClientSupplier.get());
         }
 
         @Primary
         @Bean
         RnaViewBasePairAnalyzer mockRnaViewBasePairAnalyzer() {
-            return new RnaViewBasePairAnalyzer("/analysis-api/v1/rnaview", mockedWebClientSupplier.get());
+            return new RnaViewBasePairAnalyzer(rnapdbeeAdaptersProperties, mockedWebClientSupplier.get());
         }
 
         @Primary
         @Bean
         RnapolisBasePairAnalyzer mockRnapolisBasePairAnalyzer() {
-            return new RnapolisBasePairAnalyzer("/analysis-api/v1/rnapolis", mockedWebClientSupplier.get());
+            return new RnapolisBasePairAnalyzer(rnapdbeeAdaptersProperties, mockedWebClientSupplier.get());
         }
 
         @Primary
         @Bean
         WeblogoConsensualVisualizationDrawer mockWeblogoConsensualVisualizationDrawer() {
-            return new WeblogoConsensualVisualizationDrawer("/visualization-api/v1/weblogo", mockedWebClientSupplier.get());
+            return new WeblogoConsensualVisualizationDrawer(rnapdbeeAdaptersProperties, mockedWebClientSupplier.get());
         }
     }
 }

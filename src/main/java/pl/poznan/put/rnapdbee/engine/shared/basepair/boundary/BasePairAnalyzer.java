@@ -12,6 +12,7 @@ import pl.poznan.put.notation.Saenger;
 import pl.poznan.put.notation.StackingTopology;
 import pl.poznan.put.pdb.PdbNamedResidueIdentifier;
 import pl.poznan.put.rna.InteractionType;
+import pl.poznan.put.rnapdbee.engine.infrastructure.configuration.RnapdbeeAdaptersProperties;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.AdaptersAnalysisDTO;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairDTO;
@@ -37,8 +38,8 @@ public abstract class BasePairAnalyzer {
 
     protected final static Logger logger = LoggerFactory.getLogger(BasePairAnalyzer.class);
 
+    protected final RnapdbeeAdaptersProperties properties;
     protected final WebClient adaptersWebClient;
-
     /**
      * URI/path of the specific adapter - e.g. analyze/mc-annotate. Set in this class' implementation.
      */
@@ -170,7 +171,7 @@ public abstract class BasePairAnalyzer {
                 .body(BodyInserters.fromValue(fileContent))
                 .retrieve()
                 .bodyToMono(AdaptersAnalysisDTO.class)
-                .cache(Duration.ofSeconds(240))
+                .cache(Duration.ofSeconds(properties.getMonoCacheDurationInSeconds()))
                 .block();
     }
 
@@ -199,7 +200,11 @@ public abstract class BasePairAnalyzer {
         return pairsClassifiedAsRepresented;
     }
 
-    BasePairAnalyzer(WebClient adaptersWebClient, String adapterURI) {
+    BasePairAnalyzer(
+            RnapdbeeAdaptersProperties properties,
+            WebClient adaptersWebClient,
+            String adapterURI) {
+        this.properties = properties;
         this.adaptersWebClient = adaptersWebClient;
         this.adapterURI = adapterURI;
     }
