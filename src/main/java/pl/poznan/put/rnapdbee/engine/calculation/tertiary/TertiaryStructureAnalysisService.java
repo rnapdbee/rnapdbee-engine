@@ -25,14 +25,11 @@ import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.ImageService;
 import pl.poznan.put.rnapdbee.engine.shared.parser.TertiaryFileParser;
-import pl.poznan.put.structure.AnalyzedBasePair;
-import pl.poznan.put.structure.ClassifiedBasePair;
 import pl.poznan.put.structure.formats.BpSeq;
 import pl.poznan.put.structure.formats.Converter;
 import pl.poznan.put.structure.formats.Ct;
 import pl.poznan.put.structure.formats.DefaultDotBracketFromPdb;
 import pl.poznan.put.structure.formats.DotBracket;
-import pl.poznan.put.structure.formats.DotBracketFromPdb;
 import pl.poznan.put.structure.formats.ImmutableDefaultDotBracketFromPdb;
 
 import java.io.IOException;
@@ -82,7 +79,7 @@ public class TertiaryStructureAnalysisService {
         final List<SingleTertiaryModelOutput> results = models.stream()
                 .limit(modelsToBeProcessed)
                 .filter(pdbModel -> pdbModel.containsAny(MoleculeType.RNA))
-                .flatMap(pdbModel -> {
+                .map(pdbModel -> {
                     final PdbModel rna = pdbModel.filteredNewInstance(MoleculeType.RNA);
                     final BasePairAnalysis basePairAnalysis = handleBasePairAnalysis(analysisTool,
                             nonCanonicalHandling, removeIsolated, fileContent, rna);
@@ -95,15 +92,11 @@ public class TertiaryStructureAnalysisService {
                     final DotBracket dotBracket = converter.convert(bpSeq);
                     final DefaultDotBracketFromPdb dotBracketFromPdb = ImmutableDefaultDotBracketFromPdb
                             .of(dotBracket.sequence(), dotBracket.structure(), finalModel);
-
-                    final List<DotBracketFromPdb> combinedStrands = determineCombinedStrands(nonCanonicalHandling,
-                            basePairAnalysis.getNonCanonical(), dotBracketFromPdb);
                     title.set(finalModel.title());
 
-                    return combinedStrands.stream()
-                            .map(combinedStrand -> processSingleCombinedStrand(
-                                    analysisTool, nonCanonicalHandling, structuralElementsHandling, visualizationTool,
-                                    finalModel, basePairAnalysis, dotBracketFromPdb, rna, combinedStrand));
+                    return buildSingleModelOutputFromAnalysis(
+                            analysisTool, nonCanonicalHandling, structuralElementsHandling, visualizationTool,
+                            finalModel, basePairAnalysis, dotBracketFromPdb, rna);
                 })
                 .collect(Collectors.toList());
 
@@ -140,7 +133,7 @@ public class TertiaryStructureAnalysisService {
         return basePairAnalysis;
     }
 
-    private SingleTertiaryModelOutput processSingleCombinedStrand(
+    private SingleTertiaryModelOutput buildSingleModelOutputFromAnalysis(
             AnalysisTool analysisTool,
             NonCanonicalHandling nonCanonicalHandling,
             StructuralElementsHandling structuralElementsHandling,
@@ -148,22 +141,20 @@ public class TertiaryStructureAnalysisService {
             PdbModel structureModel,
             BasePairAnalysis basePairAnalysis,
             DefaultDotBracketFromPdb dotBracket,
-            PdbModel rna,
-            DotBracketFromPdb combinedStrand) {
+            PdbModel rna) {
         final BasePairAnalysis filteredResults =
-                basePairAnalysis.filtered(combinedStrand.identifierSet());
+                basePairAnalysis.filtered(dotBracket.identifierSet());
 
         ImageInformationOutput image = imageService.visualizeCanonicalOrNonCanonical(visualizationTool,
-                combinedStrand, dotBracket, structureModel, basePairAnalysis.getNonCanonical(), nonCanonicalHandling);
+                dotBracket, structureModel, basePairAnalysis.getNonCanonical(), nonCanonicalHandling);
 
-        final BpSeq bpseq = BpSeq.fromDotBracket(combinedStrand);
-        // todo: maybe fromBpSeq is sufficient? -> ask
+        final BpSeq bpseq = BpSeq.fromDotBracket(dotBracket);
         final Ct ct = Ct.fromBpSeqAndPdbModel(bpseq, structureModel);
         final List<String> messages = generateMessageLog(filteredResults, image, analysisTool, rna);
 
         final StructuralElementFinder structuralElementFinder =
                 new StructuralElementFinder(
-                        combinedStrand,
+                        dotBracket,
                         structuralElementsHandling.canElementsEndWithPseudoknots(),
                         structuralElementsHandling.isReuseSingleStrandsFromLoopsEnabled());
         structuralElementFinder.generatePdb(structureModel);
@@ -187,21 +178,6 @@ public class TertiaryStructureAnalysisService {
                 .withStackingInteractions(basePairAnalysis.getStacking())
                 .withOutput2D(output2D)
                 .build();
-    }
-
-    private List<DotBracketFromPdb> determineCombinedStrands(NonCanonicalHandling nonCanonicalHandling,
-                                                             List<AnalyzedBasePair> nonCanonicalBasePairs,
-                                                             DefaultDotBracketFromPdb dotBracket) {
-        return (nonCanonicalHandling.isAnalysis() || nonCanonicalHandling.isVisualization())
-                ? dotBracket
-                .combineStrands(nonCanonicalBasePairs.stream()
-                        .filter(ClassifiedBasePair::isPairing)
-                        .collect(Collectors.toList()))
-                : dotBracket
-                .combineStrands()
-                .stream()
-                .map(db -> (DotBracketFromPdb) db)
-                .collect(Collectors.toList());
     }
 
     /**
