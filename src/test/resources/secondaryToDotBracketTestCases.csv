@@ -1,6 +1,8 @@
 ### File containing test cases for (...) -> Image.
 ### Currently the tests are checking if length of analysis's lists with parameters (bpseq, interactions...) is equal to expected lengths.
-### It is possible to assert multiple analysis outputs - just provide new set of sizes (bpseq size, ct size etc.) at the end. The test is flexible and will assert sizes of multiple analysis outputs.
+### the parameters are: bpSeqSize, ctEntriesSize, interactionsSize, strandsSize, structuralElementStemsSize,
+###     structuralElementSingleStrandsSize, structuralElementLoopsSize, structuralElementSingleStrands3pSize,
+###     structuralElementSingleStrands5pSize
 # First test case
 USE_PSEUDOKNOTS,VARNA,2Z74.bpseq,true,152,152,0,1,8,13,6,1,1
 # Second test case
@@ -14,4 +16,8 @@ USE_PSEUDOKNOTS,VARNA,3G78.dbn,false,421,421,5,2,26,49,29,2,3
 # Add each new test case with hash at the beginning so we don't get lost in this file.
 # Sixth test case
 USE_PSEUDOKNOTS,VARNA,3G78.dbn,true,421,421,5,2,26,46,27,2,3
+# Seventh test case - dbn file with 3 strands, of which the third is independent from the other two.
+USE_PSEUDOKNOTS,VARNA,third_strand_is_independent.dbn,true,228,228,1,3,13,14,13,4,3
+# Eighth test case - dbn file with 3 strands, of which the second is independent from the other two.
+USE_PSEUDOKNOTS,VARNA,second_strand_is_independent.dbn,true,228,228,0,3,13,14,12,4,3
 # Add each new test case with hash at the beginning so we don't get lost in this file.
