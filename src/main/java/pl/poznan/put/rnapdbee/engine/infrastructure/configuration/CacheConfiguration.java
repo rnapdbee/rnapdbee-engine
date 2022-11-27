@@ -16,7 +16,7 @@ public class CacheConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(CacheConfiguration.class);
 
     /**
-     * Clears the whole cache entries each given
+     * Clears the whole cache entries once every time configured in properties.
      */
     @CacheEvict(value = {
             "NonCanonicalImage",
