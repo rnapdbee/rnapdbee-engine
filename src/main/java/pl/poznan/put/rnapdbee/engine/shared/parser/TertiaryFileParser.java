@@ -19,7 +19,7 @@ public class TertiaryFileParser {
     private final PdbParser pdbParser = new PdbParser(false);
 
     @Nonnull
-    @Cacheable("fileContents")
+    @Cacheable("FileContents")
     public List<? extends PdbModel> parseFileContents(final InputType inputType, final String fileContents) {
         switch (inputType) {
             case PDB:
