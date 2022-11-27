@@ -13,7 +13,7 @@ import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
 public class RnapolisBasePairAnalyzer extends BasePairAnalyzer {
 
     @Override
-    @Cacheable("RNAPolis")
+    @Cacheable("AnalysisRNAPolis")
     public BasePairAnalysis analyze(String fileContent, boolean includeNonCanonical, int modelNumber) {
         return super.performAnalysis(fileContent, includeNonCanonical, modelNumber);
     }

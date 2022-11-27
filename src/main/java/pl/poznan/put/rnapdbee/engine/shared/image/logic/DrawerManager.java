@@ -42,7 +42,7 @@ public class DrawerManager {
      * @param dotBracket        dot bracket which is being visualized
      * @return populated Image Information Output instance
      */
-    @Cacheable("canonicalImage")
+    @Cacheable("CanonicalImage")
     // TODO: drawCanonical and drawNonCanonical differs by 2 lines and loggers,
     //  refactor to lambdas after unit tests are written.
     public ImageInformationOutput drawCanonical(
@@ -104,7 +104,7 @@ public class DrawerManager {
      * @param nonCanonicalBasePairs non-canonical pairs which are being visualized
      * @return populated Image Information Output instance
      */
-    @Cacheable("nonCanonicalImage")
+    @Cacheable("NonCanonicalImage")
     public ImageInformationOutput drawCanonicalAndNonCanonical(
             VisualizationTool visualizationTool,
             final DotBracketFromPdb dotBracket,
