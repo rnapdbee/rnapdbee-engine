@@ -12,8 +12,8 @@ public class ConsensualVisualizationDrawerConfiguration {
 
     @Bean
     ConsensualVisualizationDrawer consensualVisualizationDrawer(
-            @Autowired @Qualifier("adaptersWebClient") WebClient adaptersWebClient,
-            @Value("${rnapdbee.adapters.global.weblogo.path}") String pathToWeblogoEndpoint) {
-        return new WeblogoConsensualVisualizationDrawer(pathToWeblogoEndpoint, adaptersWebClient);
+            @Autowired RnapdbeeAdaptersProperties properties,
+            @Autowired @Qualifier("adaptersWebClient") WebClient adaptersWebClient) {
+        return new WeblogoConsensualVisualizationDrawer(properties, adaptersWebClient);
     }
 }
