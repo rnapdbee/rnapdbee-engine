@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
+import pl.poznan.put.rnapdbee.engine.shared.parser.ContentDispositionParser;
 
 @ExtendWith(MockitoExtension.class)
 class CalculationControllerTest {
@@ -30,12 +31,16 @@ class CalculationControllerTest {
     CalculationService calculationService;
 
     @Mock
+    ContentDispositionParser contentDispositionParser;
+
+    @Mock
     Logger logger;
 
     @InjectMocks
     CalculationController cut;
 
-    private final static String mockedFilename = "test.cif";
+    private final static String mockedFilename = "test.ct";
+    private final static String mockedHeader = "header;";
     private final static String mockedContent = "mocked content";
 
     private final static List<String> MOCKED_BP_SEQ = List.of("1 G 0", "2 u 0");
@@ -69,10 +74,12 @@ class CalculationControllerTest {
         Mockito.when(calculationService.handleSecondaryToDotBracketCalculation(Mockito.any(),
                         Mockito.any(), Mockito.eq(true), Mockito.eq(mockedContent), Mockito.eq(mockedFilename)))
                 .thenReturn(expectedSingleAnalysis);
+        Mockito.when(contentDispositionParser.parseContentDispositionHeader(mockedHeader))
+                .thenReturn(mockedFilename);
         // when
         ResponseEntity<Output2D> response = cut
                 .calculateSecondaryToDotBracket(null, null, true,
-                        "Attachment; filename=\"" + mockedFilename + "\"", mockedContent);
+                        mockedHeader, mockedContent);
         // then
         var actualSingleAnalysis = Objects.requireNonNull(response.getBody());
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());

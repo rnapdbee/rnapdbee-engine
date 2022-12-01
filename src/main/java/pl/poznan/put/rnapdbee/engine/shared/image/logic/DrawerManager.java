@@ -53,6 +53,7 @@ public class DrawerManager {
         if (!onlyDotsMinuses || isMainToolVarna) {
             try {
                 final SVGDocument svgDocument = mainDrawer.drawSecondaryStructure(dotBracket);
+                // TODO: add new method for exporting SVG files, handle new type of exception there
                 final byte[] svgDocumentAsByteArray = SVGHelper.export(svgDocument, Format.SVG);
                 return new ImageInformationOutput()
                         .withSuccessfulDrawer(visualizationTool)

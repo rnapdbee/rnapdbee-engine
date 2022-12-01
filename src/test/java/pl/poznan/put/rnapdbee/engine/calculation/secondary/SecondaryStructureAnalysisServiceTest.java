@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import pl.poznan.put.rnapdbee.engine.shared.exception.UnknownFileExtensionException;
 import pl.poznan.put.rnapdbee.engine.testhelp.secondary.SecondaryAnalysisOutputTestInformation;
 import pl.poznan.put.rnapdbee.engine.testhelp.secondary.SecondaryAnalysisOutputTestInformationAggregator;
 import pl.poznan.put.rnapdbee.engine.testhelp.secondary.SecondaryAnalysisOutputTestUtils;
@@ -67,7 +68,7 @@ class SecondaryStructureAnalysisServiceTest {
     @Test
     public void testSecondaryStructureFileAnalysisForWrongFileFormat() {
         Assertions.assertThrows(
-                IllegalArgumentException.class,
+                UnknownFileExtensionException.class,
                 () -> cut.analyzeSecondaryStructureFile(StructuralElementsHandling.USE_PSEUDOKNOTS,
                         VisualizationTool.VARNA,
                         true,

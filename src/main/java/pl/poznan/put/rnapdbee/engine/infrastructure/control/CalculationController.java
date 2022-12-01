@@ -3,8 +3,9 @@ package pl.poznan.put.rnapdbee.engine.infrastructure.control;
 
 import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +22,7 @@ import pl.poznan.put.rnapdbee.engine.shared.domain.ModelSelection;
 import pl.poznan.put.rnapdbee.engine.shared.domain.NonCanonicalHandling;
 import pl.poznan.put.rnapdbee.engine.calculation.tertiary.domain.Output3D;
 import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementsHandling;
+import pl.poznan.put.rnapdbee.engine.shared.parser.ContentDispositionParser;
 
 
 /**
@@ -30,14 +32,16 @@ import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementsHandling;
 @RequestMapping("calculation-api/v1/")
 public class CalculationController {
 
-    private final Logger logger;
+    private final Logger logger = LoggerFactory.getLogger(CalculationController.class);
 
+    private final ContentDispositionParser contentDispositionParser;
     private final CalculationService calculationService;
 
     @Autowired
-    private CalculationController(CalculationService calculationService, Logger logger) {
+    private CalculationController(CalculationService calculationService,
+                                  ContentDispositionParser contentDispositionParser) {
         this.calculationService = calculationService;
-        this.logger = logger;
+        this.contentDispositionParser = contentDispositionParser;
     }
 
     /**
@@ -62,11 +66,11 @@ public class CalculationController {
             @RequestParam("removeIsolated") boolean removeIsolated,
             @RequestParam("structuralElementsHandling") StructuralElementsHandling structuralElementsHandling,
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
-            @RequestHeader("Content-Disposition") String contentDispositionHeader,
+            @RequestHeader(HttpHeaders.CONTENT_DISPOSITION) String contentDispositionHeader,
             @RequestBody String fileContent) {
         logger.info(String.format("Analysis of scenario 3D -> (...) started for content-disposition header %s",
                 contentDispositionHeader));
-        ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
+        String filename = contentDispositionParser.parseContentDispositionHeader(contentDispositionHeader);
         var result = calculationService
                 .handleTertiaryToDotBracketCalculation(
                         modelSelection,
@@ -75,7 +79,7 @@ public class CalculationController {
                         removeIsolated,
                         structuralElementsHandling,
                         visualizationTool,
-                        contentDisposition.getFilename(),
+                        filename,
                         fileContent);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
@@ -96,19 +100,19 @@ public class CalculationController {
             @RequestParam("structuralElementsHandling") StructuralElementsHandling structuralElementsHandling,
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
             @RequestParam("removeIsolated") boolean removeIsolated,
-            @RequestHeader("Content-Disposition") String contentDispositionHeader,
+            @RequestHeader(HttpHeaders.CONTENT_DISPOSITION) String contentDispositionHeader,
             @RequestBody String fileContent) {
 
         logger.info(String.format("Analysis of scenario 2D -> (...) started for content-disposition header %s",
                 contentDispositionHeader));
-        ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
+        String filename = contentDispositionParser.parseContentDispositionHeader(contentDispositionHeader);
         var outputAnalysis = calculationService
                 .handleSecondaryToDotBracketCalculation(
                         structuralElementsHandling,
                         visualizationTool,
                         removeIsolated,
                         fileContent,
-                        contentDisposition.getFilename());
+                        filename);
         return new ResponseEntity<>(outputAnalysis, HttpStatus.OK);
     }
 
@@ -130,13 +134,13 @@ public class CalculationController {
             @RequestParam("includeNonCanonical") boolean includeNonCanonical,
             @RequestParam("removeIsolated") boolean removeIsolated,
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
-            @RequestHeader("Content-Disposition") String contentDispositionHeader,
+            @RequestHeader(HttpHeaders.CONTENT_DISPOSITION) String contentDispositionHeader,
             @RequestBody String fileContent) {
         logger.info(String.format("Analysis of scenario 3D -> multi 2D started for content-disposition header %s",
                 contentDispositionHeader));
-        ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
+        String filename = contentDispositionParser.parseContentDispositionHeader(contentDispositionHeader);
         var result = calculationService.handleTertiaryToMultiSecondaryCalculation(modelSelection,
-                includeNonCanonical, removeIsolated, visualizationTool, contentDisposition.getFilename(), fileContent);
+                includeNonCanonical, removeIsolated, visualizationTool, filename, fileContent);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

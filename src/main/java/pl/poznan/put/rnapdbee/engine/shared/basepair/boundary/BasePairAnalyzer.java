@@ -39,6 +39,7 @@ public abstract class BasePairAnalyzer {
     public abstract AnalysisTool analysisTool();
 
     // TODO: think about using WebFlux advancements when refactoring
+    // TODO: make this method throw new type of checked exception (AnalysisException?) so that it could be handled in multi
     public abstract BasePairAnalysis analyze(String fileContent,
                                              boolean includeNonCanonical,
                                              int modelNumber);
