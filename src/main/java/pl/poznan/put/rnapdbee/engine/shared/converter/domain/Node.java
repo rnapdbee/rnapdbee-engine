@@ -16,6 +16,10 @@ public class Node {
         this.bracketing = -1;
     }
 
+    public boolean isStartRightAfterEnd() {
+        return end - start == 1;
+    }
+
     public int getId() {
         return id;
     }

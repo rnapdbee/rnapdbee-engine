@@ -164,6 +164,9 @@ public class MixedIntegerLinearProgrammingConverter implements Converter {
             for (int i = 0; i < node.getWeight(); i++) {
                 bracketing[node.getStart() + i] = BracketTranslation.getStartingBracket(node.getBracketing());
                 bracketing[node.getEnd() - i] = BracketTranslation.getEndingBracket(node.getBracketing());
+                if (node.isStartRightAfterEnd()) {
+                    break;
+                }
             }
         }
 
