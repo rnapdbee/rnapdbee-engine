@@ -1,6 +1,8 @@
 package pl.poznan.put.rnapdbee.engine.calculation.consensus;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.poznan.put.pdb.analysis.MoleculeType;
@@ -18,6 +20,7 @@ import pl.poznan.put.rnapdbee.engine.shared.domain.InputType;
 import pl.poznan.put.rnapdbee.engine.shared.domain.InputTypeDeterminer;
 import pl.poznan.put.rnapdbee.engine.shared.domain.ModelSelection;
 import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementOutput;
+import pl.poznan.put.rnapdbee.engine.shared.exception.AdaptersErrorException;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.ImageService;
@@ -40,6 +43,8 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @Component
 public class ConsensualStructureAnalysisService {
+
+    private final Logger logger = LoggerFactory.getLogger(ConsensualStructureAnalysisService.class);
 
     private final ImageService imageService;
     private final TertiaryFileParser tertiaryFileParser;
@@ -101,8 +106,17 @@ public class ConsensualStructureAnalysisService {
                     final PdbModel rna = model.filteredNewInstance(MoleculeType.RNA);
                     title.set(rna.title());
                     final int modelNumber = rna.modelNumber();
-                    analyzerPairs.forEach(analyzerPair -> performSingularAnalysis(analyzerPair, fileContents,
-                            includeNonCanonical, removeIsolated, visualizationTool, uniqueInputs, rna, modelNumber));
+                    // TODO: unit test this behaviour.
+                    analyzerPairs.forEach(analyzerPair -> {
+                        try {
+                            performSingularAnalysis(analyzerPair, fileContents,
+                                    includeNonCanonical, removeIsolated, visualizationTool, uniqueInputs, rna, modelNumber);
+                        } catch (AdaptersErrorException e) {
+                            logger.warn(String.format(
+                                    "Adapters error received when analysing structure number %s with adapter %s, nonetheless continuing",
+                                    modelNumber, analyzerPair.getLeft()));
+                        }
+                    });
                 });
 
         List<OutputMultiEntry> outputMultiEntries = new ArrayList<>(uniqueInputs.values());
@@ -122,9 +136,10 @@ public class ConsensualStructureAnalysisService {
                                          final VisualizationTool visualizationTool,
                                          final Map<BpSeq, OutputMultiEntry> uniqueInputs,
                                          final PdbModel rna,
-                                         final int modelNumber) {
+                                         final int modelNumber) throws AdaptersErrorException {
         final AnalysisTool analyzerEnum = analyzerPair.getLeft();
         final BasePairAnalyzer analyzer = analyzerPair.getRight();
+        // TODO: maybe analyze should return optional instead of throwing exception?
         final BasePairAnalysis analysisResults =
                 analyzer.analyze(fileContents, includeNonCanonical, modelNumber);
         if (removeIsolated) {

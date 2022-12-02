@@ -18,4 +18,12 @@ public class ApiExceptionHandler {
         return new ResponseEntity<>(exceptionPattern, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(value = {
+            AdaptersErrorException.class
+    })
+    public ResponseEntity<ExceptionPattern> handleInternalServerErrorException(RuntimeException exception) {
+        ExceptionPattern exceptionPattern = new ExceptionPattern(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(exceptionPattern, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }

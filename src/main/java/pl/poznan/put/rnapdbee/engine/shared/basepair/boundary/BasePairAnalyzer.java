@@ -13,6 +13,7 @@ import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.AdaptersAnalysisDTO;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairDTO;
 import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
+import pl.poznan.put.rnapdbee.engine.shared.exception.AdaptersErrorException;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
 import pl.poznan.put.rnapdbee.engine.shared.multiplet.MultipletSet;
 import pl.poznan.put.structure.AnalyzedBasePair;
@@ -38,15 +39,20 @@ public abstract class BasePairAnalyzer {
 
     public abstract AnalysisTool analysisTool();
 
+    private static final String ERROR_4XX_GOTTEN_FROM_ADAPTERS_FORMAT =
+            "Error 4XX: %s received from rnapdbee-adapters. Full response: %s";
+    private static final String ERROR_5XX_GOTTEN_FROM_ADAPTERS_FORMAT =
+            "Error 5XX: %s received from rnapdbee-adapters. Full response: %s";
+
     // TODO: think about using WebFlux advancements when refactoring
     // TODO: make this method throw new type of checked exception (AnalysisException?) so that it could be handled in multi
     public abstract BasePairAnalysis analyze(String fileContent,
                                              boolean includeNonCanonical,
-                                             int modelNumber);
+                                             int modelNumber) throws AdaptersErrorException;
 
     protected BasePairAnalysis performAnalysis(String fileContent,
                                                boolean includeNonCanonical,
-                                               int modelNumber) {
+                                               int modelNumber) throws AdaptersErrorException {
         logger.info(String.format("base pair analysis started for model number %s", modelNumber));
         AdaptersAnalysisDTO adaptersAnalysis = rnapdbeeAdaptersCaller
                 .performBasePairAnalysis(fileContent, analysisTool(), modelNumber);
