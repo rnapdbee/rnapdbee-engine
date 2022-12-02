@@ -20,4 +20,7 @@ USE_PSEUDOKNOTS,VARNA,3G78.dbn,true,421,421,5,2,26,46,27,2,3
 USE_PSEUDOKNOTS,VARNA,third_strand_is_independent.dbn,true,228,228,1,3,13,14,13,4,3
 # Eighth test case - dbn file with 3 strands, of which the second is independent from the other two.
 USE_PSEUDOKNOTS,VARNA,second_strand_is_independent.dbn,true,228,228,0,3,13,14,12,4,3
+# Ninth test case - ct file with 3 strands, each of them is independent.
+# Commented out for now, because Unit Tests are running with DP_NEW implementation on the Github actions instead of MILP
+#USE_PSEUDOKNOTS,VARNA,third_strand_is_independent.ct,false,228,228,1,3,12,12,15,1,0
 # Add each new test case with hash at the beginning so we don't get lost in this file.
