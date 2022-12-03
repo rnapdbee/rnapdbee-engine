@@ -5690,10 +5690,10 @@ uGUGCCCGGCAUGGGUGCAGUCUAUAGGGUGAGAGUCCCGAACUGUGAAGGCAGAAGUAACAGUUAGCCUAACGCAAGGG
 ","
 >strand
 cAUCCGGUAUCCCAAGACAAUCUCGGGUUGGGUUGGGAAGUAUCAUGGCUAAUCACCAUGAUGCAAUCGGGUUGAACACUUAAUUGGGUUAAAACGGUGGGGGACGAUCCCGUAACAUCCGUCCUAACGGCGACAGACUGCACGGCCCUGCCUCAGGUGUGUCCAAUGAacAGUCGUUCCGAAAGGAAG
-{.{((((<..((((((((((((...))))))))))))..((((((((((..[[[))))))))))..))))((((((((((...)((((((}{.(((((.(((...]]]))).....).))))((...})).....[[[[[})())))))((((.))))))))))))).>.]]]]].(((((..))))).
+{.{((((<..((((((((((((...))))))))))))..((((((((((..[[[))))))))))..))))((((((((((...)((((((}{.(((((.(((...]]]))).....).))))((...})).....[[[[[}()))))))((((.))))))))))))).>.]]]]].(((((..))))).
 "
 #seventh test case
-"bracketing with .().","
+"bracketing with '.().' sequence","
 1 C 0
 2 A 0
 3 C 0
