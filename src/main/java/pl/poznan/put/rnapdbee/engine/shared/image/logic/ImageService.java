@@ -22,7 +22,6 @@ public class ImageService {
 
     public ImageInformationOutput visualizeCanonicalOrNonCanonical(
             VisualizationTool visualizationTool,
-            DotBracket combinedStrand,
             DotBracketFromPdb dotBracketFromPdb,
             PdbModel structureModel,
             List<? extends ClassifiedBasePair> nonCanonicalBasePairs,
@@ -33,7 +32,7 @@ public class ImageService {
         return nonCanonicalHandling.isVisualization()
                 ? drawerManager.drawCanonicalAndNonCanonical(visualizationTool, dotBracketFromPdb, structureModel,
                 nonCanonicalBasePairs)
-                : drawerManager.drawCanonical(visualizationTool, combinedStrand);
+                : drawerManager.drawCanonical(visualizationTool, dotBracketFromPdb);
     }
 
     public ImageInformationOutput visualizeCanonical(VisualizationTool visualizationTool, DotBracket combinedStrand) {
