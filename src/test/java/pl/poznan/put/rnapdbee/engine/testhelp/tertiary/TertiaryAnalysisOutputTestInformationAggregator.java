@@ -10,7 +10,7 @@ import java.util.List;
 
 public class TertiaryAnalysisOutputTestInformationAggregator implements ArgumentsAggregator {
 
-    private static final int NUMBER_OF_AGGREGATED_ARGUMENTS_FOR_EACH_MODEL = 15;
+    private static final int NUMBER_OF_AGGREGATED_ARGUMENTS_FOR_EACH_MODEL = 16;
 
     @Override
     public Object aggregateArguments(ArgumentsAccessor argumentsAccessor, ParameterContext parameterContext)
@@ -27,23 +27,25 @@ public class TertiaryAnalysisOutputTestInformationAggregator implements Argument
 
             int bpSeqSize = argumentsAccessor.getInteger(indexOfNthBpSeq);
             int ctEntriesSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 1);
-            int structuralElementStemsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 2);
-            int structuralElementSLoopsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 3);
-            int structuralElementSingleStrandsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 4);
-            int structuralElementSingleStrands5pSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 5);
-            int structuralElementSingleStrands3pSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 6);
-            int coordinatesLineLength = argumentsAccessor.getInteger(indexOfNthBpSeq + 7);
-            int messagesSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 8);
-            int canonicalInteractionsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 9);
-            int nonCanonicalInteractionsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 10);
-            int interStrandInteractionsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 11);
-            int stackingInteractionsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 12);
-            int basePhosphateInteractionsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 13);
-            int baseRiboseInteractionsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 14);
+            int strandsEntriesSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 2);
+            int structuralElementStemsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 3);
+            int structuralElementSLoopsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 4);
+            int structuralElementSingleStrandsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 5);
+            int structuralElementSingleStrands5pSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 6);
+            int structuralElementSingleStrands3pSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 7);
+            int coordinatesLineLength = argumentsAccessor.getInteger(indexOfNthBpSeq + 8);
+            int messagesSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 9);
+            int canonicalInteractionsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 10);
+            int nonCanonicalInteractionsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 11);
+            int interStrandInteractionsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 12);
+            int stackingInteractionsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 13);
+            int basePhosphateInteractionsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 14);
+            int baseRiboseInteractionsSize = argumentsAccessor.getInteger(indexOfNthBpSeq + 15);
 
-            var tertiaryAnalysisOutputTestInformation = new TertiaryAnalysisOutputTestInformation()
+            var tertiaryAnalysisOutputTestInformation = new TertiaryAnalysisOutputTestInformation.Builder()
                     .withBpSeqSize(bpSeqSize)
                     .withCtSize(ctEntriesSize)
+                    .withStrandsSize(strandsEntriesSize)
                     .withStructuralElementStemsSize(structuralElementStemsSize)
                     .withStructuralElementSLoopsSize(structuralElementSLoopsSize)
                     .withStructuralElementSingleStrandsSize(structuralElementSingleStrandsSize)
@@ -56,7 +58,8 @@ public class TertiaryAnalysisOutputTestInformationAggregator implements Argument
                     .withInterStrandInteractionsSize(interStrandInteractionsSize)
                     .withStackingInteractionsSize(stackingInteractionsSize)
                     .withBasePhosphateInteractionsSize(basePhosphateInteractionsSize)
-                    .withBaseRiboseInteractionsSize(baseRiboseInteractionsSize);
+                    .withBaseRiboseInteractionsSize(baseRiboseInteractionsSize)
+                    .build();
             testInformationArrayList.add(tertiaryAnalysisOutputTestInformation);
         }
         return testInformationArrayList;

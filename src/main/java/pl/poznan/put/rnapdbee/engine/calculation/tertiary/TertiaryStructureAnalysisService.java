@@ -163,6 +163,7 @@ public class TertiaryStructureAnalysisService {
                 .withImageInformation(image)
                 .withCtFromCt(ct)
                 .withBpSeqFromBpSeqObject(bpseq)
+                .withStrandsFromDotBracket(dotBracket)
                 .withStructuralElement(StructuralElementOutput.ofStructuralElementsFinderAndCoordinates(
                         structuralElementFinder, structuralElementFinder.getPdb()))
                 .build();

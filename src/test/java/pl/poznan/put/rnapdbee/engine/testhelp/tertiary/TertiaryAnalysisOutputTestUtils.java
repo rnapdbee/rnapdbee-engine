@@ -30,6 +30,9 @@ public class TertiaryAnalysisOutputTestUtils {
                 () -> assertEquals(expectedInformation.getCtSize(), singleTertiaryModelOutput.getOutput2D()
                                 .getCt().size(),
                         "CT size is incorrect"),
+                () -> assertEquals(expectedInformation.getStrandsSize(), singleTertiaryModelOutput.getOutput2D()
+                                .getStrands().size(),
+                        "strands size is incorrect"),
                 () -> assertEquals(expectedInformation.getStructuralElementStemsSize(), singleTertiaryModelOutput
                                 .getOutput2D().getStructuralElements().getStems().size(),
                         "Structural Element's Stems size is incorrect"),
