@@ -28,12 +28,11 @@ The server starts on the localhost `8081` port -> http://localhost:8081/
 There is currently no possibility to run this project properly in dockerized, local environment, as it needs Gurobi
 license to run.
 
-[comment]: <> (To run project in command line type:
-```
-mvn clean install
-docker compose up
-```
-)
+### Building on the environment
+
+The project is prepared to be built as a docker image on the environment. After downloading the repository, you may
+build the image using:
+`docker build --build-arg LICENSE_PATH='<path_to_gurobi_wls_license>' -t <image_name> .`
 
 ## Documentation
 
