@@ -124,6 +124,7 @@ components:
     modelSelection:
       in: query
       name: modelSelection
+      required: true
       schema:
         type: "string"
         enum: [ "FIRST", "ALL" ]

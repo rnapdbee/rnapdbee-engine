@@ -216,7 +216,8 @@ public class TertiaryAnalysisOutputTestInformation {
         }
 
         public TertiaryAnalysisOutputTestInformation build() {
-            return new TertiaryAnalysisOutputTestInformation(bpSeqSize,
+            return new TertiaryAnalysisOutputTestInformation(
+                    bpSeqSize,
                     ctSize,
                     strandsSize,
                     structuralElementStemsSize,
