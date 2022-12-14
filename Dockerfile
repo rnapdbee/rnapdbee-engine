@@ -20,13 +20,13 @@ ENV CACHE_EVICT_SPAN_MILLISECONDS=3600000 \
     RNAPDBEE_ADAPTERS_PENDING_ACQUIRE_TIMEOUT=60 \
     RNAPDBEE_ADAPTERS_EVICT_IN_BACKGROUND=120
 
-# Install curl, OpenJDK-11 and Maven
+# Install OpenJDK-11, Maven and curl
 RUN apt-get update -y && \
-    apt-get install -y curl && \
-    apt-get update && \
-    apt-get install -y openjdk-11-jre-headless && \
-    apt-get install -y maven && \
-    apt-get clean
+    apt-get install -y openjdk-11-jre-headless \
+            maven \
+            curl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 # Install gurobi & add gurobi.jar to local maven repository
 RUN curl -L https://packages.gurobi.com/10.0/gurobi10.0.0_linux64.tar.gz > gurobi10.0.0_linux64.tar.gz \
     && tar -xvf gurobi10.0.0_linux64.tar.gz --directory /opt && \
