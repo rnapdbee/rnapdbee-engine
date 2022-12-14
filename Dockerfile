@@ -6,8 +6,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 ARG LICENSE_PATH
 ARG GUROBI_LICENSE_LOCATION_IN_IMAGE=/opt/gurobi1000/license
 # Set gurobi env variables
-ENV GUROBI_HOME=/opt/gurobi1000/linux64 \
-    PATH=$PATH:$GUROBI_HOME/bin \
+ENV GUROBI_HOME=/opt/gurobi1000/linux64
+ENV PATH=$PATH:$GUROBI_HOME/bin \
     LD_LIBRARY_PATH=$GUROBI_HOME/lib \
     GRB_LICENSE_FILE=$GUROBI_LICENSE_LOCATION_IN_IMAGE
 # Set application environment variables
