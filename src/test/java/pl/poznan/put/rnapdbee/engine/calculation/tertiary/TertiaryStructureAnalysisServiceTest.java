@@ -6,6 +6,7 @@ import org.junit.jupiter.params.aggregator.AggregateWith;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import pl.poznan.put.rnapdbee.engine.testhelp.shared.AbstractTertiaryStructureAnalysisTestingClass;
 import pl.poznan.put.rnapdbee.engine.testhelp.shared.configuration.TestConverterConfiguration;
@@ -22,6 +23,7 @@ import java.util.List;
 
 
 @SpringBootTest
+@ActiveProfiles("test")
 @ContextConfiguration(classes = {
         AbstractTertiaryStructureAnalysisTestingClass.BeansReplacement.class,
         TestConverterConfiguration.class})

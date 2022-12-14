@@ -4,9 +4,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.springframework.boot.test.context.SpringBootTest;
-import pl.poznan.put.rnapdbee.engine.shared.EncodingUtils;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class EncodingUtilsTest {
 
     @ParameterizedTest
