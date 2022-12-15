@@ -1,4 +1,4 @@
-package pl.poznan.put.rnapdbee.engine.calculation.consensus.visualization.domain;
+package pl.poznan.put.rnapdbee.engine.shared.integration.adapters.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import pl.poznan.put.rnapdbee.engine.calculation.secondary.domain.SingleStrandOutput;

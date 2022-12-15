@@ -34,6 +34,12 @@ public class RnapdbeeAdaptersProperties {
     private String rnapolisPath;
     @Value("${rnapdbee.adapters.global.weblogo.path}")
     private String weblogoPath;
+    @Value("${rnapdbee.adapters.global.rchie.path}")
+    private String rChiePath;
+    @Value("${rnapdbee.adapters.global.pseudoviewer.path}")
+    private String pseudoViewerPath;
+    @Value("${rnapdbee.adapters.global.rnapuzzler.path}")
+    private String rnaPuzzlerPath;
 
     public Integer getMaxConnections() {
         return maxConnections;
@@ -89,5 +95,17 @@ public class RnapdbeeAdaptersProperties {
 
     public String getWeblogoPath() {
         return weblogoPath;
+    }
+
+    public String getRChiePath() {
+        return rChiePath;
+    }
+
+    public String getPseudoViewerPath() {
+        return pseudoViewerPath;
+    }
+
+    public String getRnaPuzzlerPath() {
+        return rnaPuzzlerPath;
     }
 }

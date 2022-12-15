@@ -23,6 +23,8 @@ import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.RnaViewBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.RnapolisBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.infrastructure.configuration.AdapterWebClientConfiguration;
+import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.component.PathDeterminer;
+import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RNApdbeeAdaptersCaller;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -132,46 +134,52 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
 
         @Autowired
         RnapdbeeAdaptersProperties rnapdbeeAdaptersProperties;
+        @Autowired
+        PathDeterminer pathDeterminer;
 
         Supplier<WebClient> mockedWebClientSupplier = () -> WebClient.builder()
                 .baseUrl(String.format("http://localhost:%s", mockWebServer.getPort()))
                 .exchangeStrategies(AdapterWebClientConfiguration.EXCHANGE_STRATEGIES)
                 .build();
 
+        Supplier<RNApdbeeAdaptersCaller> mockedRnapdbeeAdaptersCallerSupplier =
+                () -> new RNApdbeeAdaptersCaller(rnapdbeeAdaptersProperties, mockedWebClientSupplier.get(),
+                        pathDeterminer);
+
         @Primary
         @Bean
         BarnabaBasePairAnalyzer mockBarnabaBasePairAnalyzer() {
-            return new BarnabaBasePairAnalyzer(rnapdbeeAdaptersProperties, mockedWebClientSupplier.get());
+            return new BarnabaBasePairAnalyzer(mockedRnapdbeeAdaptersCallerSupplier.get());
         }
 
         @Primary
         @Bean
         BPNetBasePairAnalyzer mockBPNetBasePairAnalyzer() {
-            return new BPNetBasePairAnalyzer(rnapdbeeAdaptersProperties, mockedWebClientSupplier.get());
+            return new BPNetBasePairAnalyzer(mockedRnapdbeeAdaptersCallerSupplier.get());
         }
 
         @Primary
         @Bean
         MCAnnotateBasePairAnalyzer mockMcAnnotateBasePairAnalyzer() {
-            return new MCAnnotateBasePairAnalyzer(rnapdbeeAdaptersProperties, mockedWebClientSupplier.get());
+            return new MCAnnotateBasePairAnalyzer(mockedRnapdbeeAdaptersCallerSupplier.get());
         }
 
         @Primary
         @Bean
         RnaViewBasePairAnalyzer mockRnaViewBasePairAnalyzer() {
-            return new RnaViewBasePairAnalyzer(rnapdbeeAdaptersProperties, mockedWebClientSupplier.get());
+            return new RnaViewBasePairAnalyzer(mockedRnapdbeeAdaptersCallerSupplier.get());
         }
 
         @Primary
         @Bean
         RnapolisBasePairAnalyzer mockRnapolisBasePairAnalyzer() {
-            return new RnapolisBasePairAnalyzer(rnapdbeeAdaptersProperties, mockedWebClientSupplier.get());
+            return new RnapolisBasePairAnalyzer(mockedRnapdbeeAdaptersCallerSupplier.get());
         }
 
         @Primary
         @Bean
         WeblogoConsensualVisualizationDrawer mockWeblogoConsensualVisualizationDrawer() {
-            return new WeblogoConsensualVisualizationDrawer(rnapdbeeAdaptersProperties, mockedWebClientSupplier.get());
+            return new WeblogoConsensualVisualizationDrawer(mockedRnapdbeeAdaptersCallerSupplier.get());
         }
     }
 }

@@ -2,15 +2,19 @@ package pl.poznan.put.rnapdbee.engine.shared.basepair.boundary;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
-import pl.poznan.put.rnapdbee.engine.infrastructure.configuration.RnapdbeeAdaptersProperties;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
+import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
+import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RNApdbeeAdaptersCaller;
 
 @Component
 public class RnapolisBasePairAnalyzer extends BasePairAnalyzer {
+
+    @Override
+    public AnalysisTool analysisTool() {
+        return AnalysisTool.RNAPOLIS;
+    }
 
     @Override
     @Cacheable("AnalysisRNAPolis")
@@ -19,8 +23,7 @@ public class RnapolisBasePairAnalyzer extends BasePairAnalyzer {
     }
 
     @Autowired
-    public RnapolisBasePairAnalyzer(RnapdbeeAdaptersProperties properties,
-                                    @Autowired @Qualifier("adaptersWebClient") WebClient adaptersWebClient) {
-        super(properties, adaptersWebClient, properties.getRnapolisPath());
+    public RnapolisBasePairAnalyzer(RNApdbeeAdaptersCaller rnApdbeeAdaptersCaller) {
+        super(rnApdbeeAdaptersCaller);
     }
 }
