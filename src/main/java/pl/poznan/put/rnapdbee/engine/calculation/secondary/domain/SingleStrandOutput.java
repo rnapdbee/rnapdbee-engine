@@ -17,7 +17,7 @@ public class SingleStrandOutput {
 
     public static SingleStrandOutput ofStrand(Strand strand) {
         return new SingleStrandOutputBuilder()
-                .withName(strand.name())
+                .withName(">strand_" + (strand.name() == null ? "" : strand.name()))
                 .withSequence(strand.sequence())
                 .withStructure(strand.structure())
                 .build();
