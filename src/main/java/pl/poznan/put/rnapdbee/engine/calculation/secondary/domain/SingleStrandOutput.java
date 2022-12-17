@@ -15,7 +15,7 @@ public class SingleStrandOutput {
     private final String sequence;
     @JsonProperty("structure")
     private final String structure;
-    // FIXME: dto class should not contain this kind of logic
+
     @JsonIgnore
     private final String shortName;
 

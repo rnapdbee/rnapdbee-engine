@@ -84,7 +84,7 @@ public class RNApdbeeAdaptersCaller {
     public SVGDocument performVisualization(DotBracket dotBracket,
                                             PdbModel pdbModel,
                                             VisualizationTool visualizationTool,
-                                            List<? extends ClassifiedBasePair> nonCanonicalPairs) {
+                                            List<? extends ClassifiedBasePair> nonCanonicalPairs) throws IOException {
 
         String adapterUri = pathDeterminer.determinePath(visualizationTool);
 
@@ -96,7 +96,7 @@ public class RNApdbeeAdaptersCaller {
         return performVisualizationCall(adapterUri, adaptersVisualizationPayload);
     }
 
-    public SVGDocument performVisualization(DotBracket dotBracket, VisualizationTool visualizationTool) {
+    public SVGDocument performVisualization(DotBracket dotBracket, VisualizationTool visualizationTool) throws IOException {
 
         String adapterUri = pathDeterminer.determinePath(visualizationTool);
 
@@ -105,7 +105,8 @@ public class RNApdbeeAdaptersCaller {
         return performVisualizationCall(adapterUri, adaptersVisualizationPayload);
     }
 
-    private SVGDocument performVisualizationCall(String adapterUri, AdaptersVisualizationPayload adaptersVisualizationPayload) {
+    private SVGDocument performVisualizationCall(String adapterUri,
+                                                 AdaptersVisualizationPayload adaptersVisualizationPayload) throws IOException {
         byte[] adaptersResponse = adaptersWebClient
                 .post()
                 .uri(adapterUri)
@@ -116,21 +117,21 @@ public class RNApdbeeAdaptersCaller {
                 .cache(Duration.ofSeconds(properties.getMonoCacheDurationInSeconds()))
                 .block();
 
-        File tempFile = null;
+        if (adaptersResponse == null) {
+            throw new RuntimeException("Response from rnapdbee-adapters is null");
+        }
 
-        // TODO: put this madness in another method...
-        // TODO: deal with null warnings
+        File tempFile = null;
         try {
             tempFile = File.createTempFile("adapters-response", ".svg");
             FileUtils.writeByteArrayToFile(tempFile, adaptersResponse);
             return SVGHelper.fromFile(tempFile);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            LOGGER.error("Exception thrown when saving rnapdbee-adapters result", e);
+            throw e;
         } finally {
-            try {
+            if (tempFile != null) {
                 FileUtils.forceDelete(tempFile);
-            } catch (IOException e) {
-                LOGGER.warn("unexpected exception met when deleting temporary file", e);
             }
         }
     }
