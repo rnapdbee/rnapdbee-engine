@@ -12,6 +12,9 @@ import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.DrawerVarnaTz;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.EmptyDrawer;
+import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.PseudoViewerStructureDrawer;
+import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.RChieStructureDrawer;
+import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.RnaPuzzlerStructureDrawer;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.SecondaryStructureDrawer;
 import pl.poznan.put.structure.ClassifiedBasePair;
 import pl.poznan.put.structure.formats.DotBracket;
@@ -34,6 +37,12 @@ public class DrawerManager {
     private final EmptyDrawer emptyDrawer;
 
     private final DrawerVarnaTz drawerVarnaTz;
+
+    private final RChieStructureDrawer rChieStructureDrawer;
+
+    private final PseudoViewerStructureDrawer pseudoViewerStructureDrawer;
+
+    private final RnaPuzzlerStructureDrawer rnaPuzzlerStructureDrawer;
 
     /**
      * Draws secondary structure with canonical pairs in SVG format.
@@ -165,10 +174,17 @@ public class DrawerManager {
      * @param visualizationTool enum of visualization tool
      * @return {@link SecondaryStructureDrawer} drawer
      */
+    // TODO: move to another Factory class.
     private SecondaryStructureDrawer loadDrawer(VisualizationTool visualizationTool) {
         switch (visualizationTool) {
             case VARNA:
                 return drawerVarnaTz;
+            case R_CHIE:
+                return rChieStructureDrawer;
+            case PSEUDO_VIEWER:
+                return pseudoViewerStructureDrawer;
+            case RNA_PUZZLER:
+                return rnaPuzzlerStructureDrawer;
             case NONE:
             default:
                 return emptyDrawer;
@@ -176,9 +192,12 @@ public class DrawerManager {
     }
 
     @Autowired
-    public DrawerManager(Logger logger, EmptyDrawer emptyDrawer, DrawerVarnaTz drawerVarnaTz) {
+    public DrawerManager(Logger logger, EmptyDrawer emptyDrawer, DrawerVarnaTz drawerVarnaTz, RChieStructureDrawer rChieStructureDrawer, PseudoViewerStructureDrawer pseudoViewerStructureDrawer, RnaPuzzlerStructureDrawer rnaPuzzlerStructureDrawer) {
         this.logger = logger;
         this.emptyDrawer = emptyDrawer;
         this.drawerVarnaTz = drawerVarnaTz;
+        this.rChieStructureDrawer = rChieStructureDrawer;
+        this.pseudoViewerStructureDrawer = pseudoViewerStructureDrawer;
+        this.rnaPuzzlerStructureDrawer = rnaPuzzlerStructureDrawer;
     }
 }
