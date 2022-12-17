@@ -28,8 +28,9 @@ public class AdapterWebClientConfiguration {
     private final String adaptersBaseUrl;
 
     @Bean("adaptersWebClient")
-    public WebClient adaptersWebClient() {
-        return WebClient.builder()
+    @Autowired
+    public WebClient adaptersWebClient(WebClient.Builder builder) {
+        return builder
                 .exchangeStrategies(EXCHANGE_STRATEGIES)
                 .baseUrl(adaptersBaseUrl)
                 .clientConnector(new ReactorClientHttpConnector(HttpClient.create(provider)))
