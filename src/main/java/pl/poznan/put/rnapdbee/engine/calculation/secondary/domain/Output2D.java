@@ -7,6 +7,7 @@ import pl.poznan.put.structure.formats.BpSeq;
 import pl.poznan.put.structure.formats.Ct;
 import pl.poznan.put.structure.formats.DotBracket;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -98,9 +99,14 @@ public class Output2D {
         }
 
         public Output2DBuilder withCtFromCt(Ct ct) {
-            return withCt(ct.entries().stream()
+            ArrayList<String> ctArray = new ArrayList<>();
+
+            ctArray.add(String.valueOf(ct.entries().size()));
+            ctArray.addAll(ct.entries().stream()
                     .map(Ct.ExtendedEntry::toString)
                     .collect(Collectors.toList()));
+
+            return withCt(List.copyOf(ctArray));
         }
 
         public Output2DBuilder withInteractions(List<String> interactions) {
