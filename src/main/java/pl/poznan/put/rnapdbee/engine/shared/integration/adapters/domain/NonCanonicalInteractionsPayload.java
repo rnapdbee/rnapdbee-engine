@@ -10,20 +10,20 @@ import java.util.stream.Collectors;
 public class NonCanonicalInteractionsPayload {
 
     @JsonProperty
-    private List<PairPayload> notRepresented;
+    private List<PairPayload> represented;
 
     @JsonProperty
-    private List<PairPayload> represented;
+    private List<PairPayload> notRepresented;
 
     public static final NonCanonicalInteractionsPayload EMPTY_PAYLOAD = new
             NonCanonicalInteractionsPayload(Collections.emptyList(), Collections.emptyList());
 
-    public List<PairPayload> getNotRepresented() {
-        return notRepresented;
-    }
-
     public List<PairPayload> getRepresented() {
         return represented;
+    }
+
+    public List<PairPayload> getNotRepresented() {
+        return notRepresented;
     }
 
     public static NonCanonicalInteractionsPayload of(List<? extends ClassifiedBasePair> basePairs) {
@@ -40,8 +40,8 @@ public class NonCanonicalInteractionsPayload {
         return new NonCanonicalInteractionsPayload(representedPairs, notRepresentedPairs);
     }
 
-    private NonCanonicalInteractionsPayload(List<PairPayload> notRepresented,
-                                            List<PairPayload> represented) {
+    private NonCanonicalInteractionsPayload(List<PairPayload> represented,
+                                            List<PairPayload> notRepresented) {
         this.notRepresented = notRepresented;
         this.represented = represented;
     }
