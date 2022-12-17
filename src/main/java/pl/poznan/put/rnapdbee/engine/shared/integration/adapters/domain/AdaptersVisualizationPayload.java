@@ -2,7 +2,6 @@ package pl.poznan.put.rnapdbee.engine.shared.integration.adapters.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import pl.poznan.put.pdb.analysis.PdbModel;
-import pl.poznan.put.rnapdbee.engine.calculation.secondary.domain.SingleStrandOutput;
 import pl.poznan.put.structure.ClassifiedBasePair;
 import pl.poznan.put.structure.formats.DotBracket;
 
@@ -13,7 +12,7 @@ import java.util.stream.Collectors;
 public class AdaptersVisualizationPayload {
 
     @JsonProperty
-    private final List<SingleStrandOutput> strands;
+    private final List<StrandPayload> strands;
 
     @JsonProperty
     private final List<ResiduePayload> residues;
@@ -24,7 +23,7 @@ public class AdaptersVisualizationPayload {
     @JsonProperty
     private final NonCanonicalInteractionsPayload nonCanonicalInteractions;
 
-    public List<SingleStrandOutput> getStrands() {
+    public List<StrandPayload> getStrands() {
         return strands;
     }
 
@@ -40,7 +39,7 @@ public class AdaptersVisualizationPayload {
         return nonCanonicalInteractions;
     }
 
-    public AdaptersVisualizationPayload(List<SingleStrandOutput> strands,
+    public AdaptersVisualizationPayload(List<StrandPayload> strands,
                                         List<ResiduePayload> residues,
                                         List<ChainWithResiduesPayload> chainsWithResidues,
                                         NonCanonicalInteractionsPayload nonCanonicalInteractions) {
@@ -54,9 +53,9 @@ public class AdaptersVisualizationPayload {
                                                   PdbModel pdbModel,
                                                   List<? extends ClassifiedBasePair> nonCanonicalPairs) {
 
-        List<SingleStrandOutput> strands = dotBracket
+        List<StrandPayload> strands = dotBracket
                 .strands().stream()
-                .map(SingleStrandOutput::ofStrand).collect(Collectors.toList());
+                .map(StrandPayload::ofStrand).collect(Collectors.toList());
         List<ResiduePayload> residues = pdbModel
                 .residues().stream()
                 .map(ResiduePayload::of).collect(Collectors.toList());
@@ -71,9 +70,9 @@ public class AdaptersVisualizationPayload {
 
     public static AdaptersVisualizationPayload of(DotBracket dotBracket) {
 
-        List<SingleStrandOutput> strands = dotBracket
+        List<StrandPayload> strands = dotBracket
                 .strands().stream()
-                .map(SingleStrandOutput::ofStrand).collect(Collectors.toList());
+                .map(StrandPayload::ofStrand).collect(Collectors.toList());
 
         return new AdaptersVisualizationPayload(
                 strands,

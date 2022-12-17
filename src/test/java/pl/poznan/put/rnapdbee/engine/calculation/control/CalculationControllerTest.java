@@ -80,7 +80,7 @@ class CalculationControllerTest {
         Assertions.assertEquals(expectedSingleAnalysis.getCt(), actualSingleAnalysis.getCt());
         Assertions.assertEquals(expectedSingleAnalysis.getInteractions(), actualSingleAnalysis.getInteractions());
 
-        Assertions.assertEquals(expectedSingleAnalysis.getStrands().get(0).getName(), actualSingleAnalysis.getStrands().get(0).getName());
+        Assertions.assertEquals(expectedSingleAnalysis.getStrands().get(0).getFullName(), actualSingleAnalysis.getStrands().get(0).getFullName());
         Assertions.assertEquals(expectedSingleAnalysis.getStrands().get(0).getSequence(), actualSingleAnalysis.getStrands().get(0).getSequence());
         Assertions.assertEquals(expectedSingleAnalysis.getStrands().get(0).getStructure(), actualSingleAnalysis.getStrands().get(0).getStructure());
 
