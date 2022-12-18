@@ -8,7 +8,9 @@ import org.springframework.stereotype.Component;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.ConsensualVisualization;
-import pl.poznan.put.rnapdbee.engine.calculation.consensus.visualization.boundary.ConsensualVisualizationDrawer;
+import pl.poznan.put.rnapdbee.engine.shared.exception.ConsensualVisualizationException;
+import pl.poznan.put.rnapdbee.engine.shared.image.exception.VisualizationException;
+import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.ConsensualVisualizationDrawer;
 import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.OutputMulti;
 import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.OutputMultiEntry;
 import pl.poznan.put.rnapdbee.engine.calculation.secondary.domain.Output2D;
@@ -19,6 +21,7 @@ import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.shared.domain.InputType;
 import pl.poznan.put.rnapdbee.engine.shared.domain.InputTypeDeterminer;
 import pl.poznan.put.rnapdbee.engine.shared.domain.ModelSelection;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.exception.AdaptersErrorException;
 import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementOutput;
 import pl.poznan.put.rnapdbee.engine.shared.exception.AdaptersErrorException;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
@@ -31,6 +34,7 @@ import pl.poznan.put.structure.formats.Converter;
 import pl.poznan.put.structure.formats.Ct;
 import pl.poznan.put.structure.formats.DotBracket;
 import pl.poznan.put.structure.formats.ImmutableDefaultDotBracketFromPdb;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -44,8 +48,13 @@ import java.util.concurrent.atomic.AtomicReference;
 @Component
 public class ConsensualStructureAnalysisService {
 
-    private final Logger logger = LoggerFactory.getLogger(ConsensualStructureAnalysisService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConsensualStructureAnalysisService.class);
 
+    private static final String BASE_PAIR_ANALYSIS_FAILED =
+            "Base pair analysis failed.";
+    private static final String BASE_PAIR_ANALYSIS_FAILED_DEBUG_FORMAT =
+            "Base pair analysis failed for visualizationTool %s, includeNonCanonical %s and modelNumber %s." +
+                    " Continuing analysis for other models & adapters. FileContent: %s";
     private final ImageService imageService;
     private final TertiaryFileParser tertiaryFileParser;
     private final BasePairAnalyzerFactory basePairAnalyzerFactory;
@@ -106,21 +115,18 @@ public class ConsensualStructureAnalysisService {
                     final PdbModel rna = model.filteredNewInstance(MoleculeType.RNA);
                     title.set(rna.title());
                     final int modelNumber = rna.modelNumber();
-                    // TODO: unit test this behaviour.
-                    analyzerPairs.forEach(analyzerPair -> {
-                        try {
-                            performSingularAnalysis(analyzerPair, fileContents,
-                                    includeNonCanonical, removeIsolated, visualizationTool, uniqueInputs, rna, modelNumber);
-                        } catch (AdaptersErrorException e) {
-                            logger.warn(String.format(
-                                    "Adapters error received when analysing structure number %s with adapter %s, nonetheless continuing",
-                                    modelNumber, analyzerPair.getLeft()));
-                        }
-                    });
+                    analyzerPairs.forEach(analyzerPair -> performSingularAnalysis(analyzerPair, fileContents,
+                            includeNonCanonical, removeIsolated, visualizationTool, uniqueInputs, rna, modelNumber));
                 });
 
         List<OutputMultiEntry> outputMultiEntries = new ArrayList<>(uniqueInputs.values());
-        byte[] visualization = consensualVisualizationDrawer.performVisualization(outputMultiEntries);
+        byte[] visualization;
+
+        try {
+            visualization = consensualVisualizationDrawer.performVisualization(outputMultiEntries);
+        } catch (VisualizationException e) {
+            throw new ConsensualVisualizationException();
+        }
 
         return new OutputMulti.OutputMultiBuilder()
                 .withEntries(outputMultiEntries)
@@ -136,12 +142,20 @@ public class ConsensualStructureAnalysisService {
                                          final VisualizationTool visualizationTool,
                                          final Map<BpSeq, OutputMultiEntry> uniqueInputs,
                                          final PdbModel rna,
-                                         final int modelNumber) throws AdaptersErrorException {
+                                         final int modelNumber) {
         final AnalysisTool analyzerEnum = analyzerPair.getLeft();
         final BasePairAnalyzer analyzer = analyzerPair.getRight();
-        // TODO: maybe analyze should return optional instead of throwing exception?
-        final BasePairAnalysis analysisResults =
-                analyzer.analyze(fileContents, includeNonCanonical, modelNumber);
+        final BasePairAnalysis analysisResults;
+
+        try {
+            analysisResults = analyzer.analyze(fileContents, includeNonCanonical, modelNumber);
+        } catch (AdaptersErrorException exception) {
+            LOGGER.warn(BASE_PAIR_ANALYSIS_FAILED, exception);
+            LOGGER.debug(String.format(BASE_PAIR_ANALYSIS_FAILED_DEBUG_FORMAT, visualizationTool, includeNonCanonical,
+                            modelNumber, fileContents),
+                    exception);
+            return;
+        }
         if (removeIsolated) {
             analysisResults.removeIsolatedBasePairs(rna);
         }

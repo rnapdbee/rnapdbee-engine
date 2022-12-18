@@ -2,12 +2,12 @@ package pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer;
 
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.pdb.analysis.PdbModel;
+import pl.poznan.put.rnapdbee.engine.shared.image.exception.VisualizationException;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
 import pl.poznan.put.structure.ClassifiedBasePair;
 import pl.poznan.put.structure.formats.DotBracket;
 import pl.poznan.put.structure.formats.DotBracketFromPdb;
 
-import java.io.IOException;
 import java.util.List;
 
 public abstract class RnaPDBeeAdaptersStructureDrawer implements SecondaryStructureDrawer {
@@ -15,7 +15,7 @@ public abstract class RnaPDBeeAdaptersStructureDrawer implements SecondaryStruct
     private final RnaPDBeeAdaptersCaller rnaPDBeeAdaptersCaller;
 
     @Override
-    public SVGDocument drawSecondaryStructure(DotBracket dotBracket) throws IOException {
+    public SVGDocument drawSecondaryStructure(DotBracket dotBracket) throws VisualizationException {
         return rnaPDBeeAdaptersCaller.performVisualization(dotBracket, getEnum());
     }
 
@@ -23,7 +23,7 @@ public abstract class RnaPDBeeAdaptersStructureDrawer implements SecondaryStruct
     public SVGDocument drawSecondaryStructure(DotBracketFromPdb dotBracket,
                                               PdbModel structureModel,
                                               List<? extends ClassifiedBasePair> nonCanonicalBasePairs)
-            throws IOException {
+            throws VisualizationException {
         return rnaPDBeeAdaptersCaller.performVisualization(
                 dotBracket,
                 structureModel,

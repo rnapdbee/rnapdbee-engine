@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 public class Templates implements Serializable {
-    private static final Logger logger = LoggerFactory.getLogger(Templates.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Templates.class);
     private static final Set<String> aminoAcids =
             new HashSet<>(Arrays.asList("ALA", "CYS", "ASP", "GLU", "PHE", "GLY", "HIS", "ILE",
                     "LYS", "LEU", "MET", "ASN", "PRO", "GLN", "ARG", "SER",
@@ -55,7 +55,7 @@ public class Templates implements Serializable {
                 }
             }
         } catch (final IOException e) {
-            Templates.logger.error("Failed to load templates", e);
+            Templates.LOGGER.error("Failed to load templates", e);
         }
         if (residue != null) {
             templates.add(residue);

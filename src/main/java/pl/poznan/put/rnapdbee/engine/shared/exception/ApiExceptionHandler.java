@@ -19,7 +19,10 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(value = {
-            AdaptersErrorException.class
+            BasePairAnalysisException.class,
+            ConsensualVisualizationException.class,
+            ConverterException.class,
+            CifParsingException.class
     })
     public ResponseEntity<ExceptionPattern> handleInternalServerErrorException(RuntimeException exception) {
         ExceptionPattern exceptionPattern = new ExceptionPattern(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

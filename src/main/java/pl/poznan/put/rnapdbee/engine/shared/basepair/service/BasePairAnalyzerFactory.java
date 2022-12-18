@@ -51,15 +51,14 @@ public class BasePairAnalyzerFactory {
             case RNAPOLIS:
                 return rnapolisBasePairAnalyzer;
             default:
-                throw new RuntimeException("unhandled enum passed to provideBasePairAnalyzer method");
+                throw new IllegalArgumentException("unhandled enum passed to provideBasePairAnalyzer method");
         }
     }
 
     public Collection<Pair<AnalysisTool, BasePairAnalyzer>> prepareAnalyzerPairs() {
         return List.of(
                 Pair.of(AnalysisTool.MC_ANNOTATE, mcAnnotateBasePairAnalyzer),
-                // fr3d-python is not yet mature software, disabled for now.
-                // Pair.of(AnalysisTool.FR3D_PYTHON, fr3dBasePairAnalyzer),
+                Pair.of(AnalysisTool.FR3D_PYTHON, fr3dBasePairAnalyzer),
                 Pair.of(AnalysisTool.BARNABA, barnabaBasePairAnalyzer),
                 Pair.of(AnalysisTool.BPNET, bpNetBasePairAnalyzer),
                 Pair.of(AnalysisTool.RNAVIEW, rnaViewBasePairAnalyzer),

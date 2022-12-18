@@ -8,6 +8,7 @@ import pl.poznan.put.pdb.analysis.CifParser;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.pdb.analysis.PdbParser;
 import pl.poznan.put.rnapdbee.engine.shared.domain.InputType;
+import pl.poznan.put.rnapdbee.engine.shared.exception.CifParsingException;
 import pl.poznan.put.rnapdbee.engine.shared.exception.UnknownFileExtensionException;
 
 import javax.annotation.Nonnull;
@@ -33,7 +34,8 @@ public class TertiaryFileParser {
                 try {
                     return cifParser.parse(fileContents);
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    logger.error("Failed parsing cif file:", e);
+                    throw new CifParsingException();
                 }
             case DOT_BRACKET:
             case BPSEQ:

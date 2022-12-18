@@ -10,6 +10,7 @@ import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.DrawingResult;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
+import pl.poznan.put.rnapdbee.engine.shared.image.exception.VisualizationException;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.SecondaryStructureDrawer;
 import pl.poznan.put.structure.ClassifiedBasePair;
 import pl.poznan.put.structure.formats.DotBracket;
@@ -60,7 +61,7 @@ public class DrawerManager {
                         .withFailedDrawer(VisualizationTool.NONE)
                         .withDrawingResult(DrawingResult.DONE_BY_MAIN_DRAWER)
                         .withSvgFile(svgDocumentAsByteArray);
-            } catch (final IOException e) {
+            } catch (final VisualizationException | IOException e) {
                 logger.error(String.format("Failed drawing canonical image with drawer: %s, structure: %s, sequence: %s",
                         visualizationTool, dotBracket.structure(), dotBracket.sequence()), e);
             }
@@ -83,7 +84,7 @@ public class DrawerManager {
                         .withFailedDrawer(visualizationTool)
                         .withDrawingResult(DrawingResult.DONE_BY_BACKUP_DRAWER)
                         .withSvgFile(svgDocumentAsByteArray);
-            } catch (final IOException e) {
+            } catch (final VisualizationException | IOException e) {
                 logger.error(String.format(
                         "Backup canonical drawing failed with drawer: %s, structure: %s, sequence: %s",
                         visualizationTool, dotBracket.structure(), dotBracket.sequence()), e);
@@ -124,7 +125,7 @@ public class DrawerManager {
                         .withFailedDrawer(VisualizationTool.NONE)
                         .withDrawingResult(DrawingResult.DONE_BY_MAIN_DRAWER)
                         .withSvgFile(svgDocumentAsByteArray);
-            } catch (final IOException e) {
+            } catch (final VisualizationException | IOException e) {
                 logger.error(String.format(
                         "Failed drawing non-canonical image with drawer: %s, structure: %s, sequence: %s",
                         visualizationTool, dotBracket.structure(), dotBracket.sequence()), e);
@@ -149,7 +150,7 @@ public class DrawerManager {
                         .withFailedDrawer(visualizationTool)
                         .withDrawingResult(DrawingResult.DONE_BY_BACKUP_DRAWER)
                         .withSvgFile(svgDocumentAsByteArray);
-            } catch (final IOException e) {
+            } catch (final VisualizationException | IOException e) {
                 logger.error(String.format("Drawing non-canonical image with drawer: %s, structure: %s, sequence: %s",
                         visualizationTool, dotBracket.structure(), dotBracket.sequence()), e);
             }

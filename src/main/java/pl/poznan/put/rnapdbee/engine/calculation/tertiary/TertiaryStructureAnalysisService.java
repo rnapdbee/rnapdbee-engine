@@ -1,5 +1,7 @@
 package pl.poznan.put.rnapdbee.engine.calculation.tertiary;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -12,6 +14,7 @@ import pl.poznan.put.rnapdbee.engine.calculation.tertiary.domain.SingleTertiaryM
 import pl.poznan.put.rnapdbee.engine.calculation.tertiary.validator.RNAValidator;
 import pl.poznan.put.rnapdbee.engine.calculation.tertiary.validator.Templates;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.exception.AdaptersErrorException;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.service.BasePairAnalyzerFactory;
 import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.shared.domain.InputType;
@@ -21,6 +24,7 @@ import pl.poznan.put.rnapdbee.engine.shared.domain.NonCanonicalHandling;
 import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementOutput;
 import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementsHandling;
 import pl.poznan.put.rnapdbee.engine.shared.elements.StructuralElementFinder;
+import pl.poznan.put.rnapdbee.engine.shared.exception.BasePairAnalysisException;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.ImageService;
@@ -41,6 +45,12 @@ import java.util.stream.Collectors;
 
 @Component
 public class TertiaryStructureAnalysisService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TertiaryStructureAnalysisService.class);
+
+    private static final String BASE_PAIR_ANALYSIS_FAILED = "Base pair analysis failed";
+    private static final String BASE_PAIR_ANALYSIS_FAILED_DEBUG_FORMAT = "Base pair analysis failed for " +
+            "analysisTool: %s, nonCanonicalHandling: %s, removeIsolated: %s, fileContent: %s rna: %s:";
 
     private final BasePairAnalyzerFactory basePairAnalyzerFactory;
     private final ImageService imageService;
@@ -123,8 +133,17 @@ public class TertiaryStructureAnalysisService {
                                                     boolean removeIsolated,
                                                     String fileContent,
                                                     PdbModel rna) {
-        final BasePairAnalysis basePairAnalysis = basePairAnalyzerFactory.provideBasePairAnalyzer(analysisTool)
-                .analyze(fileContent, nonCanonicalHandling.isAnalysis(), rna.modelNumber());
+        final BasePairAnalysis basePairAnalysis;
+        try {
+            basePairAnalysis = basePairAnalyzerFactory.provideBasePairAnalyzer(analysisTool)
+                    .analyze(fileContent, nonCanonicalHandling.isAnalysis(), rna.modelNumber());
+        } catch (AdaptersErrorException exception) {
+            LOGGER.warn(BASE_PAIR_ANALYSIS_FAILED, exception);
+            LOGGER.debug(String.format(BASE_PAIR_ANALYSIS_FAILED_DEBUG_FORMAT, analysisTool, nonCanonicalHandling,
+                            removeIsolated, fileContent, rna),
+                    exception);
+            throw new BasePairAnalysisException();
+        }
 
         if (removeIsolated) {
             basePairAnalysis.removeIsolatedBasePairs(rna);
