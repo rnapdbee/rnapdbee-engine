@@ -94,39 +94,6 @@ public class DrawerVarnaTz implements SecondaryStructureDrawer {
     }
 
     @Override
-    public final SVGDocument drawSecondaryStructure(
-            final DotBracket dotBracket, final Map<DotBracketSymbol, Color> colorMap)
-            throws IOException {
-        final File tempFile = File.createTempFile("varna", ".svg");
-
-        try {
-            final VARNAConfig config = new VARNAConfig();
-            config._bondColor = Color.DARK_GRAY.brighter();
-            final RNA rna = new RNA(true);
-            rna.setRNA(dotBracket.sequence(), dotBracket.structure());
-
-            final List<DotBracketSymbol> symbols = dotBracket.symbols();
-            for (final Map.Entry<DotBracketSymbol, Color> entry : colorMap.entrySet()) {
-                final DotBracketSymbol symbol = entry.getKey();
-                final Color color = entry.getValue();
-                final int index = symbols.indexOf(symbol);
-                rna.getBaseAt(index).getStyleBase().setBaseInnerColor(color);
-            }
-
-            rna.drawRNANAView(config);
-            rna.saveRNASVG(tempFile.getAbsolutePath(), config);
-            return SVGHelper.fromFile(tempFile);
-        } catch (final ExceptionUnmatchedClosingParentheses
-                       | ExceptionWritingForbidden
-                       | ExceptionNAViewAlgorithm
-                       | ExceptionFileFormatOrSyntax e) {
-            throw new RuntimeException("Failed to draw secondary structure with VARNA", e);
-        } finally {
-            FileUtils.forceDelete(tempFile);
-        }
-    }
-
-    @Override
     public final VisualizationTool getEnum() {
         return VisualizationTool.VARNA;
     }

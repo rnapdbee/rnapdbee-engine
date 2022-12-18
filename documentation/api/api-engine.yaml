@@ -187,7 +187,7 @@ components:
       required: true
       schema:
         type: "string"
-        enum: [ "VARNA", "PSEUDO_VIEWER", "R_CHIE", "RNA_GLIB", "FORNA", "RNA_PUZZLER", "RNA_TURTLE", "RNA_TRAVELER", "BARNABA", "NONE" ]
+        enum: [ "VARNA", "PSEUDO_VIEWER", "R_CHIE", "RNA_PUZZLER", "NONE" ]
     contentDispositionHeader:
       in: header
       name: Content-Disposition

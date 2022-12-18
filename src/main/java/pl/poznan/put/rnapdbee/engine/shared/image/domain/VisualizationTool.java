@@ -9,12 +9,7 @@ public enum VisualizationTool {
     VARNA,
     PSEUDO_VIEWER,
     R_CHIE,
-    RNA_GLIB,
-    FORNA,
     RNA_PUZZLER,
-    RNA_TURTLE,
-    RNA_TRAVELER,
-    BARNABA,
     NONE;
 
     /**
@@ -26,9 +21,10 @@ public enum VisualizationTool {
         switch (this) {
             case PSEUDO_VIEWER:
             case R_CHIE:
+            case RNA_PUZZLER:
                 return VARNA;
             case VARNA:
-                return PSEUDO_VIEWER;
+                return RNA_PUZZLER;
             case NONE:
             default:
                 return NONE;

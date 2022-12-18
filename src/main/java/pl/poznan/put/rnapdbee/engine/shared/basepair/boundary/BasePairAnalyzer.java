@@ -2,9 +2,6 @@ package pl.poznan.put.rnapdbee.engine.shared.basepair.boundary;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
 import pl.poznan.put.notation.BPh;
 import pl.poznan.put.notation.BR;
 import pl.poznan.put.notation.LeontisWesthof;
@@ -12,15 +9,15 @@ import pl.poznan.put.notation.Saenger;
 import pl.poznan.put.notation.StackingTopology;
 import pl.poznan.put.pdb.PdbNamedResidueIdentifier;
 import pl.poznan.put.rna.InteractionType;
-import pl.poznan.put.rnapdbee.engine.infrastructure.configuration.RnapdbeeAdaptersProperties;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.AdaptersAnalysisDTO;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairDTO;
+import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
+import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
 import pl.poznan.put.rnapdbee.engine.shared.multiplet.MultipletSet;
 import pl.poznan.put.structure.AnalyzedBasePair;
 import pl.poznan.put.structure.ImmutableAnalyzedBasePair;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -37,13 +34,9 @@ import static pl.poznan.put.rnapdbee.engine.shared.basepair.domain.StackingTopol
 public abstract class BasePairAnalyzer {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
+    protected final RnaPDBeeAdaptersCaller rnapdbeeAdaptersCaller;
 
-    protected final RnapdbeeAdaptersProperties properties;
-    protected final WebClient adaptersWebClient;
-    /**
-     * URI/path of the specific adapter - e.g. analyze/mc-annotate. Set in this class' implementation.
-     */
-    protected final String adapterURI;
+    public abstract AnalysisTool analysisTool();
 
     // TODO: think about using WebFlux advancements when refactoring
     public abstract BasePairAnalysis analyze(String fileContent,
@@ -54,7 +47,8 @@ public abstract class BasePairAnalyzer {
                                                boolean includeNonCanonical,
                                                int modelNumber) {
         logger.info(String.format("base pair analysis started for model number %s", modelNumber));
-        AdaptersAnalysisDTO adaptersAnalysis = performAnalysisOnAdapter(fileContent, modelNumber);
+        AdaptersAnalysisDTO adaptersAnalysis = rnapdbeeAdaptersCaller
+                .performBasePairAnalysis(fileContent, analysisTool(), modelNumber);
         return performPostAnalysisOnResponseFromAdapter(adaptersAnalysis, includeNonCanonical);
     }
 
@@ -70,8 +64,8 @@ public abstract class BasePairAnalyzer {
      * @param includeNonCanonical flag specifying if nonCanonical pairs should be included or not
      * @return {@link AnalyzedBasePair} BasePairAnalysis object with populated pairs lists.
      */
-    private BasePairAnalysis performPostAnalysisOnResponseFromAdapter(AdaptersAnalysisDTO responseFromAdapter,
-                                                                      boolean includeNonCanonical) {
+    protected BasePairAnalysis performPostAnalysisOnResponseFromAdapter(AdaptersAnalysisDTO responseFromAdapter,
+                                                                        boolean includeNonCanonical) {
         List<AnalyzedBasePair> canonical = responseFromAdapter.getBasePairs().stream()
                 .filter(BasePairDTO::isCanonical)
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair)
@@ -157,24 +151,6 @@ public abstract class BasePairAnalyzer {
                 .build();
     }
 
-    /**
-     * Calls rnapdbee-adapters in order to analyze the fileContent.
-     *
-     * @param fileContent content of file
-     * @return {@link AdaptersAnalysisDTO} - performed analysis as Java object
-     */
-    private AdaptersAnalysisDTO performAnalysisOnAdapter(String fileContent, int modelNumber) {
-        return adaptersWebClient
-                .post()
-                .uri(adapterURI, modelNumber)
-                .contentType(MediaType.TEXT_PLAIN)
-                .body(BodyInserters.fromValue(fileContent))
-                .retrieve()
-                .bodyToMono(AdaptersAnalysisDTO.class)
-                .cache(Duration.ofSeconds(properties.getMonoCacheDurationInSeconds()))
-                .block();
-    }
-
     private List<AnalyzedBasePair> determineRepresentedPairs(List<AnalyzedBasePair> canonicalPairs,
                                                              List<AnalyzedBasePair> nonCanonicalPairs,
                                                              boolean includeNonCanonical) {
@@ -200,12 +176,7 @@ public abstract class BasePairAnalyzer {
         return pairsClassifiedAsRepresented;
     }
 
-    BasePairAnalyzer(
-            RnapdbeeAdaptersProperties properties,
-            WebClient adaptersWebClient,
-            String adapterURI) {
-        this.properties = properties;
-        this.adaptersWebClient = adaptersWebClient;
-        this.adapterURI = adapterURI;
+    protected BasePairAnalyzer(RnaPDBeeAdaptersCaller rnapdbeeAdaptersCaller) {
+        this.rnapdbeeAdaptersCaller = rnapdbeeAdaptersCaller;
     }
 }

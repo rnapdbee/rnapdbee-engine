@@ -1,5 +1,6 @@
 package pl.poznan.put.rnapdbee.engine.calculation.secondary.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import pl.poznan.put.structure.formats.Strand;
 
@@ -9,11 +10,14 @@ import pl.poznan.put.structure.formats.Strand;
 public class SingleStrandOutput {
 
     @JsonProperty("name")
-    private final String name;
+    private final String fullName;
     @JsonProperty("sequence")
     private final String sequence;
     @JsonProperty("structure")
     private final String structure;
+
+    @JsonIgnore
+    private final String shortName;
 
     public static SingleStrandOutput ofStrand(Strand strand) {
         return new SingleStrandOutputBuilder()
@@ -24,13 +28,14 @@ public class SingleStrandOutput {
     }
 
     private SingleStrandOutput(String name, String sequence, String structure) {
-        this.name = name;
+        this.fullName = ">strand_" + (name == null ? "" : name);
         this.sequence = sequence;
         this.structure = structure;
+        this.shortName = name;
     }
 
-    public String getName() {
-        return name;
+    public String getFullName() {
+        return fullName;
     }
 
     public String getSequence() {
@@ -39,6 +44,10 @@ public class SingleStrandOutput {
 
     public String getStructure() {
         return structure;
+    }
+
+    public String getShortName() {
+        return shortName;
     }
 
     public static class SingleStrandOutputBuilder {

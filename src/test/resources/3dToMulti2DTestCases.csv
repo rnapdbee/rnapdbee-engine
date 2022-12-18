@@ -4,7 +4,7 @@
 ### ordering: filename, modelSelection, includeNonCanonical, removeIsolated, visualizationTool, [entries information]
 ### [entries information] is a sequence of expected lengths of lists from entries of OutputMulti object. Each [entries information] contains (ordered): bpSeqSize, ctEntriesSize, strandsSize.
 # Each line is another test case.
-2LBK.pdb,ALL,true,true,VARNA,17,17,1,17,17,1,17,17,1,17,17,1,17,17,1
-2LBK.pdb,FIRST,false,false,VARNA,17,17,1,17,17,1,17,17,1,17,17,1
-2KBP.cif,ALL,true,true,VARNA,24,24,2
-2KBP.cif,FIRST,false,false,VARNA,24,24,2
+2LBK.pdb,ALL,true,true,VARNA,17,18,1,17,18,1,17,18,1,17,18,1,17,18,1
+2LBK.pdb,FIRST,false,false,VARNA,17,18,1,17,18,1,17,18,1,17,18,1
+2KBP.cif,ALL,true,true,VARNA,24,25,2
+2KBP.cif,FIRST,false,false,VARNA,24,25,2

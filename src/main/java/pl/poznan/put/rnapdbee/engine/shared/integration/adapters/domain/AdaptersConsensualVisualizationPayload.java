@@ -1,4 +1,4 @@
-package pl.poznan.put.rnapdbee.engine.calculation.consensus.visualization.domain;
+package pl.poznan.put.rnapdbee.engine.shared.integration.adapters.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.OutputMultiEntry;
@@ -11,9 +11,6 @@ public class AdaptersConsensualVisualizationPayload {
     @JsonProperty("results")
     private List<SingleAdapterConsensualPayload> results;
 
-    private AdaptersConsensualVisualizationPayload() {
-    }
-
     private AdaptersConsensualVisualizationPayload(List<SingleAdapterConsensualPayload> results) {
         this.results = results;
     }
@@ -22,7 +19,7 @@ public class AdaptersConsensualVisualizationPayload {
         List<SingleAdapterConsensualPayload> adapterConsensualPayloads = outputMultiEntries.stream()
                 .flatMap(entry -> entry.getAdapterEnums().stream()
                         .map(adapterEnum ->
-                                new SingleAdapterConsensualPayload(adapterEnum, entry.getOutput2D().getStrands())))
+                                SingleAdapterConsensualPayload.of(adapterEnum, entry.getOutput2D().getStrands())))
                 .collect(Collectors.toList());
 
         return new AdaptersConsensualVisualizationPayload(adapterConsensualPayloads);
