@@ -2,7 +2,7 @@ package pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer;
 
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.pdb.analysis.PdbModel;
-import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RNApdbeeAdaptersCaller;
+import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
 import pl.poznan.put.structure.ClassifiedBasePair;
 import pl.poznan.put.structure.formats.DotBracket;
 import pl.poznan.put.structure.formats.DotBracketFromPdb;
@@ -12,11 +12,11 @@ import java.util.List;
 
 public abstract class RnaPDBeeAdaptersStructureDrawer implements SecondaryStructureDrawer {
 
-    private final RNApdbeeAdaptersCaller rnApdbeeAdaptersCaller;
+    private final RnaPDBeeAdaptersCaller rnaPDBeeAdaptersCaller;
 
     @Override
     public SVGDocument drawSecondaryStructure(DotBracket dotBracket) throws IOException {
-        return rnApdbeeAdaptersCaller.performVisualization(dotBracket, getEnum());
+        return rnaPDBeeAdaptersCaller.performVisualization(dotBracket, getEnum());
     }
 
     @Override
@@ -24,15 +24,15 @@ public abstract class RnaPDBeeAdaptersStructureDrawer implements SecondaryStruct
                                               PdbModel structureModel,
                                               List<? extends ClassifiedBasePair> nonCanonicalBasePairs)
             throws IOException {
-        return rnApdbeeAdaptersCaller.performVisualization(
+        return rnaPDBeeAdaptersCaller.performVisualization(
                 dotBracket,
                 structureModel,
                 getEnum(),
                 nonCanonicalBasePairs);
     }
 
-    protected RnaPDBeeAdaptersStructureDrawer(RNApdbeeAdaptersCaller rnApdbeeAdaptersCaller) {
-        this.rnApdbeeAdaptersCaller = rnApdbeeAdaptersCaller;
+    protected RnaPDBeeAdaptersStructureDrawer(RnaPDBeeAdaptersCaller rnaPDBeeAdaptersCaller) {
+        this.rnaPDBeeAdaptersCaller = rnaPDBeeAdaptersCaller;
     }
 
 }

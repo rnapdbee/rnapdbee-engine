@@ -2,14 +2,14 @@ package pl.poznan.put.rnapdbee.engine.shared.integration.adapters.component;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import pl.poznan.put.rnapdbee.engine.infrastructure.configuration.RnapdbeeAdaptersProperties;
+import pl.poznan.put.rnapdbee.engine.infrastructure.configuration.RnaPDBeeAdaptersProperties;
 import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
 
 @Component
 public class PathDeterminer {
 
-    private final RnapdbeeAdaptersProperties properties;
+    private final RnaPDBeeAdaptersProperties properties;
 
     public String determinePath(AnalysisTool analysisTool) {
         switch (analysisTool) {
@@ -44,7 +44,7 @@ public class PathDeterminer {
     }
 
     @Autowired
-    public PathDeterminer(RnapdbeeAdaptersProperties properties) {
+    public PathDeterminer(RnaPDBeeAdaptersProperties properties) {
         this.properties = properties;
     }
 }

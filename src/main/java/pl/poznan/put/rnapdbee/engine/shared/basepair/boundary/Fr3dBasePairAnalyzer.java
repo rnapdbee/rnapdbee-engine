@@ -6,7 +6,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
 import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
-import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RNApdbeeAdaptersCaller;
+import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
 
 /**
  * Class that's purpose is to communicate with rnapdbee-adapters for analysis on FR3D base pair analyzer.
@@ -28,7 +28,7 @@ public class Fr3dBasePairAnalyzer extends BasePairAnalyzer {
     }
 
     @Autowired
-    public Fr3dBasePairAnalyzer(RNApdbeeAdaptersCaller rnApdbeeAdaptersCaller) {
-        super(rnApdbeeAdaptersCaller);
+    public Fr3dBasePairAnalyzer(RnaPDBeeAdaptersCaller rnaPDBeeAdaptersCaller) {
+        super(rnaPDBeeAdaptersCaller);
     }
 }

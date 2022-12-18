@@ -15,7 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.web.reactive.function.client.WebClient;
 import pl.poznan.put.rnapdbee.engine.calculation.consensus.visualization.boundary.WeblogoConsensualVisualizationDrawer;
-import pl.poznan.put.rnapdbee.engine.infrastructure.configuration.RnapdbeeAdaptersProperties;
+import pl.poznan.put.rnapdbee.engine.infrastructure.configuration.RnaPDBeeAdaptersProperties;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BPNetBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BarnabaBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.MCAnnotateBasePairAnalyzer;
@@ -24,7 +24,7 @@ import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.RnaViewBasePairAna
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.RnapolisBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.infrastructure.configuration.AdapterWebClientConfiguration;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.component.PathDeterminer;
-import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RNApdbeeAdaptersCaller;
+import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -133,7 +133,7 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
     public static class BeansReplacement {
 
         @Autowired
-        RnapdbeeAdaptersProperties rnapdbeeAdaptersProperties;
+        RnaPDBeeAdaptersProperties rnapdbeeAdaptersProperties;
         @Autowired
         PathDeterminer pathDeterminer;
 
@@ -142,8 +142,8 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
                 .exchangeStrategies(AdapterWebClientConfiguration.EXCHANGE_STRATEGIES)
                 .build();
 
-        Supplier<RNApdbeeAdaptersCaller> mockedRnapdbeeAdaptersCallerSupplier =
-                () -> new RNApdbeeAdaptersCaller(rnapdbeeAdaptersProperties, mockedWebClientSupplier.get(),
+        Supplier<RnaPDBeeAdaptersCaller> mockedRnapdbeeAdaptersCallerSupplier =
+                () -> new RnaPDBeeAdaptersCaller(rnapdbeeAdaptersProperties, mockedWebClientSupplier.get(),
                         pathDeterminer);
 
         @Primary

@@ -14,7 +14,7 @@ import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.OutputMultiEntry;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.domain.AdaptersConsensualVisualizationPayload;
-import pl.poznan.put.rnapdbee.engine.infrastructure.configuration.RnapdbeeAdaptersProperties;
+import pl.poznan.put.rnapdbee.engine.infrastructure.configuration.RnaPDBeeAdaptersProperties;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.AdaptersAnalysisDTO;
 import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.component.PathDeterminer;
@@ -29,11 +29,11 @@ import java.time.Duration;
 import java.util.List;
 
 @Component
-public class RNApdbeeAdaptersCaller {
+public class RnaPDBeeAdaptersCaller {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RNApdbeeAdaptersCaller.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RnaPDBeeAdaptersCaller.class);
 
-    private final RnapdbeeAdaptersProperties properties;
+    private final RnaPDBeeAdaptersProperties properties;
     private final WebClient adaptersWebClient;
     private final PathDeterminer pathDeterminer;
 
@@ -137,7 +137,7 @@ public class RNApdbeeAdaptersCaller {
     }
 
     @Autowired
-    public RNApdbeeAdaptersCaller(RnapdbeeAdaptersProperties properties,
+    public RnaPDBeeAdaptersCaller(RnaPDBeeAdaptersProperties properties,
                                   @Autowired @Qualifier("adaptersWebClient") WebClient adaptersWebClient,
                                   PathDeterminer pathDeterminer) {
         this.properties = properties;

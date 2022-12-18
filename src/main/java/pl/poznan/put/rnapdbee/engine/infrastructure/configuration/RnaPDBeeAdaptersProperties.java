@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RnapdbeeAdaptersProperties {
+public class RnaPDBeeAdaptersProperties {
 
     @Value("${rnapdbee.adapters.conn-provider.max-connections}")
     private Integer maxConnections;

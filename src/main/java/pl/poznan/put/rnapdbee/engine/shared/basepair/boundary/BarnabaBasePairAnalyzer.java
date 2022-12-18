@@ -5,7 +5,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
 import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
-import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RNApdbeeAdaptersCaller;
+import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
 
 @Component
 public class BarnabaBasePairAnalyzer extends BasePairAnalyzer {
@@ -22,8 +22,8 @@ public class BarnabaBasePairAnalyzer extends BasePairAnalyzer {
     }
 
     @Autowired
-    public BarnabaBasePairAnalyzer(RNApdbeeAdaptersCaller rnApdbeeAdaptersCaller) {
-        super(rnApdbeeAdaptersCaller);
+    public BarnabaBasePairAnalyzer(RnaPDBeeAdaptersCaller rnaPDBeeAdaptersCaller) {
+        super(rnaPDBeeAdaptersCaller);
     }
 }
 

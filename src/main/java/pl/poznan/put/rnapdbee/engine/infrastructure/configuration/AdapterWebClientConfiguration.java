@@ -38,7 +38,7 @@ public class AdapterWebClientConfiguration {
     }
 
     @Autowired
-    public AdapterWebClientConfiguration(RnapdbeeAdaptersProperties rnapdbeeAdaptersProperties) {
+    public AdapterWebClientConfiguration(RnaPDBeeAdaptersProperties rnapdbeeAdaptersProperties) {
         this.adaptersBaseUrl = rnapdbeeAdaptersProperties.getAdaptersBaseUrl();
         this.provider = ConnectionProvider.builder("rnapdbee-adapters")
                 .maxConnections(rnapdbeeAdaptersProperties.getMaxConnections())

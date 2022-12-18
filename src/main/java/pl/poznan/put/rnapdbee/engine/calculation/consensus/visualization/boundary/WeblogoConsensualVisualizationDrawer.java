@@ -3,14 +3,14 @@ package pl.poznan.put.rnapdbee.engine.calculation.consensus.visualization.bounda
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.OutputMultiEntry;
-import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RNApdbeeAdaptersCaller;
+import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
 
 import java.util.List;
 
 @Service
 public class WeblogoConsensualVisualizationDrawer implements ConsensualVisualizationDrawer {
 
-    private final RNApdbeeAdaptersCaller rnapdbeeAdaptersCaller;
+    private final RnaPDBeeAdaptersCaller rnapdbeeAdaptersCaller;
 
     @Override
     public byte[] performVisualization(List<OutputMultiEntry> outputMultiEntries) {
@@ -18,7 +18,7 @@ public class WeblogoConsensualVisualizationDrawer implements ConsensualVisualiza
     }
 
     @Autowired
-    public WeblogoConsensualVisualizationDrawer(RNApdbeeAdaptersCaller rnapdbeeAdaptersCaller) {
+    public WeblogoConsensualVisualizationDrawer(RnaPDBeeAdaptersCaller rnapdbeeAdaptersCaller) {
         this.rnapdbeeAdaptersCaller = rnapdbeeAdaptersCaller;
     }
 }

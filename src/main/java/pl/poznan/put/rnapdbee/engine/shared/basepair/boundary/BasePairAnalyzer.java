@@ -13,7 +13,7 @@ import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.AdaptersAnalysisDTO;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairDTO;
 import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
-import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RNApdbeeAdaptersCaller;
+import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
 import pl.poznan.put.rnapdbee.engine.shared.multiplet.MultipletSet;
 import pl.poznan.put.structure.AnalyzedBasePair;
 import pl.poznan.put.structure.ImmutableAnalyzedBasePair;
@@ -34,7 +34,7 @@ import static pl.poznan.put.rnapdbee.engine.shared.basepair.domain.StackingTopol
 public abstract class BasePairAnalyzer {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
-    protected final RNApdbeeAdaptersCaller rnapdbeeAdaptersCaller;
+    protected final RnaPDBeeAdaptersCaller rnapdbeeAdaptersCaller;
 
     public abstract AnalysisTool analysisTool();
 
@@ -176,7 +176,7 @@ public abstract class BasePairAnalyzer {
         return pairsClassifiedAsRepresented;
     }
 
-    protected BasePairAnalyzer(RNApdbeeAdaptersCaller rnapdbeeAdaptersCaller) {
+    protected BasePairAnalyzer(RnaPDBeeAdaptersCaller rnapdbeeAdaptersCaller) {
         this.rnapdbeeAdaptersCaller = rnapdbeeAdaptersCaller;
     }
 }
