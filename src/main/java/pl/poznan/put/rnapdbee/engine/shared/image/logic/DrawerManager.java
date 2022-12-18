@@ -74,7 +74,7 @@ public class DrawerManager {
             try {
                 logger.info(String.format(
                         "Drawing canonical image started with backup drawer: %s, structure: %s, sequence: %s",
-                        visualizationTool, dotBracket.structure(), dotBracket.sequence()));
+                        backupVisualizationTool, dotBracket.structure(), dotBracket.sequence()));
                 final SVGDocument svgDocument = backupDrawer.drawSecondaryStructure(dotBracket);
                 final byte[] svgDocumentAsByteArray = SVGHelper.export(svgDocument, Format.SVG);
                 return new ImageInformationOutput()
@@ -139,7 +139,7 @@ public class DrawerManager {
             try {
                 logger.info(String.format(
                         "Drawing non-canonical image started with backup drawer: %s, structure: %s, sequence: %s",
-                        visualizationTool, dotBracket.structure(), dotBracket.sequence()));
+                        backupVisualizationTool, dotBracket.structure(), dotBracket.sequence()));
                 final SVGDocument svgDocument = backupDrawer
                         .drawSecondaryStructure(dotBracket, structureModel, nonCanonicalBasePairs);
                 final byte[] svgDocumentAsByteArray = SVGHelper.export(svgDocument, Format.SVG);
