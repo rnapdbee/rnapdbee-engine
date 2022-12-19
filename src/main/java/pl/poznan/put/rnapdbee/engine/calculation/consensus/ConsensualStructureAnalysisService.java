@@ -55,6 +55,12 @@ public class ConsensualStructureAnalysisService {
     private static final String BASE_PAIR_ANALYSIS_FAILED_DEBUG_FORMAT =
             "Base pair analysis failed for visualizationTool %s, includeNonCanonical %s and modelNumber %s." +
                     " Continuing analysis for other models & adapters. FileContent: %s";
+    private static final String BIOCOMMONS_ERROR_MET =
+            "BioCommons exception met when creating models out of base pair analysis.";
+    private static final String BIOCOMMONS_ERROR_MET_DEBUG_FORMAT =
+            "BioCommons exception met when creating models out of base pair analysis for visualizationTool %s, " +
+                    "includeNonCanonical %s and modelNumber %s. Continuing analysis for other models & adapters. " +
+                    "FileContent: %s";
     private final ImageService imageService;
     private final TertiaryFileParser tertiaryFileParser;
     private final BasePairAnalyzerFactory basePairAnalyzerFactory;
@@ -161,7 +167,16 @@ public class ConsensualStructureAnalysisService {
         }
 
         final List<AnalyzedBasePair> represented = analysisResults.getRepresented();
-        final BpSeq bpSeq = BpSeq.fromBasePairs(rna.namedResidueIdentifiers(), represented);
+        final BpSeq bpSeq;
+        try {
+            bpSeq = BpSeq.fromBasePairs(rna.namedResidueIdentifiers(), represented);
+        } catch (IllegalArgumentException exception) {
+            LOGGER.error(BIOCOMMONS_ERROR_MET, exception);
+            LOGGER.debug(String.format(BIOCOMMONS_ERROR_MET_DEBUG_FORMAT, visualizationTool, includeNonCanonical,
+                            modelNumber, fileContents),
+                    exception);
+            return;
+        }
 
         if (uniqueInputs.containsKey(bpSeq)) {
             final OutputMultiEntry bpSeqInfo = uniqueInputs.get(bpSeq);
