@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   description: "This is API of the engine service of RNApdbee v3.0."
-  version: "1.0.17"
+  version: "1.0.18"
   title: "RNApdbee Engine API"
 
 
@@ -144,12 +144,12 @@ components:
       schema:
         type: "string"
         enum:
+          - "RNAPOLIS"
           - "FR3D_PYTHON"
           - "BPNET"
           - "BARNABA"
           - "RNAVIEW"
           - "MC_ANNOTATE"
-          - "RNAPOLIS"
     nonCanonicalHandling:
       in: query
       name: nonCanonicalHandling
@@ -187,7 +187,7 @@ components:
       required: true
       schema:
         type: "string"
-        enum: [ "VARNA", "PSEUDO_VIEWER", "R_CHIE", "RNA_PUZZLER", "NONE" ]
+        enum: [ "RNA_PUZZLER", "VARNA", "PSEUDO_VIEWER", "R_CHIE", "NONE" ]
     contentDispositionHeader:
       in: header
       name: Content-Disposition
@@ -211,11 +211,11 @@ components:
           items:
             $ref: "#/components/schemas/SingleTertiaryModelOutput"
       required:
-        - "output2D"
         - "models"
 
     SingleTertiaryModelOutput:
       type: "object"
+      description: "Single model output. Interaction arrays can be empty (but not null)."
       properties:
         modelNumber:
           type: "integer"
@@ -240,6 +240,16 @@ components:
           $ref: "#/components/schemas/TertiaryInteractions"
         baseRiboseInteractions:
           $ref: "#/components/schemas/TertiaryInteractions"
+      required:
+        - "modelNumber"
+        - "output2D"
+        - "messages"
+        - "canonicalInteractions"
+        - "nonCanonicalInteractions"
+        - "interStrandInteractions"
+        - "stackingInteractions"
+        - "basePhosphateInteractions"
+        - "baseRiboseInteractions"
 
     TertiaryInteractions:
       type: "array"
@@ -309,7 +319,7 @@ components:
 
     Output2D:
       type: "object"
-      description: "interactions property is undefined in both 3D scenarios."
+      description: "interactions property is null in both 3D scenarios."
       properties:
         strands:
           $ref: "#/components/schemas/DotBracket"
@@ -358,7 +368,7 @@ components:
 
     Interactions:
       type: "array"
-      description: "mandatory for 2D analysis result, null in 3D and consensual analysis result"
+      description: "mandatory for 2D analysis result, null in 3D and consensual (Multi) analysis result"
       items:
         type: "string"
         example: "A.A181 - Z.U418"
@@ -487,30 +497,30 @@ components:
         - "XXVIII"
 
     BR:
-      type: integer
+      type: "string"
       enum:
-        - 1
-        - 2
-        - 3
-        - 4
-        - 5
-        - 6
-        - 7
-        - 8
-        - 9
+        - "1BR"
+        - "2BR"
+        - "3BR"
+        - "4BR"
+        - "5BR"
+        - "6BR"
+        - "7BR"
+        - "8BR"
+        - "9BR"
 
     BPh:
-      type: integer
+      type: "string"
       enum:
-        - 1
-        - 2
-        - 3
-        - 4
-        - 5
-        - 6
-        - 7
-        - 8
-        - 9
+        - "1BPh"
+        - "2BPh"
+        - "3BPh"
+        - "4BPh"
+        - "5BPh"
+        - "6BPh"
+        - "7BPh"
+        - "8BPh"
+        - "9BPh"
 
     StackingTopology:
       type: string
