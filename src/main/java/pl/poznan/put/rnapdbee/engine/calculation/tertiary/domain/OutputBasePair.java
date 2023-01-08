@@ -25,7 +25,7 @@ public class OutputBasePair {
     public static OutputBasePair fromClassifiedBasePair(ClassifiedBasePair classifiedBasePair) {
         OutputBasePair outputBasePair = new OutputBasePair();
 
-        outputBasePair.setInteractionType(classifiedBasePair.interactionType().description());
+        outputBasePair.setInteractionType(classifiedBasePair.interactionType().left().name() + " - " + classifiedBasePair.interactionType().right().name());
         outputBasePair.setSaenger(classifiedBasePair.saenger());
         outputBasePair.setLeontisWesthof(classifiedBasePair.leontisWesthof());
         outputBasePair.setbPh(BPh.mapBioCommonsBphToEngineBph(classifiedBasePair.bph()));
