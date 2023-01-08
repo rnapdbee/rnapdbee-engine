@@ -12,6 +12,7 @@ public class ApiExceptionHandler {
             ImproperContentDispositionException.class,
             ImproperStructureFormatException.class,
             UnknownFileExtensionException.class,
+            NoRnaModelsInFileException.class,
     })
     public ResponseEntity<ExceptionPattern> handleBadRequestException(RuntimeException exception) {
         ExceptionPattern exceptionPattern = new ExceptionPattern(exception.getMessage(), HttpStatus.BAD_REQUEST);

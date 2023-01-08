@@ -9,6 +9,7 @@ import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.ConsensualVisualization;
 import pl.poznan.put.rnapdbee.engine.shared.exception.ConsensualVisualizationException;
+import pl.poznan.put.rnapdbee.engine.shared.exception.NoRnaModelsInFileException;
 import pl.poznan.put.rnapdbee.engine.shared.image.exception.VisualizationException;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.ConsensualVisualizationDrawer;
 import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.OutputMulti;
@@ -41,6 +42,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 /**
  * Service which purpose is to handle 3D -> Multi 2D analysis.
@@ -106,18 +108,21 @@ public class ConsensualStructureAnalysisService {
             final boolean includeNonCanonical,
             final boolean removeIsolated,
             final VisualizationTool visualizationTool) {
-        AtomicReference<String> title = new AtomicReference<>("");
 
         final List<? extends PdbModel> models = tertiaryFileParser.parseFileContents(inputType, fileContents);
+        final List<? extends PdbModel> rnaModels = models.stream()
+                .filter(pdbModel -> pdbModel.containsAny(MoleculeType.RNA)).collect(Collectors.toList());
+        if (rnaModels.isEmpty()) {
+            throw new NoRnaModelsInFileException();
+        }
 
+        AtomicReference<String> title = new AtomicReference<>("");
+        final Map<BpSeq, OutputMultiEntry> uniqueInputs = new LinkedHashMap<>();
         final int modelsToBeProcessed = modelSelection == ModelSelection.FIRST
                 ? 1
-                : models.size();
-
-        final Map<BpSeq, OutputMultiEntry> uniqueInputs = new LinkedHashMap<>();
-        models.stream()
+                : rnaModels.size();
+        rnaModels.stream()
                 .limit(modelsToBeProcessed)
-                .filter(pdbModel -> pdbModel.containsAny(MoleculeType.RNA))
                 .forEach(model -> {
                     final PdbModel rna = model.filteredNewInstance(MoleculeType.RNA);
                     title.set(rna.title());

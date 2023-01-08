@@ -25,6 +25,7 @@ import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementOutput;
 import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementsHandling;
 import pl.poznan.put.rnapdbee.engine.shared.elements.StructuralElementFinder;
 import pl.poznan.put.rnapdbee.engine.shared.exception.BasePairAnalysisException;
+import pl.poznan.put.rnapdbee.engine.shared.exception.NoRnaModelsInFileException;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.ImageService;
@@ -81,14 +82,18 @@ public class TertiaryStructureAnalysisService {
                                      InputType inputType,
                                      String fileContent) {
         final List<? extends PdbModel> models = tertiaryFileParser.parseFileContents(inputType, fileContent);
+        final List<? extends PdbModel> rnaModels = models.stream()
+                .filter(pdbModel -> pdbModel.containsAny(MoleculeType.RNA)).collect(Collectors.toList());
+        if (rnaModels.isEmpty()) {
+            throw new NoRnaModelsInFileException();
+        }
 
         final int modelsToBeProcessed = modelSelection == ModelSelection.FIRST
                 ? 1
-                : models.size();
+                : rnaModels.size();
         AtomicReference<String> title = new AtomicReference<>();
-        final List<SingleTertiaryModelOutput> results = models.stream()
+        final List<SingleTertiaryModelOutput> results = rnaModels.stream()
                 .limit(modelsToBeProcessed)
-                .filter(pdbModel -> pdbModel.containsAny(MoleculeType.RNA))
                 .map(pdbModel -> {
                     final PdbModel rna = pdbModel.filteredNewInstance(MoleculeType.RNA);
                     final BasePairAnalysis basePairAnalysis = handleBasePairAnalysis(analysisTool,
