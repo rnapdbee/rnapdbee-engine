@@ -17,6 +17,7 @@ import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.shared.domain.InputType;
 import pl.poznan.put.rnapdbee.engine.shared.domain.InputTypeDeterminer;
 import pl.poznan.put.rnapdbee.engine.shared.domain.ModelSelection;
+import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.ImageService;
@@ -154,6 +155,7 @@ public class ConsensualStructureAnalysisService {
                 .withBpSeqFromBpSeqObject(bpSeq)
                 .withStrandsFromDotBracket(dotBracketFromPdb)
                 .withCtFromCt(ct)
+                .withStructuralElement(StructuralElementOutput.EMPTY_INSTANCE)
                 .build();
 
         final OutputMultiEntry outputMultiEntry = new OutputMultiEntry.OutputMultiEntryBuilder()
