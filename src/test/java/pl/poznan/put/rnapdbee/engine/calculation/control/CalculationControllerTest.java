@@ -105,12 +105,13 @@ class CalculationControllerTest {
                         .withSuccessfulDrawer(MOCKED_SUCCESSFUL_DRAWER)
                         .withFailedDrawer(MOCKED_FAILED_DRAWER))
                 .withInteractions(MOCKED_INTERACTIONS)
-                .withStructuralElement(new StructuralElementOutput()
+                .withStructuralElement(new StructuralElementOutput.Builder()
                         .withLoops(MOCKED_LOOPS)
                         .withSingleStrands(MOCKED_SINGLE_STRANDS)
                         .withStems(MOCKED_STEMS)
                         .withSingleStrands5p(MOCKED_SINGLE_STRANDS_5_P)
-                        .withSingleStrands3p(MOCKED_SINGLE_STRANDS_3_P))
+                        .withSingleStrands3p(MOCKED_SINGLE_STRANDS_3_P)
+                        .build())
                 .withStrands(List.of(MOCKED_STRAND))
                 .build();
     }
