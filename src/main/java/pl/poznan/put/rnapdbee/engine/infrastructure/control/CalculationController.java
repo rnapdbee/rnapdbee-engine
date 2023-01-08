@@ -68,8 +68,7 @@ public class CalculationController {
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
             @RequestHeader(HttpHeaders.CONTENT_DISPOSITION) String contentDispositionHeader,
             @RequestBody String fileContent) {
-        logger.info(String.format("Analysis of scenario 3D -> (...) started for content-disposition header %s",
-                contentDispositionHeader));
+        logger.info("Analysis of scenario 3D -> (...) started.");
         String filename = contentDispositionParser.parseContentDispositionHeader(contentDispositionHeader);
         var result = calculationService
                 .handleTertiaryToDotBracketCalculation(
@@ -103,8 +102,7 @@ public class CalculationController {
             @RequestHeader(HttpHeaders.CONTENT_DISPOSITION) String contentDispositionHeader,
             @RequestBody String fileContent) {
 
-        logger.info(String.format("Analysis of scenario 2D -> (...) started for content-disposition header %s",
-                contentDispositionHeader));
+        logger.info("Analysis of scenario 2D -> (...) started.");
         String filename = contentDispositionParser.parseContentDispositionHeader(contentDispositionHeader);
         var outputAnalysis = calculationService
                 .handleSecondaryToDotBracketCalculation(
@@ -136,8 +134,7 @@ public class CalculationController {
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
             @RequestHeader(HttpHeaders.CONTENT_DISPOSITION) String contentDispositionHeader,
             @RequestBody String fileContent) {
-        logger.info(String.format("Analysis of scenario 3D -> multi 2D started for content-disposition header %s",
-                contentDispositionHeader));
+        logger.info("Analysis of scenario 3D -> multi 2D started");
         String filename = contentDispositionParser.parseContentDispositionHeader(contentDispositionHeader);
         var result = calculationService.handleTertiaryToMultiSecondaryCalculation(modelSelection,
                 includeNonCanonical, removeIsolated, visualizationTool, filename, fileContent);

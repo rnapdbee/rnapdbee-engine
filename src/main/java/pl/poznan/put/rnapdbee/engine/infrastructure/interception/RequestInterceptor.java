@@ -37,6 +37,7 @@ public class RequestInterceptor implements HandlerInterceptor {
 
         String filename = getFilenameFromRequest(request);
         MDC.put("FileName", filename);
+        LOGGER.info(String.format("Request's query string: %s", request.getQueryString()));
         return true;
     }
 
