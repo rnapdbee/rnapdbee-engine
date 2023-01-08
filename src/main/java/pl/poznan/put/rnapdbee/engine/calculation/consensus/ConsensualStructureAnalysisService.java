@@ -61,6 +61,7 @@ public class ConsensualStructureAnalysisService {
             "BioCommons exception met when creating models out of base pair analysis for visualizationTool %s, " +
                     "includeNonCanonical %s and modelNumber %s. Continuing analysis for other models & adapters. " +
                     "FileContent: %s";
+
     private final ImageService imageService;
     private final TertiaryFileParser tertiaryFileParser;
     private final BasePairAnalyzerFactory basePairAnalyzerFactory;

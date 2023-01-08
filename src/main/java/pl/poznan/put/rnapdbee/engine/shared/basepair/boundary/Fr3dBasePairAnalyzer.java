@@ -14,7 +14,6 @@ import pl.poznan.put.rnapdbee.engine.shared.basepair.exception.AdaptersErrorExce
  * The FR3D-python program, used in rnapdbee-adapters is not yet production-ready, thus it is annotated as experimental.
  */
 @Component
-@Experimental
 public class Fr3dBasePairAnalyzer extends BasePairAnalyzer {
 
     @Override

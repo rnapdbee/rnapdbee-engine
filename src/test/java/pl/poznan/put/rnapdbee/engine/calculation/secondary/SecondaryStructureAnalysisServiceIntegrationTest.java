@@ -31,7 +31,7 @@ import java.nio.file.Paths;
 @SpringBootTest
 @ActiveProfiles("test")
 @ContextConfiguration(classes = TestConverterConfiguration.class)
-class SecondaryStructureAnalysisServiceTest {
+class SecondaryStructureAnalysisServiceIntegrationTest {
 
     static String EXAMPLE_FILE_PATH_FORMAT = "/secondaryTestFiles/%s";
 

@@ -50,6 +50,7 @@ public abstract class BasePairAnalyzer {
         logger.info(String.format("base pair analysis started for model number %s", modelNumber));
         AdaptersAnalysisDTO adaptersAnalysis = rnapdbeeAdaptersCaller
                 .performBasePairAnalysis(fileContent, analysisTool(), modelNumber);
+        logger.info(String.format("base pair analysis finished for model number %s", modelNumber));
         return performPostAnalysisOnResponseFromAdapter(adaptersAnalysis, includeNonCanonical);
     }
 
