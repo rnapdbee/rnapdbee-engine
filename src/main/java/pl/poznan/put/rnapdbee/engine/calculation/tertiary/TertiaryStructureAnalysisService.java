@@ -49,6 +49,8 @@ public class TertiaryStructureAnalysisService {
     private final InputTypeDeterminer inputTypeDeterminer;
     private final Converter converter;
 
+    private static final int THRESHOLD_PDB_CREATION_VALUE = 64 * 1024 * 1024;
+
     public Output3D analyze(ModelSelection modelSelection,
                             AnalysisTool analysisTool,
                             NonCanonicalHandling nonCanonicalHandling,
@@ -71,6 +73,8 @@ public class TertiaryStructureAnalysisService {
                                      InputType inputType,
                                      String fileContent) {
         final List<? extends PdbModel> models = tertiaryFileParser.parseFileContents(inputType, fileContent);
+        final boolean shouldGeneratePdbCoordinates = inputType == InputType.PDB &&
+                (long) fileContent.length() * models.size() < THRESHOLD_PDB_CREATION_VALUE;
 
         final int modelsToBeProcessed = modelSelection == ModelSelection.FIRST
                 ? 1
@@ -84,7 +88,7 @@ public class TertiaryStructureAnalysisService {
                     final BasePairAnalysis basePairAnalysis = handleBasePairAnalysis(analysisTool,
                             nonCanonicalHandling, removeIsolated, fileContent, rna);
 
-                    // assuming the atoms ale always being reordered
+                    // assuming the atoms are always to be reordered
                     final PdbModel finalModel = ChainReorderer.reorderAtoms(rna, basePairAnalysis.getRepresented());
                     final BpSeq bpSeq = BpSeq.fromBasePairs(finalModel.namedResidueIdentifiers(),
                             basePairAnalysis.getRepresented());
@@ -96,7 +100,7 @@ public class TertiaryStructureAnalysisService {
 
                     return buildSingleModelOutputFromAnalysis(
                             analysisTool, nonCanonicalHandling, structuralElementsHandling, visualizationTool,
-                            finalModel, basePairAnalysis, dotBracketFromPdb, rna);
+                            finalModel, basePairAnalysis, dotBracketFromPdb, rna, shouldGeneratePdbCoordinates);
                 })
                 .collect(Collectors.toList());
 
@@ -141,7 +145,8 @@ public class TertiaryStructureAnalysisService {
             PdbModel structureModel,
             BasePairAnalysis basePairAnalysis,
             DefaultDotBracketFromPdb dotBracket,
-            PdbModel rna) {
+            PdbModel rna,
+            boolean shouldGeneratePdbCoordinates) {
         final BasePairAnalysis filteredResults =
                 basePairAnalysis.filtered(dotBracket.identifierSet());
 
@@ -157,7 +162,11 @@ public class TertiaryStructureAnalysisService {
                         dotBracket,
                         structuralElementsHandling.canElementsEndWithPseudoknots(),
                         structuralElementsHandling.isReuseSingleStrandsFromLoopsEnabled());
-        structuralElementFinder.generatePdb(structureModel);
+        String pdbCoordinates = null;
+        if (shouldGeneratePdbCoordinates) {
+            structuralElementFinder.generatePdb(structureModel);
+            pdbCoordinates = structuralElementFinder.getPdb();
+        }
 
         Output2D output2D = new Output2D.Output2DBuilder()
                 .withImageInformation(image)
@@ -165,7 +174,7 @@ public class TertiaryStructureAnalysisService {
                 .withBpSeqFromBpSeqObject(bpseq)
                 .withStrandsFromDotBracket(dotBracket)
                 .withStructuralElement(StructuralElementOutput.ofStructuralElementsFinderAndCoordinates(
-                        structuralElementFinder, structuralElementFinder.getPdb()))
+                        structuralElementFinder, pdbCoordinates))
                 .build();
 
         return new SingleTertiaryModelOutput.Builder()
