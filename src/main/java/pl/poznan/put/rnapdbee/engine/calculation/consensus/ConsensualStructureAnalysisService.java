@@ -24,7 +24,6 @@ import pl.poznan.put.rnapdbee.engine.shared.domain.InputTypeDeterminer;
 import pl.poznan.put.rnapdbee.engine.shared.domain.ModelSelection;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.exception.AdaptersErrorException;
 import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementOutput;
-import pl.poznan.put.rnapdbee.engine.shared.exception.AdaptersErrorException;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.ImageService;
