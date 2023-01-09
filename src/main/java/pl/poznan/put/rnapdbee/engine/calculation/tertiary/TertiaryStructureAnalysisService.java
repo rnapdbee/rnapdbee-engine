@@ -49,8 +49,6 @@ public class TertiaryStructureAnalysisService {
     private final InputTypeDeterminer inputTypeDeterminer;
     private final Converter converter;
 
-    private static final int THRESHOLD_PDB_CREATION_VALUE = 64 * 1024 * 1024;
-
     public Output3D analyze(ModelSelection modelSelection,
                             AnalysisTool analysisTool,
                             NonCanonicalHandling nonCanonicalHandling,
@@ -73,8 +71,6 @@ public class TertiaryStructureAnalysisService {
                                      InputType inputType,
                                      String fileContent) {
         final List<? extends PdbModel> models = tertiaryFileParser.parseFileContents(inputType, fileContent);
-        final boolean shouldGeneratePdbCoordinates = inputType == InputType.PDB &&
-                (long) fileContent.length() * models.size() < THRESHOLD_PDB_CREATION_VALUE;
 
         final int modelsToBeProcessed = modelSelection == ModelSelection.FIRST
                 ? 1
@@ -100,7 +96,7 @@ public class TertiaryStructureAnalysisService {
 
                     return buildSingleModelOutputFromAnalysis(
                             analysisTool, nonCanonicalHandling, structuralElementsHandling, visualizationTool,
-                            finalModel, basePairAnalysis, dotBracketFromPdb, rna, shouldGeneratePdbCoordinates);
+                            finalModel, basePairAnalysis, dotBracketFromPdb, inputType, rna);
                 })
                 .collect(Collectors.toList());
 
@@ -145,8 +141,8 @@ public class TertiaryStructureAnalysisService {
             PdbModel structureModel,
             BasePairAnalysis basePairAnalysis,
             DefaultDotBracketFromPdb dotBracket,
-            PdbModel rna,
-            boolean shouldGeneratePdbCoordinates) {
+            InputType inputType,
+            PdbModel rna) {
         final BasePairAnalysis filteredResults =
                 basePairAnalysis.filtered(dotBracket.identifierSet());
 
@@ -162,11 +158,8 @@ public class TertiaryStructureAnalysisService {
                         dotBracket,
                         structuralElementsHandling.canElementsEndWithPseudoknots(),
                         structuralElementsHandling.isReuseSingleStrandsFromLoopsEnabled());
-        String pdbCoordinates = null;
-        if (shouldGeneratePdbCoordinates) {
-            structuralElementFinder.generatePdb(structureModel);
-            pdbCoordinates = structuralElementFinder.getPdb();
-        }
+
+        String coordinates = generateCoordinates(structureModel, inputType);
 
         Output2D output2D = new Output2D.Output2DBuilder()
                 .withImageInformation(image)
@@ -174,7 +167,7 @@ public class TertiaryStructureAnalysisService {
                 .withBpSeqFromBpSeqObject(bpseq)
                 .withStrandsFromDotBracket(dotBracket)
                 .withStructuralElement(StructuralElementOutput.ofStructuralElementsFinderAndCoordinates(
-                        structuralElementFinder, pdbCoordinates))
+                        structuralElementFinder, coordinates))
                 .build();
 
         return new SingleTertiaryModelOutput.Builder()
@@ -230,6 +223,17 @@ public class TertiaryStructureAnalysisService {
         messages.addAll(basePairAnalysis.getMessages());
         messages.addAll(rnaValidator.validate(rna));
         return messages;
+    }
+
+    private String generateCoordinates(PdbModel structureModel, InputType inputType) {
+        switch (inputType) {
+            case PDB:
+                return structureModel.toPdb();
+            case MMCIF:
+                return structureModel.toCif();
+            default:
+                throw new IllegalArgumentException("Only PDB and MMCIF formats are supported by this methods.");
+        }
     }
 
     @Autowired
