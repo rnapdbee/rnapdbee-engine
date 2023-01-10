@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
 import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.exception.AdaptersErrorException;
 
 @Component
 public class RnapolisBasePairAnalyzer extends BasePairAnalyzer {
@@ -18,7 +19,8 @@ public class RnapolisBasePairAnalyzer extends BasePairAnalyzer {
 
     @Override
     @Cacheable("AnalysisRNAPolis")
-    public BasePairAnalysis analyze(String fileContent, boolean includeNonCanonical, int modelNumber) {
+    public BasePairAnalysis analyze(String fileContent, boolean includeNonCanonical, int modelNumber)
+            throws AdaptersErrorException {
         return super.performAnalysis(fileContent, includeNonCanonical, modelNumber);
     }
 

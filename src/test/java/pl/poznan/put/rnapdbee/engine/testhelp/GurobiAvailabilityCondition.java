@@ -11,7 +11,7 @@ import static org.junit.platform.commons.util.AnnotationUtils.findAnnotation;
 
 public class GurobiAvailabilityCondition implements ExecutionCondition {
 
-    private static final Logger logger = LoggerFactory.getLogger(GurobiAvailabilityCondition.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GurobiAvailabilityCondition.class);
 
     @Override
     public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
@@ -22,10 +22,10 @@ public class GurobiAvailabilityCondition implements ExecutionCondition {
 
         boolean isGurobiAvailable = TestConverterConfiguration.checkIfGurobiIsSetUpCorrectly();
         if (isGurobiAvailable) {
-            logger.info("Gurobi is installed and license is set on this machine");
+            LOGGER.info("Gurobi is installed and license is set on this machine");
             return ConditionEvaluationResult.enabled("Gurobi is available on this machine, continuing test execution");
         } else {
-            logger.warn("Gurobi is not installed or license is not set on this machine");
+            LOGGER.warn("Gurobi is not installed or license is not set on this machine");
             return ConditionEvaluationResult.disabled("Gurobi is not available on this machine, skipping test execution");
         }
     }

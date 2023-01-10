@@ -36,7 +36,8 @@ public class RequestInterceptor implements HandlerInterceptor {
         MDC.put("RequestId", RandomStringUtils.randomAlphabetic(8).toUpperCase(Locale.ROOT));
 
         String filename = getFilenameFromRequest(request);
-        MDC.put("FileName", filename);
+        MDC.put("Filename", filename);
+        LOGGER.info(String.format("Request's query string: %s", request.getQueryString()));
         return true;
     }
 

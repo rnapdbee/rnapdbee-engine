@@ -1,55 +1,120 @@
 package pl.poznan.put.rnapdbee.engine.calculation.consensus;
 
-import org.junit.jupiter.api.Timeout;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.aggregator.AggregateWith;
-import org.junit.jupiter.params.provider.CsvFileSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import pl.poznan.put.rnapdbee.engine.testhelp.shared.AbstractTertiaryStructureAnalysisTestingClass;
-import pl.poznan.put.rnapdbee.engine.testhelp.consensual.ConsensualAnalysisTestInformation;
-import pl.poznan.put.rnapdbee.engine.testhelp.consensual.ConsensualAnalysisTestInformationAggregator;
-import pl.poznan.put.rnapdbee.engine.testhelp.consensual.ConsensualAnalysisTestUtils;
-import pl.poznan.put.rnapdbee.engine.testhelp.shared.configuration.TestConverterConfiguration;
-import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
+import org.apache.commons.lang3.tuple.Pair;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import pl.poznan.put.pdb.analysis.MoleculeType;
+import pl.poznan.put.pdb.analysis.PdbModel;
+import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.OutputMulti;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BasePairAnalyzer;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.exception.AdaptersErrorException;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.service.BasePairAnalyzerFactory;
+import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
+import pl.poznan.put.rnapdbee.engine.shared.domain.InputType;
+import pl.poznan.put.rnapdbee.engine.shared.domain.InputTypeDeterminer;
 import pl.poznan.put.rnapdbee.engine.shared.domain.ModelSelection;
+import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
+import pl.poznan.put.rnapdbee.engine.shared.image.logic.ImageService;
+import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.ConsensualVisualizationDrawer;
+import pl.poznan.put.rnapdbee.engine.shared.parser.TertiaryFileParser;
+import pl.poznan.put.structure.formats.Converter;
+import pl.poznan.put.structure.formats.Ct;
+import pl.poznan.put.structure.formats.DotBracket;
 
 import java.util.List;
 
-@SpringBootTest
-@ActiveProfiles("test")
-@ContextConfiguration(classes = {
-        AbstractTertiaryStructureAnalysisTestingClass.BeansReplacement.class,
-        TestConverterConfiguration.class})
-class ConsensualStructureAnalysisServiceTest extends AbstractTertiaryStructureAnalysisTestingClass {
+import static org.mockito.Mockito.mockStatic;
 
-    @Autowired
+
+@ExtendWith(MockitoExtension.class)
+class ConsensualStructureAnalysisServiceTest {
+
+    @Mock
+    ImageService imageService;
+    @Mock
+    TertiaryFileParser tertiaryFileParser;
+    @Mock
+    BasePairAnalyzerFactory basePairAnalyzerFactory;
+    @Mock
+    InputTypeDeterminer inputTypeDeterminer;
+    @Mock
+    Converter converter;
+    @Mock
+    ConsensualVisualizationDrawer consensualVisualizationDrawer;
+
+    @InjectMocks
     ConsensualStructureAnalysisService cut;
 
-    @ParameterizedTest
-    @CsvFileSource(resources = "/3dToMulti2DTestCases.csv")
-    @Timeout(60)
-    void testConsensualAnalysis(String exampleFilename, ModelSelection modelSelection, boolean includeNonCanonical,
-                                boolean removeIsolated, VisualizationTool visualizationTool,
-                                @AggregateWith(ConsensualAnalysisTestInformationAggregator.class)
-                                List<ConsensualAnalysisTestInformation> expectedInformationList) {
-        prepareMockWebServerStubs(exampleFilename);
-        String fileContent = readFileContentFromFile(exampleFilename);
-        var result = cut.analyze(modelSelection, includeNonCanonical, removeIsolated, visualizationTool, exampleFilename, fileContent);
-        // TODO: add assertions for adapterEnums when rnapdbee-common code is merged with rnapdbee-engine
-        ConsensualAnalysisTestUtils.assertAnalysisOutput(result, expectedInformationList);
+    private static final String MOCKED_FILE_NAME = "";
+    private static final String MOCKED_CONTENT = "";
+
+    @Test
+    void shouldContinueConsensualAnalysisIfBasePairAnalysisThrewAdaptersErrorException() throws AdaptersErrorException {
+        // mocked
+        PdbModel mockedModel = mockPdbModel();
+
+        InputType mockedInputType = InputType.PDB;
+        Mockito.when(inputTypeDeterminer.detectTertiaryInputTypeFromFileName(MOCKED_FILE_NAME))
+                .thenReturn(mockedInputType);
+        Mockito.when(tertiaryFileParser.parseFileContents(mockedInputType, MOCKED_CONTENT))
+                .thenAnswer(x -> List.of(mockedModel));
+        DotBracket mockedDotBracket = mockDotBracket();
+        Mockito.when(converter.convert(Mockito.any()))
+                .thenReturn(mockedDotBracket);
+
+        BasePairAnalyzer successfulAnalyzer = Mockito.mock(BasePairAnalyzer.class);
+        BasePairAnalyzer failingAnalyzer = Mockito.mock(BasePairAnalyzer.class);
+
+        Mockito.when(successfulAnalyzer.analyze(MOCKED_CONTENT, true, 0))
+                .thenReturn(Mockito.mock(BasePairAnalysis.class));
+        Mockito.when(failingAnalyzer.analyze(MOCKED_CONTENT, true, 0))
+                .thenThrow(new AdaptersErrorException("Some error"));
+
+        Mockito.when(basePairAnalyzerFactory.prepareAnalyzerPairs()).thenReturn(List.of(
+                Pair.of(AnalysisTool.RNAPOLIS, successfulAnalyzer),
+                Pair.of(AnalysisTool.FR3D_PYTHON, failingAnalyzer)
+        ));
+
+        try (MockedStatic<Ct> theMock = mockStatic(Ct.class)) {
+            theMock.when(() -> Ct.fromBpSeqAndPdbModel(Mockito.any(), Mockito.any()))
+                    .thenReturn(Mockito.mock(Ct.class));
+            // when
+            var result = cut.analyze(ModelSelection.FIRST,
+                    true,
+                    true,
+                    VisualizationTool.NONE,
+                    MOCKED_FILE_NAME,
+                    MOCKED_CONTENT
+            );
+            // then
+            Assertions.assertThat(result)
+                    .extracting(OutputMulti::getEntries)
+                    .extracting(List::size)
+                    .isEqualTo(1);
+        }
     }
 
-    ConsensualStructureAnalysisServiceTest() {
-        EXAMPLE_PDB_FILE_PATH_FORMAT = "/3DToMulti2DMocks/%s/pdbfile.pdb";
-        EXAMPLE_CIF_FILE_PATH_FORMAT = "/3DToMulti2DMocks/%s/mmciffile.cif";
+    private static PdbModel mockPdbModel() {
 
-        BARNABA_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/barnaba_response.json";
-        BPNET_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/bpnet_response.json";
-        MC_ANNOTATE_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/mc_annotate_response.json";
-        RNAVIEW_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/rnaview_response.json";
-        RNAPOLIS_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/rnapolis_response.json";
+        PdbModel mockedModel = Mockito.mock(PdbModel.class);
+        PdbModel mockedRnaModel = Mockito.mock(PdbModel.class);
+        Mockito.when(mockedModel.containsAny(MoleculeType.RNA)).thenReturn(true);
+        Mockito.when(mockedModel.filteredNewInstance(MoleculeType.RNA))
+                .thenReturn(mockedRnaModel);
+        return mockedModel;
+    }
+
+    private static DotBracket mockDotBracket() {
+        DotBracket mockedDotBracket = Mockito.mock(DotBracket.class);
+        Mockito.when(mockedDotBracket.sequence()).thenReturn("AAAA");
+        Mockito.when(mockedDotBracket.structure()).thenReturn(".().");
+        return mockedDotBracket;
     }
 }

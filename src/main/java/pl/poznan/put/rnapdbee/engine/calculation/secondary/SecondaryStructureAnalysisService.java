@@ -5,13 +5,15 @@ import org.springframework.stereotype.Component;
 import pl.poznan.put.pdb.ImmutablePdbNamedResidueIdentifier;
 import pl.poznan.put.pdb.PdbNamedResidueIdentifier;
 import pl.poznan.put.rnapdbee.engine.calculation.secondary.domain.Output2D;
-import pl.poznan.put.rnapdbee.engine.calculation.secondary.domain.SecondaryFileExtensionEnum;
+import pl.poznan.put.rnapdbee.engine.shared.domain.InputType;
+import pl.poznan.put.rnapdbee.engine.shared.domain.InputTypeDeterminer;
 import pl.poznan.put.rnapdbee.engine.shared.elements.StructuralElementFinder;
 import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.ImageService;
 import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementsHandling;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
+import pl.poznan.put.rnapdbee.engine.shared.parser.SecondaryFileParser;
 import pl.poznan.put.structure.AnalyzedBasePair;
 import pl.poznan.put.structure.BasePair;
 import pl.poznan.put.structure.DotBracketSymbol;
@@ -20,7 +22,6 @@ import pl.poznan.put.structure.ImmutableBasePair;
 import pl.poznan.put.structure.formats.BpSeq;
 import pl.poznan.put.structure.formats.Converter;
 import pl.poznan.put.structure.formats.Ct;
-import pl.poznan.put.structure.formats.DefaultDotBracket;
 import pl.poznan.put.structure.formats.DotBracket;
 import pl.poznan.put.structure.formats.Strand;
 
@@ -37,7 +38,8 @@ import java.util.stream.Collectors;
 public class SecondaryStructureAnalysisService {
 
     private final ImageService imageService;
-    private final Converter converter;
+    private final SecondaryFileParser secondaryFileParser;
+    private final InputTypeDeterminer inputTypeDeterminer;
 
     /**
      * performs analysis of Secondary RNA structures to Images
@@ -54,7 +56,8 @@ public class SecondaryStructureAnalysisService {
                                                   boolean removeIsolated,
                                                   String content,
                                                   String filename) {
-        DotBracket dotBracket = convertSecondaryFileIntoDbnFormat(filename.split("\\.")[1], removeIsolated, content);
+        InputType inputType = inputTypeDeterminer.detectSecondaryInputTypeFromFileName(filename);
+        DotBracket dotBracket = secondaryFileParser.parseSecondaryFile(content, inputType, removeIsolated);
         return analyzeDotBracket(dotBracket, structuralElementsHandling, visualizationTool);
     }
 
@@ -124,48 +127,11 @@ public class SecondaryStructureAnalysisService {
         return interStrand;
     }
 
-    private DotBracket convertSecondaryFileIntoDbnFormat(String fileExtension, boolean removeIsolated, String content) {
-        if (fileExtension.equals(SecondaryFileExtensionEnum.BP_SEQ.fileExtension)) {
-            return convertBpSeqIntoDotBracket(content, removeIsolated);
-        } else if (fileExtension.equals(SecondaryFileExtensionEnum.CT.fileExtension)) {
-            return convertCtIntoDotBracket(content, removeIsolated);
-        } else if (fileExtension.equals(SecondaryFileExtensionEnum.DBN.fileExtension)) {
-            return readDotBracketContent(content, removeIsolated);
-        } else {
-            throw new IllegalArgumentException(
-                    "Invalid attempt to analyze secondary structure for input type: " + fileExtension);
-        }
-    }
-
-    private DotBracket convertBpSeqIntoDotBracket(String content, boolean removeIsolated) {
-        BpSeq bpSeq = removeIsolated
-                ? BpSeq.fromString(content).withoutIsolatedPairs()
-                : BpSeq.fromString(content);
-        Ct ct = Ct.fromBpSeq(bpSeq);
-        return DefaultDotBracket.copyWithStrands(converter.convert(bpSeq), ct);
-    }
-
-    private DotBracket convertCtIntoDotBracket(String content, boolean removeIsolated) {
-        Ct ct = removeIsolated
-                ? Ct.fromString(content).withoutIsolatedPairs()
-                : Ct.fromString(content);
-        BpSeq bpSeq = BpSeq.fromCt(ct);
-        return DefaultDotBracket.copyWithStrands(converter.convert(bpSeq), ct);
-    }
-
-    private DotBracket readDotBracketContent(String content, boolean removeIsolated) {
-        DotBracket readDotBracket = DefaultDotBracket.fromString(content);
-        if (removeIsolated) {
-            return DefaultDotBracket.copyWithoutIsolatedBasePairs(readDotBracket);
-        } else {
-            return readDotBracket;
-        }
-    }
-
     @Autowired
     public SecondaryStructureAnalysisService(ImageService imageService,
-                                             Converter converter) {
+                                             Converter converter, SecondaryFileParser secondaryFileParser, InputTypeDeterminer inputTypeDeterminer) {
         this.imageService = imageService;
-        this.converter = converter;
+        this.secondaryFileParser = secondaryFileParser;
+        this.inputTypeDeterminer = inputTypeDeterminer;
     }
 }
