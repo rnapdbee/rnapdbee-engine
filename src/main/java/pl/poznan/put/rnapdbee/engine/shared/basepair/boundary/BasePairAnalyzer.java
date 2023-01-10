@@ -13,6 +13,7 @@ import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.AdaptersAnalysisDTO;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairDTO;
 import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.exception.AdaptersErrorException;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
 import pl.poznan.put.rnapdbee.engine.shared.multiplet.MultipletSet;
 import pl.poznan.put.structure.AnalyzedBasePair;
@@ -33,7 +34,7 @@ import static pl.poznan.put.rnapdbee.engine.shared.basepair.domain.StackingTopol
 //  time with this approach if the adapters were scalable horizontally in the future.
 public abstract class BasePairAnalyzer {
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
+    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
     protected final RnaPDBeeAdaptersCaller rnapdbeeAdaptersCaller;
 
     public abstract AnalysisTool analysisTool();
@@ -41,14 +42,15 @@ public abstract class BasePairAnalyzer {
     // TODO: think about using WebFlux advancements when refactoring
     public abstract BasePairAnalysis analyze(String fileContent,
                                              boolean includeNonCanonical,
-                                             int modelNumber);
+                                             int modelNumber) throws AdaptersErrorException;
 
     protected BasePairAnalysis performAnalysis(String fileContent,
                                                boolean includeNonCanonical,
-                                               int modelNumber) {
-        logger.info(String.format("base pair analysis started for model number %s", modelNumber));
+                                               int modelNumber) throws AdaptersErrorException {
+        LOGGER.info(String.format("base pair analysis started for model number %s", modelNumber));
         AdaptersAnalysisDTO adaptersAnalysis = rnapdbeeAdaptersCaller
                 .performBasePairAnalysis(fileContent, analysisTool(), modelNumber);
+        LOGGER.info(String.format("base pair analysis finished for model number %s", modelNumber));
         return performPostAnalysisOnResponseFromAdapter(adaptersAnalysis, includeNonCanonical);
     }
 

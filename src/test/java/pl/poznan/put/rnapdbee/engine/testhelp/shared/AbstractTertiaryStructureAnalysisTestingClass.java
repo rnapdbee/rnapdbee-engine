@@ -14,7 +14,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.web.reactive.function.client.WebClient;
-import pl.poznan.put.rnapdbee.engine.calculation.consensus.visualization.boundary.WeblogoConsensualVisualizationDrawer;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.Fr3dBasePairAnalyzer;
+import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.WeblogoConsensualVisualizationDrawer;
 import pl.poznan.put.rnapdbee.engine.infrastructure.configuration.RnaPDBeeAdaptersProperties;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BPNetBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BarnabaBasePairAnalyzer;
@@ -49,6 +50,7 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
     protected String MC_ANNOTATE_RESPONSE_MOCK_PATH_FORMAT;
     protected String RNAVIEW_RESPONSE_MOCK_PATH_FORMAT;
     protected String RNAPOLIS_RESPONSE_MOCK_PATH_FORMAT;
+    protected String FR3D_RESPONSE_MOCK_PATH_FORMAT;
 
     private final String MOCKED_WEBLOGO_RESPONSE = "mock";
 
@@ -108,6 +110,12 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
                             .setResponseCode(200)
                             .addHeader("Content-Type", MediaType.APPLICATION_JSON)
                             .setBody(readFileAsString(String.format(RNAPOLIS_RESPONSE_MOCK_PATH_FORMAT, exampleFileName)));
+                }
+                if ("/analysis-api/v1/fr3d".equals(request.getPath())) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .addHeader("Content-Type", MediaType.APPLICATION_JSON)
+                            .setBody(readFileAsString(String.format(FR3D_RESPONSE_MOCK_PATH_FORMAT, exampleFileName)));
                 }
                 if ("/visualization-api/v1/weblogo".equals(request.getPath())) {
                     return new MockResponse()
@@ -174,6 +182,13 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
         @Bean
         RnapolisBasePairAnalyzer mockRnapolisBasePairAnalyzer() {
             return new RnapolisBasePairAnalyzer(mockedRnapdbeeAdaptersCallerSupplier.get());
+        }
+
+
+        @Primary
+        @Bean
+        Fr3dBasePairAnalyzer mockFr3dBasePairAnalyzer() {
+            return new Fr3dBasePairAnalyzer(mockedRnapdbeeAdaptersCallerSupplier.get());
         }
 
         @Primary

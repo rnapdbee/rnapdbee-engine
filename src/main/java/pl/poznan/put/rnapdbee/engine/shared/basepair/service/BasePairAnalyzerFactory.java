@@ -3,17 +3,16 @@ package pl.poznan.put.rnapdbee.engine.shared.basepair.service;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.Fr3dBasePairAnalyzer;
-import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BPNetBasePairAnalyzer;
-import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BarnabaBasePairAnalyzer;
-import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.MCAnnotateBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BasePairAnalyzer;
-import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.RnaViewBasePairAnalyzer;
-import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.RnapolisBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
 
+import javax.annotation.PostConstruct;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Component which handles loading right implementation of
@@ -21,13 +20,9 @@ import java.util.List;
  */
 @Component
 public class BasePairAnalyzerFactory {
+    private final List<BasePairAnalyzer> allAnalyzers;
 
-    private final RnaViewBasePairAnalyzer rnaViewBasePairAnalyzer;
-    private final MCAnnotateBasePairAnalyzer mcAnnotateBasePairAnalyzer;
-    private final Fr3dBasePairAnalyzer fr3dBasePairAnalyzer;
-    private final BPNetBasePairAnalyzer bpNetBasePairAnalyzer;
-    private final BarnabaBasePairAnalyzer barnabaBasePairAnalyzer;
-    private final RnapolisBasePairAnalyzer rnapolisBasePairAnalyzer;
+    private Map<AnalysisTool, BasePairAnalyzer> analyzersMap = new HashMap<>();
 
     /**
      * Returns the appropriate implementation of {@link BasePairAnalyzer},
@@ -37,47 +32,28 @@ public class BasePairAnalyzerFactory {
      * @return implementation connected with given enum
      */
     public BasePairAnalyzer provideBasePairAnalyzer(AnalysisTool basePairAnalyzerEnum) {
-        switch (basePairAnalyzerEnum) {
-            case BPNET:
-                return bpNetBasePairAnalyzer;
-            case BARNABA:
-                return barnabaBasePairAnalyzer;
-            case RNAVIEW:
-                return rnaViewBasePairAnalyzer;
-            case FR3D_PYTHON:
-                return fr3dBasePairAnalyzer;
-            case MC_ANNOTATE:
-                return mcAnnotateBasePairAnalyzer;
-            case RNAPOLIS:
-                return rnapolisBasePairAnalyzer;
-            default:
-                throw new RuntimeException("unhandled enum passed to provideBasePairAnalyzer method");
+        if (!analyzersMap.containsKey(basePairAnalyzerEnum)) {
+            throw new IllegalArgumentException("unhandled enum passed to provideBasePairAnalyzer method");
         }
+
+        return analyzersMap.get(basePairAnalyzerEnum);
     }
 
     public Collection<Pair<AnalysisTool, BasePairAnalyzer>> prepareAnalyzerPairs() {
-        return List.of(
-                Pair.of(AnalysisTool.MC_ANNOTATE, mcAnnotateBasePairAnalyzer),
-                // fr3d-python is not yet mature software, disabled for now.
-                // Pair.of(AnalysisTool.FR3D_PYTHON, fr3dBasePairAnalyzer),
-                Pair.of(AnalysisTool.BARNABA, barnabaBasePairAnalyzer),
-                Pair.of(AnalysisTool.BPNET, bpNetBasePairAnalyzer),
-                Pair.of(AnalysisTool.RNAVIEW, rnaViewBasePairAnalyzer),
-                Pair.of(AnalysisTool.RNAPOLIS, rnapolisBasePairAnalyzer)
-        );
+        return analyzersMap
+                .entrySet().stream()
+                .map(entry -> Pair.of(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+    }
+
+    @PostConstruct
+    private void initializeAnalyzerPairsMap() {
+        analyzersMap = allAnalyzers.stream().collect(Collectors.toMap(BasePairAnalyzer::analysisTool, Function.identity()));
     }
 
     @Autowired
-    public BasePairAnalyzerFactory(RnaViewBasePairAnalyzer rnaViewBasePairAnalyzer,
-                                   MCAnnotateBasePairAnalyzer mcAnnotateBasePairAnalyzer,
-                                   Fr3dBasePairAnalyzer fr3dBasePairAnalyzer,
-                                   BPNetBasePairAnalyzer bpNetBasePairAnalyzer,
-                                   BarnabaBasePairAnalyzer barnabaBasePairAnalyzer, RnapolisBasePairAnalyzer rnapolisBasePairAnalyzer) {
-        this.rnaViewBasePairAnalyzer = rnaViewBasePairAnalyzer;
-        this.mcAnnotateBasePairAnalyzer = mcAnnotateBasePairAnalyzer;
-        this.fr3dBasePairAnalyzer = fr3dBasePairAnalyzer;
-        this.bpNetBasePairAnalyzer = bpNetBasePairAnalyzer;
-        this.barnabaBasePairAnalyzer = barnabaBasePairAnalyzer;
-        this.rnapolisBasePairAnalyzer = rnapolisBasePairAnalyzer;
+
+    public BasePairAnalyzerFactory(List<BasePairAnalyzer> allAnalyzers) {
+        this.allAnalyzers = allAnalyzers;
     }
 }

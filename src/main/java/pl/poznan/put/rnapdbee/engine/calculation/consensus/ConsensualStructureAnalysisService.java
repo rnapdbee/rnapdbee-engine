@@ -1,12 +1,17 @@
 package pl.poznan.put.rnapdbee.engine.calculation.consensus;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.ConsensualVisualization;
-import pl.poznan.put.rnapdbee.engine.calculation.consensus.visualization.boundary.ConsensualVisualizationDrawer;
+import pl.poznan.put.rnapdbee.engine.shared.exception.ConsensualVisualizationException;
+import pl.poznan.put.rnapdbee.engine.shared.exception.NoRnaModelsInFileException;
+import pl.poznan.put.rnapdbee.engine.shared.image.exception.VisualizationException;
+import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.ConsensualVisualizationDrawer;
 import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.OutputMulti;
 import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.OutputMultiEntry;
 import pl.poznan.put.rnapdbee.engine.calculation.secondary.domain.Output2D;
@@ -17,6 +22,7 @@ import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.shared.domain.InputType;
 import pl.poznan.put.rnapdbee.engine.shared.domain.InputTypeDeterminer;
 import pl.poznan.put.rnapdbee.engine.shared.domain.ModelSelection;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.exception.AdaptersErrorException;
 import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
@@ -28,18 +34,34 @@ import pl.poznan.put.structure.formats.Converter;
 import pl.poznan.put.structure.formats.Ct;
 import pl.poznan.put.structure.formats.DotBracket;
 import pl.poznan.put.structure.formats.ImmutableDefaultDotBracketFromPdb;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 /**
  * Service which purpose is to handle 3D -> Multi 2D analysis.
  */
 @Component
 public class ConsensualStructureAnalysisService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConsensualStructureAnalysisService.class);
+
+    private static final String BASE_PAIR_ANALYSIS_FAILED =
+            "Base pair analysis failed.";
+    private static final String BASE_PAIR_ANALYSIS_FAILED_DEBUG_FORMAT =
+            "Base pair analysis failed for visualizationTool %s, includeNonCanonical %s and modelNumber %s." +
+                    " Continuing analysis for other models & adapters. FileContent: %s";
+    private static final String BIOCOMMONS_ERROR_MET =
+            "BioCommons exception met when creating models out of base pair analysis.";
+    private static final String BIOCOMMONS_ERROR_MET_DEBUG_FORMAT =
+            "BioCommons exception met when creating models out of base pair analysis for visualizationTool %s, " +
+                    "includeNonCanonical %s and modelNumber %s. Continuing analysis for other models & adapters. " +
+                    "FileContent: %s";
 
     private final ImageService imageService;
     private final TertiaryFileParser tertiaryFileParser;
@@ -85,18 +107,21 @@ public class ConsensualStructureAnalysisService {
             final boolean includeNonCanonical,
             final boolean removeIsolated,
             final VisualizationTool visualizationTool) {
-        AtomicReference<String> title = new AtomicReference<>("");
 
         final List<? extends PdbModel> models = tertiaryFileParser.parseFileContents(inputType, fileContents);
+        final List<? extends PdbModel> rnaModels = models.stream()
+                .filter(pdbModel -> pdbModel.containsAny(MoleculeType.RNA)).collect(Collectors.toList());
+        if (rnaModels.isEmpty()) {
+            throw new NoRnaModelsInFileException();
+        }
 
+        AtomicReference<String> title = new AtomicReference<>("");
+        final Map<BpSeq, OutputMultiEntry> uniqueInputs = new LinkedHashMap<>();
         final int modelsToBeProcessed = modelSelection == ModelSelection.FIRST
                 ? 1
-                : models.size();
-
-        final Map<BpSeq, OutputMultiEntry> uniqueInputs = new LinkedHashMap<>();
-        models.stream()
+                : rnaModels.size();
+        rnaModels.stream()
                 .limit(modelsToBeProcessed)
-                .filter(pdbModel -> pdbModel.containsAny(MoleculeType.RNA))
                 .forEach(model -> {
                     final PdbModel rna = model.filteredNewInstance(MoleculeType.RNA);
                     title.set(rna.title());
@@ -106,7 +131,13 @@ public class ConsensualStructureAnalysisService {
                 });
 
         List<OutputMultiEntry> outputMultiEntries = new ArrayList<>(uniqueInputs.values());
-        byte[] visualization = consensualVisualizationDrawer.performVisualization(outputMultiEntries);
+        byte[] visualization;
+
+        try {
+            visualization = consensualVisualizationDrawer.performVisualization(outputMultiEntries);
+        } catch (VisualizationException e) {
+            throw new ConsensualVisualizationException();
+        }
 
         return new OutputMulti.OutputMultiBuilder()
                 .withEntries(outputMultiEntries)
@@ -125,14 +156,32 @@ public class ConsensualStructureAnalysisService {
                                          final int modelNumber) {
         final AnalysisTool analyzerEnum = analyzerPair.getLeft();
         final BasePairAnalyzer analyzer = analyzerPair.getRight();
-        final BasePairAnalysis analysisResults =
-                analyzer.analyze(fileContents, includeNonCanonical, modelNumber);
+        final BasePairAnalysis analysisResults;
+
+        try {
+            analysisResults = analyzer.analyze(fileContents, includeNonCanonical, modelNumber);
+        } catch (AdaptersErrorException exception) {
+            LOGGER.warn(BASE_PAIR_ANALYSIS_FAILED, exception);
+            LOGGER.debug(String.format(BASE_PAIR_ANALYSIS_FAILED_DEBUG_FORMAT, visualizationTool, includeNonCanonical,
+                            modelNumber, fileContents),
+                    exception);
+            return;
+        }
         if (removeIsolated) {
             analysisResults.removeIsolatedBasePairs(rna);
         }
 
         final List<AnalyzedBasePair> represented = analysisResults.getRepresented();
-        final BpSeq bpSeq = BpSeq.fromBasePairs(rna.namedResidueIdentifiers(), represented);
+        final BpSeq bpSeq;
+        try {
+            bpSeq = BpSeq.fromBasePairs(rna.namedResidueIdentifiers(), represented);
+        } catch (IllegalArgumentException exception) {
+            LOGGER.error(BIOCOMMONS_ERROR_MET, exception);
+            LOGGER.debug(String.format(BIOCOMMONS_ERROR_MET_DEBUG_FORMAT, visualizationTool, includeNonCanonical,
+                            modelNumber, fileContents),
+                    exception);
+            return;
+        }
 
         if (uniqueInputs.containsKey(bpSeq)) {
             final OutputMultiEntry bpSeqInfo = uniqueInputs.get(bpSeq);

@@ -9,7 +9,7 @@ import fr.orsay.lri.varna.models.rna.ModeleBP;
 import fr.orsay.lri.varna.models.rna.RNA;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.notation.LeontisWesthof;
@@ -18,6 +18,7 @@ import pl.poznan.put.notation.Stericity;
 import pl.poznan.put.pdb.PdbResidueIdentifier;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
+import pl.poznan.put.rnapdbee.engine.shared.image.exception.VisualizationException;
 import pl.poznan.put.structure.BasePair;
 import pl.poznan.put.structure.ClassifiedBasePair;
 import pl.poznan.put.structure.DotBracketSymbol;
@@ -44,16 +45,20 @@ import java.util.stream.Collectors;
 @Component
 public class DrawerVarnaTz implements SecondaryStructureDrawer {
 
-    private final Logger logger;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DrawerVarnaTz.class);
 
     private final Color missingOutlineColor = new Color(222, 45, 38);
 
     @Override
     public final SVGDocument drawSecondaryStructure(final DotBracket dotBracket)
-            throws IOException {
+            throws VisualizationException {
         final List<SVGDocument> svgs = new ArrayList<>();
         for (final DotBracket combinedStrand : dotBracket.combineStrands()) {
-            svgs.add(drawStructure(combinedStrand));
+            try {
+                svgs.add(drawStructure(combinedStrand));
+            } catch (IOException e) {
+                throw new VisualizationException("Internal error has occurred", e);
+            }
         }
         return SVGHelper.merge(svgs);
     }
@@ -63,7 +68,7 @@ public class DrawerVarnaTz implements SecondaryStructureDrawer {
             final DotBracketFromPdb dotBracket,
             final PdbModel structureModel,
             final List<? extends ClassifiedBasePair> nonCanonicalBasePairs)
-            throws IOException {
+            throws VisualizationException {
         final List<ClassifiedBasePair> availableNonCanonical =
                 nonCanonicalBasePairs.stream()
                         .filter(ClassifiedBasePair::isPairing)
@@ -87,8 +92,11 @@ public class DrawerVarnaTz implements SecondaryStructureDrawer {
 
         final List<SVGDocument> svgs = new ArrayList<>();
         for (final DotBracket combinedStrand : combinedStrands) {
-            svgs.add(
-                    drawStructure(combinedStrand, availableNonCanonical, residueToStrand, residueToIndex));
+            try {
+                svgs.add(drawStructure(combinedStrand, availableNonCanonical, residueToStrand, residueToIndex));
+            } catch (IOException e) {
+                throw new VisualizationException("Internal error has occurred", e);
+            }
         }
         return SVGHelper.merge(svgs);
     }
@@ -112,11 +120,11 @@ public class DrawerVarnaTz implements SecondaryStructureDrawer {
             final PdbResidueIdentifier right = PdbResidueIdentifier.from(basePair.right());
 
             if (!residueToStrand.containsKey(left)) {
-                logger.error(String.format("Mapping of residues and dot-bracket symbols failed: %s", left));
+                LOGGER.error(String.format("Mapping of residues and dot-bracket symbols failed: %s", left));
                 continue;
             }
             if (!residueToStrand.containsKey(right)) {
-                logger.error(String.format("Mapping of residues and dot-bracket symbols failed: %s", right));
+                LOGGER.error(String.format("Mapping of residues and dot-bracket symbols failed: %s", right));
                 continue;
             }
             if (!residueToStrand.get(left).equals(combinedStrand)
@@ -186,7 +194,7 @@ public class DrawerVarnaTz implements SecondaryStructureDrawer {
     }
 
     private SVGDocument drawStructure(final DotBracket combinedStrand)
-            throws IOException {
+            throws IOException, VisualizationException {
         return drawStructure(
                 combinedStrand, Collections.emptyList(), Collections.emptyMap(), Collections.emptyMap());
     }
@@ -196,7 +204,7 @@ public class DrawerVarnaTz implements SecondaryStructureDrawer {
             final Iterable<? extends ClassifiedBasePair> nonCanonicalBasePairs,
             final Map<PdbResidueIdentifier, DotBracket> residueToStrand,
             final Map<PdbResidueIdentifier, Integer> residueToIndex)
-            throws IOException {
+            throws IOException, VisualizationException {
         final File tempFile = File.createTempFile("varna", ".svg");
 
         try {
@@ -222,14 +230,9 @@ public class DrawerVarnaTz implements SecondaryStructureDrawer {
                        | ExceptionWritingForbidden
                        | ExceptionNAViewAlgorithm
                        | ExceptionFileFormatOrSyntax e) {
-            throw new RuntimeException("Failed to draw secondary structure with VARNA", e);
+            throw new VisualizationException("Failed to draw secondary structure with VARNA", e);
         } finally {
             FileUtils.forceDelete(tempFile);
         }
-    }
-
-    @Autowired
-    public DrawerVarnaTz(Logger logger) {
-        this.logger = logger;
     }
 }

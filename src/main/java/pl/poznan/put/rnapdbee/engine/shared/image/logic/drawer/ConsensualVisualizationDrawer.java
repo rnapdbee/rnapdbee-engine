@@ -1,7 +1,7 @@
-package pl.poznan.put.rnapdbee.engine.calculation.consensus.visualization.boundary;
+package pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer;
 
-import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.OutputMultiEntry;
+import pl.poznan.put.rnapdbee.engine.shared.image.exception.VisualizationException;
 
 import java.util.List;
 
@@ -11,6 +11,6 @@ import java.util.List;
 @FunctionalInterface
 public interface ConsensualVisualizationDrawer {
 
-    byte[] performVisualization(List<OutputMultiEntry> outputMultiEntries);
+    byte[] performVisualization(List<OutputMultiEntry> outputMultiEntries) throws VisualizationException;
 
 }
