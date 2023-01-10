@@ -7,6 +7,7 @@ import gurobi.GRBLinExpr;
 import gurobi.GRBModel;
 import gurobi.GRBVar;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.poznan.put.rnapdbee.engine.shared.converter.logic.BracketTranslation;
@@ -32,7 +33,7 @@ import java.util.stream.IntStream;
 @Service
 public class MixedIntegerLinearProgrammingConverter implements Converter {
 
-    private final Logger logger;
+    private static final Logger LOGGER = LoggerFactory.getLogger(MixedIntegerLinearProgrammingConverter.class);
 
     private static final String GUROBI_ERROR_MET_FORMAT = "Gurobi error faced during the conversion:";
     private static final int[] WEIGTHS = {10, -1, -2, -3, -4, -5, -6, -7, -8, -9};
@@ -90,7 +91,7 @@ public class MixedIntegerLinearProgrammingConverter implements Converter {
             return createDotBracket(bpSeq, intervalGraph);
 
         } catch (GRBException e) {
-            logger.error(GUROBI_ERROR_MET_FORMAT, e);
+            LOGGER.error(GUROBI_ERROR_MET_FORMAT, e);
             throw new ConverterException();
         }
     }
@@ -103,7 +104,7 @@ public class MixedIntegerLinearProgrammingConverter implements Converter {
                             try {
                                 return model.addVar(0.0, 1.0, 0.0, GRB.BINARY, name);
                             } catch (GRBException e) {
-                                logger.error(GUROBI_ERROR_MET_FORMAT, e);
+                                LOGGER.error(GUROBI_ERROR_MET_FORMAT, e);
                                 throw new ConverterException();
                             }
                         }))
@@ -204,10 +205,5 @@ public class MixedIntegerLinearProgrammingConverter implements Converter {
                 }
             }
         }
-    }
-
-    @Autowired
-    public MixedIntegerLinearProgrammingConverter(Logger logger) {
-        this.logger = logger;
     }
 }

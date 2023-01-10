@@ -9,7 +9,7 @@ import fr.orsay.lri.varna.models.rna.ModeleBP;
 import fr.orsay.lri.varna.models.rna.RNA;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.notation.LeontisWesthof;
@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 @Component
 public class DrawerVarnaTz implements SecondaryStructureDrawer {
 
-    private final Logger logger;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DrawerVarnaTz.class);
 
     private final Color missingOutlineColor = new Color(222, 45, 38);
 
@@ -120,11 +120,11 @@ public class DrawerVarnaTz implements SecondaryStructureDrawer {
             final PdbResidueIdentifier right = PdbResidueIdentifier.from(basePair.right());
 
             if (!residueToStrand.containsKey(left)) {
-                logger.error(String.format("Mapping of residues and dot-bracket symbols failed: %s", left));
+                LOGGER.error(String.format("Mapping of residues and dot-bracket symbols failed: %s", left));
                 continue;
             }
             if (!residueToStrand.containsKey(right)) {
-                logger.error(String.format("Mapping of residues and dot-bracket symbols failed: %s", right));
+                LOGGER.error(String.format("Mapping of residues and dot-bracket symbols failed: %s", right));
                 continue;
             }
             if (!residueToStrand.get(left).equals(combinedStrand)
@@ -234,10 +234,5 @@ public class DrawerVarnaTz implements SecondaryStructureDrawer {
         } finally {
             FileUtils.forceDelete(tempFile);
         }
-    }
-
-    @Autowired
-    public DrawerVarnaTz(Logger logger) {
-        this.logger = logger;
     }
 }

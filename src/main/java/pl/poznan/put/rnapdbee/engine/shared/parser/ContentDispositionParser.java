@@ -13,7 +13,7 @@ import java.util.Objects;
 @Component
 public class ContentDispositionParser {
 
-    private final Logger logger = LoggerFactory.getLogger(ContentDispositionParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContentDispositionParser.class);
 
     /**
      * returns filename from Content-Disposition header as defined in RFC 6266.
@@ -29,7 +29,7 @@ public class ContentDispositionParser {
             ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);
             return Objects.requireNonNull(contentDisposition.getFilename());
         } catch (IllegalArgumentException | NullPointerException exception) {
-            logger.warn(String.format("Exception thrown when parsing content disposition header: %s",
+            LOGGER.warn(String.format("Exception thrown when parsing content disposition header: %s",
                     exception.getMessage()));
             throw new ImproperContentDispositionException();
         }

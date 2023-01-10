@@ -25,12 +25,6 @@ public class LoggingConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    @Scope("prototype")
-    public Logger logger(final InjectionPoint injectionPoint) {
-        return LoggerFactory.getLogger(Objects.requireNonNull(injectionPoint.getMethodParameter()).getDeclaringClass());
-    }
-
-    @Bean
     public CommonsRequestLoggingFilter requestLoggingFilter() {
         CommonsRequestLoggingFilter loggingFilter = new CommonsRequestLoggingFilter();
         loggingFilter.setIncludeClientInfo(true);

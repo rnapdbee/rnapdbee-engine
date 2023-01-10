@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class BasePairAnalyzerFactory {
     private final List<BasePairAnalyzer> allAnalyzers;
 
-    private Map<AnalysisTool, BasePairAnalyzer> analyzerPairs = new HashMap<>();
+    private Map<AnalysisTool, BasePairAnalyzer> analyzersMap = new HashMap<>();
 
     /**
      * Returns the appropriate implementation of {@link BasePairAnalyzer},
@@ -32,15 +32,15 @@ public class BasePairAnalyzerFactory {
      * @return implementation connected with given enum
      */
     public BasePairAnalyzer provideBasePairAnalyzer(AnalysisTool basePairAnalyzerEnum) {
-        if (!analyzerPairs.containsKey(basePairAnalyzerEnum)) {
+        if (!analyzersMap.containsKey(basePairAnalyzerEnum)) {
             throw new IllegalArgumentException("unhandled enum passed to provideBasePairAnalyzer method");
         }
 
-        return analyzerPairs.get(basePairAnalyzerEnum);
+        return analyzersMap.get(basePairAnalyzerEnum);
     }
 
     public Collection<Pair<AnalysisTool, BasePairAnalyzer>> prepareAnalyzerPairs() {
-        return analyzerPairs
+        return analyzersMap
                 .entrySet().stream()
                 .map(entry -> Pair.of(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
@@ -48,7 +48,7 @@ public class BasePairAnalyzerFactory {
 
     @PostConstruct
     private void initializeAnalyzerPairsMap() {
-        analyzerPairs = allAnalyzers.stream().collect(Collectors.toMap(BasePairAnalyzer::analysisTool, Function.identity()));
+        analyzersMap = allAnalyzers.stream().collect(Collectors.toMap(BasePairAnalyzer::analysisTool, Function.identity()));
     }
 
     @Autowired

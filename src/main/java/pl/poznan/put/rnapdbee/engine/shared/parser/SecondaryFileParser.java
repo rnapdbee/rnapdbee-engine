@@ -16,7 +16,7 @@ import pl.poznan.put.structure.formats.DotBracket;
 @Component
 public class SecondaryFileParser {
 
-    private final Logger logger = LoggerFactory.getLogger(SecondaryFileParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecondaryFileParser.class);
     private final Converter converter;
 
     public DotBracket parseSecondaryFile(String content, InputType inputType, boolean removeIsolated) {
@@ -28,7 +28,7 @@ public class SecondaryFileParser {
             case DOT_BRACKET:
                 return readDotBracketContent(content, removeIsolated);
             default:
-                logger.warn(String.format("non-secondary InputType passed to parseSecondaryFile method: %s",
+                LOGGER.warn(String.format("non-secondary InputType passed to parseSecondaryFile method: %s",
                         inputType));
                 throw new UnknownFileExtensionException(
                         String.format(
@@ -44,7 +44,7 @@ public class SecondaryFileParser {
             Ct ct = Ct.fromBpSeq(bpSeq);
             return DefaultDotBracket.copyWithStrands(converter.convert(bpSeq), ct);
         } catch (IllegalArgumentException exception) {
-            logger.warn(String.format("Error met during parsing of bpseq file with message %s",
+            LOGGER.warn(String.format("Error met during parsing of bpseq file with message %s",
                     exception.getMessage()));
             throw new ImproperStructureFormatException("Failed to parse content of the bpseq file", exception);
         }
@@ -58,7 +58,7 @@ public class SecondaryFileParser {
             BpSeq bpSeq = BpSeq.fromCt(ct);
             return DefaultDotBracket.copyWithStrands(converter.convert(bpSeq), ct);
         } catch (IllegalArgumentException exception) {
-            logger.warn(String.format("Error met during parsing of ct file with message %s",
+            LOGGER.warn(String.format("Error met during parsing of ct file with message %s",
                     exception.getMessage()));
             throw new ImproperStructureFormatException("Failed to parse content of the ct file", exception);
         }
@@ -73,7 +73,7 @@ public class SecondaryFileParser {
                 return readDotBracket;
             }
         } catch (IllegalArgumentException exception) {
-            logger.warn(String.format("Error met during parsing of dot bracket file with message %s",
+            LOGGER.warn(String.format("Error met during parsing of dot bracket file with message %s",
                     exception.getMessage()));
             throw new ImproperStructureFormatException("Failed to parse content of the dot bracket file", exception);
         }

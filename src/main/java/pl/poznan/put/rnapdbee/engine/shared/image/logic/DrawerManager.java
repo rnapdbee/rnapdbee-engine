@@ -2,6 +2,7 @@ package pl.poznan.put.rnapdbee.engine.shared.image.logic;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
@@ -28,7 +29,7 @@ import java.util.List;
 @Component
 public class DrawerManager {
 
-    private final Logger logger;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DrawerManager.class);
 
     private final DrawerFactory drawerFactory;
 
@@ -45,7 +46,7 @@ public class DrawerManager {
     public ImageInformationOutput drawCanonical(
             final VisualizationTool visualizationTool,
             final DotBracket dotBracket) {
-        logger.info(String.format("Drawing canonical image started with drawer: %s, structure: %s, sequence: %s",
+        LOGGER.info(String.format("Drawing canonical image started with drawer: %s, structure: %s, sequence: %s",
                 visualizationTool, dotBracket.structure(), dotBracket.sequence()));
         final boolean onlyDotsMinuses = StringUtils.containsOnly(dotBracket.structure(), ".-");
         final boolean isMainToolVarna = visualizationTool == VisualizationTool.VARNA;
@@ -62,7 +63,7 @@ public class DrawerManager {
                         .withDrawingResult(DrawingResult.DONE_BY_MAIN_DRAWER)
                         .withSvgFile(svgDocumentAsByteArray);
             } catch (final VisualizationException | IOException e) {
-                logger.error(String.format("Failed drawing canonical image with drawer: %s, structure: %s, sequence: %s",
+                LOGGER.error(String.format("Failed drawing canonical image with drawer: %s, structure: %s, sequence: %s",
                         visualizationTool, dotBracket.structure(), dotBracket.sequence()), e);
             }
         }
@@ -74,7 +75,7 @@ public class DrawerManager {
 
         if (!onlyDotsMinuses || isBackupToolVarna) {
             try {
-                logger.info(String.format(
+                LOGGER.info(String.format(
                         "Drawing canonical image started with backup drawer: %s, structure: %s, sequence: %s",
                         backupVisualizationTool, dotBracket.structure(), dotBracket.sequence()));
                 final SVGDocument svgDocument = backupDrawer.drawSecondaryStructure(dotBracket);
@@ -85,7 +86,7 @@ public class DrawerManager {
                         .withDrawingResult(DrawingResult.DONE_BY_BACKUP_DRAWER)
                         .withSvgFile(svgDocumentAsByteArray);
             } catch (final VisualizationException | IOException e) {
-                logger.error(String.format(
+                LOGGER.error(String.format(
                         "Backup canonical drawing failed with drawer: %s, structure: %s, sequence: %s",
                         visualizationTool, dotBracket.structure(), dotBracket.sequence()), e);
             }
@@ -109,7 +110,7 @@ public class DrawerManager {
             final DotBracketFromPdb dotBracket,
             final PdbModel structureModel,
             final List<? extends ClassifiedBasePair> nonCanonicalBasePairs) {
-        logger.info(String.format("Drawing non-canonical image started with drawer: %s, structure: %s, sequence: %s",
+        LOGGER.info(String.format("Drawing non-canonical image started with drawer: %s, structure: %s, sequence: %s",
                 visualizationTool, dotBracket.structure(), dotBracket.sequence()));
         final boolean onlyDotsMinuses = StringUtils.containsOnly(dotBracket.structure(), ".-");
         final boolean isMainToolVarna = visualizationTool == VisualizationTool.VARNA;
@@ -126,7 +127,7 @@ public class DrawerManager {
                         .withDrawingResult(DrawingResult.DONE_BY_MAIN_DRAWER)
                         .withSvgFile(svgDocumentAsByteArray);
             } catch (final VisualizationException | IOException e) {
-                logger.error(String.format(
+                LOGGER.error(String.format(
                         "Failed drawing non-canonical image with drawer: %s, structure: %s, sequence: %s",
                         visualizationTool, dotBracket.structure(), dotBracket.sequence()), e);
             }
@@ -139,7 +140,7 @@ public class DrawerManager {
 
         if (!onlyDotsMinuses || isBackupToolVarna) {
             try {
-                logger.info(String.format(
+                LOGGER.info(String.format(
                         "Drawing non-canonical image started with backup drawer: %s, structure: %s, sequence: %s",
                         backupVisualizationTool, dotBracket.structure(), dotBracket.sequence()));
                 final SVGDocument svgDocument = backupDrawer
@@ -151,7 +152,7 @@ public class DrawerManager {
                         .withDrawingResult(DrawingResult.DONE_BY_BACKUP_DRAWER)
                         .withSvgFile(svgDocumentAsByteArray);
             } catch (final VisualizationException | IOException e) {
-                logger.error(String.format("Drawing non-canonical image with drawer: %s, structure: %s, sequence: %s",
+                LOGGER.error(String.format("Drawing non-canonical image with drawer: %s, structure: %s, sequence: %s",
                         visualizationTool, dotBracket.structure(), dotBracket.sequence()), e);
             }
         }
@@ -160,8 +161,7 @@ public class DrawerManager {
     }
 
     @Autowired
-    public DrawerManager(Logger logger, DrawerFactory drawerFactory) {
-        this.logger = logger;
+    public DrawerManager(DrawerFactory drawerFactory) {
         this.drawerFactory = drawerFactory;
     }
 }

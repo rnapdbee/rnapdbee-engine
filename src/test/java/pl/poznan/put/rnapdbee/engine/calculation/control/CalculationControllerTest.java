@@ -33,9 +33,6 @@ class CalculationControllerTest {
     @Mock
     ContentDispositionParser contentDispositionParser;
 
-    @Mock
-    Logger logger;
-
     @InjectMocks
     CalculationController cut;
 

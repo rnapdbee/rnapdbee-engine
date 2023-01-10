@@ -20,7 +20,7 @@ import java.io.IOException;
 @TestConfiguration
 public class TestConverterConfiguration {
 
-    private static final Logger logger = LoggerFactory.getLogger(TestConverterConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestConverterConfiguration.class);
     private static final String GUROBI_WORKING = "Gurobi environment and license is set up on this machine. " +
             "Using actual MILP implementation for converting bpseq to dbn format in Integration Tests.";
     private static final String GUROBI_NOT_WORKING = "Gurobi environment or license is not set up on this machine. " +
@@ -31,10 +31,10 @@ public class TestConverterConfiguration {
     public Converter converter() {
         boolean isGurobiUp = checkIfGurobiIsSetUpCorrectly();
         if (isGurobiUp) {
-            logger.info(GUROBI_WORKING);
-            return new MixedIntegerLinearProgrammingConverter(logger);
+            LOGGER.info(GUROBI_WORKING);
+            return new MixedIntegerLinearProgrammingConverter();
         } else {
-            logger.info(GUROBI_NOT_WORKING);
+            LOGGER.info(GUROBI_NOT_WORKING);
             return bpSeq -> {
                 RNAStructure structure = new RNAStructure(bpSeq);
                 structure = KnotRemoval.dynamicProgrammingOneBest(structure);

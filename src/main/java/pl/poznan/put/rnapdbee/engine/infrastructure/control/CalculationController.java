@@ -32,7 +32,7 @@ import pl.poznan.put.rnapdbee.engine.shared.parser.ContentDispositionParser;
 @RequestMapping("calculation-api/v1/")
 public class CalculationController {
 
-    private final Logger logger = LoggerFactory.getLogger(CalculationController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CalculationController.class);
 
     private final ContentDispositionParser contentDispositionParser;
     private final CalculationService calculationService;
@@ -68,7 +68,7 @@ public class CalculationController {
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
             @RequestHeader(HttpHeaders.CONTENT_DISPOSITION) String contentDispositionHeader,
             @RequestBody String fileContent) {
-        logger.info("Analysis of scenario 3D -> (...) started.");
+        LOGGER.info("Analysis of scenario 3D -> (...) started.");
         String filename = contentDispositionParser.parseContentDispositionHeader(contentDispositionHeader);
         var result = calculationService
                 .handleTertiaryToDotBracketCalculation(
@@ -102,7 +102,7 @@ public class CalculationController {
             @RequestHeader(HttpHeaders.CONTENT_DISPOSITION) String contentDispositionHeader,
             @RequestBody String fileContent) {
 
-        logger.info("Analysis of scenario 2D -> (...) started.");
+        LOGGER.info("Analysis of scenario 2D -> (...) started.");
         String filename = contentDispositionParser.parseContentDispositionHeader(contentDispositionHeader);
         var outputAnalysis = calculationService
                 .handleSecondaryToDotBracketCalculation(
@@ -134,7 +134,7 @@ public class CalculationController {
             @RequestParam("visualizationTool") VisualizationTool visualizationTool,
             @RequestHeader(HttpHeaders.CONTENT_DISPOSITION) String contentDispositionHeader,
             @RequestBody String fileContent) {
-        logger.info("Analysis of scenario 3D -> multi 2D started");
+        LOGGER.info("Analysis of scenario 3D -> multi 2D started");
         String filename = contentDispositionParser.parseContentDispositionHeader(contentDispositionHeader);
         var result = calculationService.handleTertiaryToMultiSecondaryCalculation(modelSelection,
                 includeNonCanonical, removeIsolated, visualizationTool, filename, fileContent);

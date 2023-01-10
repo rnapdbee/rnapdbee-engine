@@ -34,7 +34,7 @@ import static pl.poznan.put.rnapdbee.engine.shared.basepair.domain.StackingTopol
 //  time with this approach if the adapters were scalable horizontally in the future.
 public abstract class BasePairAnalyzer {
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
+    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
     protected final RnaPDBeeAdaptersCaller rnapdbeeAdaptersCaller;
 
     public abstract AnalysisTool analysisTool();
@@ -47,10 +47,10 @@ public abstract class BasePairAnalyzer {
     protected BasePairAnalysis performAnalysis(String fileContent,
                                                boolean includeNonCanonical,
                                                int modelNumber) throws AdaptersErrorException {
-        logger.info(String.format("base pair analysis started for model number %s", modelNumber));
+        LOGGER.info(String.format("base pair analysis started for model number %s", modelNumber));
         AdaptersAnalysisDTO adaptersAnalysis = rnapdbeeAdaptersCaller
                 .performBasePairAnalysis(fileContent, analysisTool(), modelNumber);
-        logger.info(String.format("base pair analysis finished for model number %s", modelNumber));
+        LOGGER.info(String.format("base pair analysis finished for model number %s", modelNumber));
         return performPostAnalysisOnResponseFromAdapter(adaptersAnalysis, includeNonCanonical);
     }
 

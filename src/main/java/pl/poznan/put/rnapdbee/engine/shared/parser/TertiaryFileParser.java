@@ -18,7 +18,7 @@ import java.util.List;
 @Component
 public class TertiaryFileParser {
 
-    private final Logger logger = LoggerFactory.getLogger(TertiaryFileParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TertiaryFileParser.class);
 
     // TODO: Are these classes are stateless?
     private final CifParser cifParser = new CifParser();
@@ -34,14 +34,14 @@ public class TertiaryFileParser {
                 try {
                     return cifParser.parse(fileContents);
                 } catch (IOException e) {
-                    logger.error("Failed parsing cif file:", e);
+                    LOGGER.error("Failed parsing cif file:", e);
                     throw new CifParsingException();
                 }
             case DOT_BRACKET:
             case BPSEQ:
             case CT:
             default:
-                logger.warn(String.format("non-tertiary InputType passed to parseSecondaryFile method: %s", inputType));
+                LOGGER.warn(String.format("non-tertiary InputType passed to parseSecondaryFile method: %s", inputType));
                 throw new UnknownFileExtensionException(
                         String.format(
                                 "Failed attempt to parse tertiary structure with input type: %s", inputType));
