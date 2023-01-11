@@ -8,6 +8,8 @@ import pl.poznan.put.notation.LeontisWesthof;
 import pl.poznan.put.notation.Saenger;
 import pl.poznan.put.notation.StackingTopology;
 import pl.poznan.put.pdb.PdbNamedResidueIdentifier;
+import pl.poznan.put.pdb.analysis.PdbModel;
+import pl.poznan.put.pdb.analysis.PdbResidue;
 import pl.poznan.put.rna.InteractionType;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.AdaptersAnalysisDTO;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
@@ -23,10 +25,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BPh.mapToBioCommonsBph;
+import static pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BR.mapToBioCommonsBr;
 import static pl.poznan.put.rnapdbee.engine.shared.basepair.domain.StackingTopology.convertToBioCommonsEntity;
 
 // TODO: WebFlux would be really efficient with the 3D->multi 2D analysis as we there perform multiple calls to the
@@ -42,16 +47,16 @@ public abstract class BasePairAnalyzer {
     // TODO: think about using WebFlux advancements when refactoring
     public abstract BasePairAnalysis analyze(String fileContent,
                                              boolean includeNonCanonical,
-                                             int modelNumber) throws AdaptersErrorException;
+                                             PdbModel structureModel) throws AdaptersErrorException;
 
     protected BasePairAnalysis performAnalysis(String fileContent,
                                                boolean includeNonCanonical,
-                                               int modelNumber) throws AdaptersErrorException {
-        LOGGER.info(String.format("base pair analysis started for model number %s", modelNumber));
+                                               PdbModel structureModel) throws AdaptersErrorException {
+        LOGGER.info(String.format("base pair analysis started for model number %s", structureModel.modelNumber()));
         AdaptersAnalysisDTO adaptersAnalysis = rnapdbeeAdaptersCaller
-                .performBasePairAnalysis(fileContent, analysisTool(), modelNumber);
-        LOGGER.info(String.format("base pair analysis finished for model number %s", modelNumber));
-        return performPostAnalysisOnResponseFromAdapter(adaptersAnalysis, includeNonCanonical);
+                .performBasePairAnalysis(fileContent, analysisTool(), structureModel.modelNumber());
+        LOGGER.info(String.format("base pair analysis finished for model number %s", structureModel.modelNumber()));
+        return performPostAnalysisOnResponseFromAdapter(adaptersAnalysis, includeNonCanonical, structureModel);
     }
 
     /**
@@ -67,9 +72,17 @@ public abstract class BasePairAnalyzer {
      * @return {@link AnalyzedBasePair} BasePairAnalysis object with populated pairs lists.
      */
     protected BasePairAnalysis performPostAnalysisOnResponseFromAdapter(AdaptersAnalysisDTO responseFromAdapter,
-                                                                        boolean includeNonCanonical) {
+                                                                        boolean includeNonCanonical,
+                                                                        PdbModel structureModel) {
+        final Map<ChainNumberKey, String> pairIdentifiersWithModifiedNames = structureModel.residues()
+                .stream()
+                .collect(Collectors.toMap(
+                        residue -> new ChainNumberKey(residue.chainIdentifier(), residue.residueNumber()),
+                        PdbResidue::modifiedResidueName));
+
         List<AnalyzedBasePair> canonical = responseFromAdapter.getBasePairs().stream()
                 .filter(BasePairDTO::isCanonical)
+                .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair, pairIdentifiersWithModifiedNames))
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair)
                         .withInteractionType(InteractionType.BASE_BASE)
                         .withSaenger(basePair.getSaenger())
@@ -80,6 +93,7 @@ public abstract class BasePairAnalyzer {
                 .collect(Collectors.toList());
         List<AnalyzedBasePair> nonCanonical = responseFromAdapter.getBasePairs().stream()
                 .filter(basePair -> !basePair.isCanonical())
+                .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair, pairIdentifiersWithModifiedNames))
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair)
                         .withInteractionType(InteractionType.BASE_BASE)
                         .withSaenger(basePair.getSaenger())
@@ -89,6 +103,7 @@ public abstract class BasePairAnalyzer {
                         .withStackingTopology(StackingTopology.UNKNOWN))
                 .collect(Collectors.toList());
         List<AnalyzedBasePair> stackings = responseFromAdapter.getStackings().stream()
+                .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair, pairIdentifiersWithModifiedNames))
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.STACKING)
                         .withSaenger(Saenger.UNKNOWN)
                         .withLeontisWesthof(LeontisWesthof.UNKNOWN)
@@ -97,22 +112,25 @@ public abstract class BasePairAnalyzer {
                         .withStackingTopology(convertToBioCommonsEntity(basePair.getTopology())))
                 .collect(Collectors.toList());
         List<AnalyzedBasePair> basePhosphate = responseFromAdapter.getBasePhosphateInteractions().stream()
+                .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair, pairIdentifiersWithModifiedNames))
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.BASE_PHOSPHATE)
                         .withSaenger(Saenger.UNKNOWN)
                         .withLeontisWesthof(LeontisWesthof.UNKNOWN)
-                        .withBph(pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BPh.mapToBioCommonsBph(basePair.getBph()))
+                        .withBph(mapToBioCommonsBph(basePair.getBph()))
                         .withBr(BR.UNKNOWN)
                         .withStackingTopology(StackingTopology.UNKNOWN))
                 .collect(Collectors.toList());
         List<AnalyzedBasePair> baseRibose = responseFromAdapter.getBaseRiboseInteractions().stream()
+                .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair, pairIdentifiersWithModifiedNames))
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.BASE_RIBOSE)
                         .withSaenger(Saenger.UNKNOWN)
                         .withLeontisWesthof(LeontisWesthof.UNKNOWN)
                         .withBph(BPh.UNKNOWN)
-                        .withBr(pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BR.mapToBioCommonsBr(basePair.getBr()))
+                        .withBr(mapToBioCommonsBr(basePair.getBr()))
                         .withStackingTopology(StackingTopology.UNKNOWN))
                 .collect(Collectors.toList());
         List<AnalyzedBasePair> otherInteractions = responseFromAdapter.getOther().stream()
+                .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair, pairIdentifiersWithModifiedNames))
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.OTHER)
                         .withSaenger(Saenger.UNKNOWN)
                         .withLeontisWesthof(LeontisWesthof.UNKNOWN)
@@ -121,6 +139,7 @@ public abstract class BasePairAnalyzer {
                         .withStackingTopology(StackingTopology.UNKNOWN))
                 .collect(Collectors.toList());
         List<AnalyzedBasePair> interStrand = responseFromAdapter.getBasePairs().stream()
+                .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair, pairIdentifiersWithModifiedNames))
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.BASE_BASE)
                         .withSaenger(basePair.getSaenger())
                         .withLeontisWesthof(basePair.getLeontisWesthof())

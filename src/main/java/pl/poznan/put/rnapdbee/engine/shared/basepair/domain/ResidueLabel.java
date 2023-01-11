@@ -17,6 +17,22 @@ public class ResidueLabel {
     @JsonProperty("name")
     private String name;
 
+    public ResidueLabel() {
+    }
+
+    private ResidueLabel(ResidueLabel residueLabel) {
+        this.chainIdentifier = residueLabel.getChainIdentifier();
+        this.residueNumber = residueLabel.getResidueNumber();
+        this.name = residueLabel.getName();
+    }
+
+    public static ResidueLabel ofResidueLabelWithExchangedName(ResidueLabel residueLabel,
+                                                               String name) {
+        ResidueLabel newResidueLabel = new ResidueLabel(residueLabel);
+        newResidueLabel.name = name;
+        return newResidueLabel;
+    }
+
     public String getChainIdentifier() {
         return chainIdentifier;
     }

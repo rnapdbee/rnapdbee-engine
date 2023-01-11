@@ -141,7 +141,7 @@ public class TertiaryStructureAnalysisService {
         final BasePairAnalysis basePairAnalysis;
         try {
             basePairAnalysis = basePairAnalyzerFactory.provideBasePairAnalyzer(analysisTool)
-                    .analyze(fileContent, nonCanonicalHandling.isAnalysis(), rna.modelNumber());
+                    .analyze(fileContent, nonCanonicalHandling.isAnalysis(), rna);
         } catch (AdaptersErrorException exception) {
             LOGGER.warn(BASE_PAIR_ANALYSIS_FAILED, exception);
             LOGGER.debug(String.format(BASE_PAIR_ANALYSIS_FAILED_DEBUG_FORMAT, analysisTool, nonCanonicalHandling,

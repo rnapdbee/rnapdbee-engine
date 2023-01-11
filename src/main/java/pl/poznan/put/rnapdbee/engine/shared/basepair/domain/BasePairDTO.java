@@ -5,10 +5,12 @@ import pl.poznan.put.notation.LeontisWesthof;
 import pl.poznan.put.notation.Saenger;
 import pl.poznan.put.pdb.ImmutablePdbNamedResidueIdentifier;
 import pl.poznan.put.pdb.PdbNamedResidueIdentifier;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.ChainNumberKey;
 import pl.poznan.put.structure.BasePair;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -93,6 +95,27 @@ public class BasePairDTO extends BasePair {
             return CANONICAL_ONE_LETTER_NAME_SORTED_PAIRS.contains(sequence);
         }
         return false;
+    }
+
+    public BasePairDTO() {
+    }
+
+    private BasePairDTO(BasePairDTO basePairDTO) {
+        this.nt1 = basePairDTO.getNt1();
+        this.nt2 = basePairDTO.getNt2();
+        this.leontisWesthof = basePairDTO.getLeontisWesthof();
+        this.saenger = basePairDTO.getSaenger();
+        this.topology = basePairDTO.getTopology();
+        this.br = basePairDTO.getBr();
+        this.bph = basePairDTO.getBph();
+    }
+
+    public static BasePairDTO ofBasePairDTOWithNameFromMap(BasePairDTO basePairDTO,
+                                                           Map<ChainNumberKey, String> modifiedNamesMap) {
+        BasePairDTO newBasePair = new BasePairDTO(basePairDTO);
+        newBasePair.nt1 = Residue.ofResidueWithNameFromMap(newBasePair.nt1, modifiedNamesMap);
+        newBasePair.nt2 = Residue.ofResidueWithNameFromMap(newBasePair.nt2, modifiedNamesMap);
+        return newBasePair;
     }
 
     private PdbNamedResidueIdentifier mapResidueToPdbNamedResidueIdentifier(Residue residue) {

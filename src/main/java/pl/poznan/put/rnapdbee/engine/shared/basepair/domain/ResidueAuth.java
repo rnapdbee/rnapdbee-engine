@@ -20,6 +20,23 @@ public class ResidueAuth {
     @JsonProperty("name")
     private String name;
 
+    public ResidueAuth() {
+    }
+
+    private ResidueAuth(ResidueAuth residueAuth) {
+        this.chainIdentifier = residueAuth.getChainIdentifier();
+        this.residueNumber = residueAuth.getResidueNumber();
+        this.insertionCode = residueAuth.getInsertionCode();
+        this.name = residueAuth.getName();
+    }
+
+    public static ResidueAuth ofResidueAuthWithExchangedName(ResidueAuth residueAuth,
+                                                             String name) {
+        ResidueAuth newResidueAuth = new ResidueAuth(residueAuth);
+        newResidueAuth.name = name;
+        return newResidueAuth;
+    }
+
     public String getChainIdentifier() {
         return chainIdentifier;
     }
