@@ -58,7 +58,8 @@ class ConsensualStructureAnalysisServiceTest {
     @Test
     void shouldContinueConsensualAnalysisIfBasePairAnalysisThrewAdaptersErrorException() throws AdaptersErrorException {
         // mocked
-        PdbModel mockedModel = mockPdbModel();
+        PdbModel mockedRnaModel = Mockito.mock(PdbModel.class);
+        PdbModel mockedModel = mockPdbModel(mockedRnaModel);
 
         InputType mockedInputType = InputType.PDB;
         Mockito.when(inputTypeDeterminer.detectTertiaryInputTypeFromFileName(MOCKED_FILE_NAME))
@@ -72,9 +73,9 @@ class ConsensualStructureAnalysisServiceTest {
         BasePairAnalyzer successfulAnalyzer = Mockito.mock(BasePairAnalyzer.class);
         BasePairAnalyzer failingAnalyzer = Mockito.mock(BasePairAnalyzer.class);
 
-        Mockito.when(successfulAnalyzer.analyze(MOCKED_CONTENT, true, 0))
+        Mockito.when(successfulAnalyzer.analyze(MOCKED_CONTENT, true, mockedRnaModel))
                 .thenReturn(Mockito.mock(BasePairAnalysis.class));
-        Mockito.when(failingAnalyzer.analyze(MOCKED_CONTENT, true, 0))
+        Mockito.when(failingAnalyzer.analyze(MOCKED_CONTENT, true, mockedRnaModel))
                 .thenThrow(new AdaptersErrorException("Some error"));
 
         Mockito.when(basePairAnalyzerFactory.prepareAnalyzerPairs()).thenReturn(List.of(
@@ -101,10 +102,8 @@ class ConsensualStructureAnalysisServiceTest {
         }
     }
 
-    private static PdbModel mockPdbModel() {
-
+    private static PdbModel mockPdbModel(PdbModel mockedRnaModel) {
         PdbModel mockedModel = Mockito.mock(PdbModel.class);
-        PdbModel mockedRnaModel = Mockito.mock(PdbModel.class);
         Mockito.when(mockedModel.containsAny(MoleculeType.RNA)).thenReturn(true);
         Mockito.when(mockedModel.filteredNewInstance(MoleculeType.RNA))
                 .thenReturn(mockedRnaModel);

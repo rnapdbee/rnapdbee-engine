@@ -125,9 +125,8 @@ public class ConsensualStructureAnalysisService {
                 .forEach(model -> {
                     final PdbModel rna = model.filteredNewInstance(MoleculeType.RNA);
                     title.set(rna.title());
-                    final int modelNumber = rna.modelNumber();
                     analyzerPairs.forEach(analyzerPair -> performSingularAnalysis(analyzerPair, fileContents,
-                            includeNonCanonical, removeIsolated, visualizationTool, uniqueInputs, rna, modelNumber));
+                            includeNonCanonical, removeIsolated, visualizationTool, uniqueInputs, rna));
                 });
 
         List<OutputMultiEntry> outputMultiEntries = new ArrayList<>(uniqueInputs.values());
@@ -152,18 +151,17 @@ public class ConsensualStructureAnalysisService {
                                          final boolean removeIsolated,
                                          final VisualizationTool visualizationTool,
                                          final Map<BpSeq, OutputMultiEntry> uniqueInputs,
-                                         final PdbModel rna,
-                                         final int modelNumber) {
+                                         final PdbModel rna) {
         final AnalysisTool analyzerEnum = analyzerPair.getLeft();
         final BasePairAnalyzer analyzer = analyzerPair.getRight();
         final BasePairAnalysis analysisResults;
 
         try {
-            analysisResults = analyzer.analyze(fileContents, includeNonCanonical, modelNumber);
+            analysisResults = analyzer.analyze(fileContents, includeNonCanonical, rna);
         } catch (AdaptersErrorException exception) {
             LOGGER.warn(BASE_PAIR_ANALYSIS_FAILED, exception);
             LOGGER.debug(String.format(BASE_PAIR_ANALYSIS_FAILED_DEBUG_FORMAT, visualizationTool, includeNonCanonical,
-                            modelNumber, fileContents),
+                            rna.modelNumber(), fileContents),
                     exception);
             return;
         }
@@ -178,7 +176,7 @@ public class ConsensualStructureAnalysisService {
         } catch (IllegalArgumentException exception) {
             LOGGER.error(BIOCOMMONS_ERROR_MET, exception);
             LOGGER.debug(String.format(BIOCOMMONS_ERROR_MET_DEBUG_FORMAT, visualizationTool, includeNonCanonical,
-                            modelNumber, fileContents),
+                            rna.modelNumber(), fileContents),
                     exception);
             return;
         }
