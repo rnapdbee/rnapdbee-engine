@@ -39,7 +39,7 @@ public class Residue {
         Residue newResidue = new Residue(residue);
         if (newResidue.label != null) {
             ChainNumberKey key = new ChainNumberKey(newResidue.label.getChainIdentifier(),
-                    newResidue.label.getResidueNumber());
+                    newResidue.label.getResidueNumber(), null);
             if (modifiedNamesMap.containsKey(key)) {
                 newResidue.label = ResidueLabel
                         .ofResidueLabelWithExchangedName(newResidue.label, modifiedNamesMap.get(key));
@@ -47,7 +47,7 @@ public class Residue {
         }
         if (newResidue.auth != null) {
             ChainNumberKey key = new ChainNumberKey(newResidue.auth.getChainIdentifier(),
-                    newResidue.auth.getResidueNumber());
+                    newResidue.auth.getResidueNumber(), residue.auth.getInsertionCode().orElse(null));
             if (modifiedNamesMap.containsKey(key)) {
                 newResidue.auth = ResidueAuth
                         .ofResidueAuthWithExchangedName(newResidue.auth, modifiedNamesMap.get(key));

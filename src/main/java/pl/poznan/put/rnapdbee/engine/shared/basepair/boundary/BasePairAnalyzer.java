@@ -77,7 +77,9 @@ public abstract class BasePairAnalyzer {
         final Map<ChainNumberKey, String> pairIdentifiersWithModifiedNames = structureModel.residues()
                 .stream()
                 .collect(Collectors.toMap(
-                        residue -> new ChainNumberKey(residue.chainIdentifier(), residue.residueNumber()),
+                        residue -> new ChainNumberKey(residue.chainIdentifier(),
+                                residue.residueNumber(),
+                                residue.insertionCode().orElse(null)),
                         PdbResidue::modifiedResidueName));
 
         List<AnalyzedBasePair> canonical = responseFromAdapter.getBasePairs().stream()

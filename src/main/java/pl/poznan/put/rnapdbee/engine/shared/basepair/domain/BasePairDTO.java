@@ -123,7 +123,7 @@ public class BasePairDTO extends BasePair {
                 ? ImmutablePdbNamedResidueIdentifier.of(
                 residue.getAuth().getChainIdentifier(),
                 residue.getAuth().getResidueNumber(),
-                Optional.ofNullable(residue.getAuth().getInsertionCode()),
+                residue.getAuth().getInsertionCode(),
                 residue.getAuth().getName().charAt(0))
                 : ImmutablePdbNamedResidueIdentifier.of(
                 residue.getLabel().getChainIdentifier(),

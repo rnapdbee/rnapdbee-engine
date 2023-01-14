@@ -3,6 +3,8 @@ package pl.poznan.put.rnapdbee.engine.shared.basepair.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Optional;
+
 /**
  * DTO class for ResidueAuth
  */
@@ -26,14 +28,16 @@ public class ResidueAuth {
     private ResidueAuth(ResidueAuth residueAuth) {
         this.chainIdentifier = residueAuth.getChainIdentifier();
         this.residueNumber = residueAuth.getResidueNumber();
-        this.insertionCode = residueAuth.getInsertionCode();
+        this.insertionCode = residueAuth.getInsertionCode().orElse(null);
         this.name = residueAuth.getName();
     }
 
     public static ResidueAuth ofResidueAuthWithExchangedName(ResidueAuth residueAuth,
                                                              String name) {
         ResidueAuth newResidueAuth = new ResidueAuth(residueAuth);
-        newResidueAuth.name = name;
+        if (!name.equals(residueAuth.name)) {
+            newResidueAuth.name = name.toLowerCase();
+        }
         return newResidueAuth;
     }
 
@@ -45,8 +49,8 @@ public class ResidueAuth {
         return residueNumber;
     }
 
-    public String getInsertionCode() {
-        return insertionCode;
+    public Optional<String> getInsertionCode() {
+        return Optional.ofNullable(insertionCode);
     }
 
     public String getName() {

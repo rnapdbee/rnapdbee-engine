@@ -29,7 +29,9 @@ public class ResidueLabel {
     public static ResidueLabel ofResidueLabelWithExchangedName(ResidueLabel residueLabel,
                                                                String name) {
         ResidueLabel newResidueLabel = new ResidueLabel(residueLabel);
-        newResidueLabel.name = name;
+        if (!name.equals(residueLabel.name)) {
+            newResidueLabel.name = name.toLowerCase();
+        }
         return newResidueLabel;
     }
 
