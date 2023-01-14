@@ -1,11 +1,16 @@
 package pl.poznan.put.rnapdbee.engine.calculation.tertiary.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import pl.poznan.put.notation.LeontisWesthof;
 import pl.poznan.put.notation.Saenger;
-import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BPh;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePhosphateType;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BR;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.StackingTopology;
 import pl.poznan.put.structure.ClassifiedBasePair;
+
+import java.util.Optional;
+
+import static pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePhosphateType.mapFromBioCommonsForm;
 
 
 /**
@@ -13,13 +18,21 @@ import pl.poznan.put.structure.ClassifiedBasePair;
  */
 public class OutputBasePair {
 
+    @JsonProperty("interactionType")
     String interactionType;
+    @JsonProperty("saenger")
     Saenger saenger;
+    @JsonProperty("leontisWesthof")
     LeontisWesthof leontisWesthof;
-    BPh bPh;
+    @JsonProperty("bPh")
+    String basePhosphateType;
+    @JsonProperty("br")
     BR br;
+    @JsonProperty("stackingTopology")
     StackingTopology stackingTopology;
+    @JsonProperty("leftResidue")
     OutputNamedResidue leftResidue;
+    @JsonProperty("rightResidue")
     OutputNamedResidue rightResidue;
 
     public static OutputBasePair fromClassifiedBasePair(ClassifiedBasePair classifiedBasePair) {
@@ -28,7 +41,9 @@ public class OutputBasePair {
         outputBasePair.setInteractionType(classifiedBasePair.interactionType().left().name() + " - " + classifiedBasePair.interactionType().right().name());
         outputBasePair.setSaenger(classifiedBasePair.saenger());
         outputBasePair.setLeontisWesthof(classifiedBasePair.leontisWesthof());
-        outputBasePair.setbPh(BPh.mapBioCommonsBphToEngineBph(classifiedBasePair.bph()));
+        outputBasePair.setbPh(Optional.ofNullable(mapFromBioCommonsForm(classifiedBasePair.bph()))
+                .map(bph -> bph.presentationValue)
+                .orElse(null));
         outputBasePair.setBr(BR.mapBioCommonsBrToEngineBr(classifiedBasePair.br()));
         outputBasePair.setStackingTopology(StackingTopology.convertFromBioCommonsEntity(classifiedBasePair
                 .stackingTopology()));
@@ -68,12 +83,12 @@ public class OutputBasePair {
         this.leontisWesthof = leontisWesthof;
     }
 
-    public BPh getbPh() {
-        return bPh;
+    public String getbPh() {
+        return basePhosphateType;
     }
 
-    public void setbPh(BPh bPh) {
-        this.bPh = bPh;
+    public void setbPh(String basePhosphateType) {
+        this.basePhosphateType = basePhosphateType;
     }
 
     public BR getBr() {

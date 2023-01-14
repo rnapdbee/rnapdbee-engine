@@ -43,7 +43,7 @@ public class BasePairDTO extends BasePair {
     private BR br;
 
     @JsonProperty("bph")
-    private BPh bph;
+    private BasePhosphateType bph;
 
     public Residue getNt1() {
         return nt1;
@@ -71,7 +71,7 @@ public class BasePairDTO extends BasePair {
         return br;
     }
 
-    public BPh getBph() {
+    public BasePhosphateType getBph() {
         return bph;
     }
 

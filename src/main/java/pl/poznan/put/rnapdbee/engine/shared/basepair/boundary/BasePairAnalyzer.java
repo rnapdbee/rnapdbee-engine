@@ -30,8 +30,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BPh.mapToBioCommonsBph;
 import static pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BR.mapToBioCommonsBr;
+import static pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePhosphateType.mapToBioCommonsForm;
 import static pl.poznan.put.rnapdbee.engine.shared.basepair.domain.StackingTopology.convertToBioCommonsEntity;
 
 // TODO: WebFlux would be really efficient with the 3D->multi 2D analysis as we there perform multiple calls to the
@@ -118,7 +118,7 @@ public abstract class BasePairAnalyzer {
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.BASE_PHOSPHATE)
                         .withSaenger(Saenger.UNKNOWN)
                         .withLeontisWesthof(LeontisWesthof.UNKNOWN)
-                        .withBph(mapToBioCommonsBph(basePair.getBph()))
+                        .withBph(mapToBioCommonsForm(basePair.getBph()))
                         .withBr(BR.UNKNOWN)
                         .withStackingTopology(StackingTopology.UNKNOWN))
                 .collect(Collectors.toList());
