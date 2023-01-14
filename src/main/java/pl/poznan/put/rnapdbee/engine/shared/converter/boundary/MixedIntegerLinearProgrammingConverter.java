@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -182,17 +183,28 @@ public class MixedIntegerLinearProgrammingConverter implements Converter {
         return DefaultDotBracket.fromString(dotBracketBuilder.toString());
     }
 
-    private static void depthFirstSearch(int edgeIndex,
+    private static void depthFirstSearch(int startingIndex,
                                          IntervalGraph intervalGraph,
                                          HashSet<Integer> visited,
                                          List<Integer> component) {
-        visited.add(edgeIndex);
-        component.add(edgeIndex);
-        intervalGraph.getEdges().get(edgeIndex).forEach(edge -> {
-            if (!visited.contains(edge)) {
-                depthFirstSearch(edge, intervalGraph, visited, component);
+        Stack<Integer> stack = new Stack<>();
+        stack.push(startingIndex);
+
+        while (!stack.isEmpty()) {
+            int edgeIndex = stack.pop();
+            if (!visited.contains(edgeIndex)) {
+                visited.add(edgeIndex);
+                component.add(edgeIndex);
+
+                intervalGraph.getEdges()
+                        .get(edgeIndex)
+                        .forEach(edge -> {
+                            if (!visited.contains(edge)) {
+                                stack.push(edge);
+                            }
+                        });
             }
-        });
+        }
     }
 
     private void setBracketingResultInGraph(IntervalGraph intervalGraph,

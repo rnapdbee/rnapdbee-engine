@@ -41,7 +41,6 @@ public class StructuralElementFinder {
     private final List<StructuralElement> singleStrands;
     private final List<StructuralElement> stems;
     private final List<StructuralElement> loops;
-    private String pdb = "";
 
     public StructuralElementFinder(
             final DotBracket dotBracket,
@@ -155,20 +154,6 @@ public class StructuralElementFinder {
 
     public final List<StructuralElement> getLoops() {
         return Collections.unmodifiableList(loops);
-    }
-
-    public final String getPdb() {
-        return pdb;
-    }
-
-    public final void generatePdb(final ResidueCollection wholeStructure) {
-        final StringBuilder builder = new StringBuilder();
-        StructuralElementFinder.generatePdb(builder, wholeStructure, stems, "D", true);
-        StructuralElementFinder.generatePdb(builder, wholeStructure, loops, "L", true);
-        StructuralElementFinder.generatePdb(builder, wholeStructure, singleStrands, "SS", true);
-        StructuralElementFinder.generatePdb(builder, wholeStructure, singleStrands5p, "SS5p", false);
-        StructuralElementFinder.generatePdb(builder, wholeStructure, singleStrands3p, "SS3p", false);
-        pdb = builder.toString();
     }
 
     @Override
