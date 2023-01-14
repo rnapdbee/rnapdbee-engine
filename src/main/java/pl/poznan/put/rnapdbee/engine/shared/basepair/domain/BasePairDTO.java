@@ -1,8 +1,6 @@
 package pl.poznan.put.rnapdbee.engine.shared.basepair.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import pl.poznan.put.notation.LeontisWesthof;
-import pl.poznan.put.notation.Saenger;
 import pl.poznan.put.pdb.ImmutablePdbNamedResidueIdentifier;
 import pl.poznan.put.pdb.PdbNamedResidueIdentifier;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.ChainNumberKey;
@@ -31,16 +29,16 @@ public class BasePairDTO extends BasePair {
     private Residue nt2;
 
     @JsonProperty("lw")
-    private LeontisWesthof leontisWesthof;
+    private LeontisWesthofType leontisWesthofType;
 
     @JsonProperty("saenger")
-    private Saenger saenger;
+    private SaengerType saengerType;
 
     @JsonProperty("topology")
     private StackingTopology topology;
 
     @JsonProperty("br")
-    private BR br;
+    private BaseRiboseType br;
 
     @JsonProperty("bph")
     private BasePhosphateType bph;
@@ -53,21 +51,19 @@ public class BasePairDTO extends BasePair {
         return nt2;
     }
 
-    public LeontisWesthof getLeontisWesthof() {
-        return leontisWesthof;
+    public LeontisWesthofType getLeontisWesthofType() {
+        return leontisWesthofType;
     }
 
-    public Saenger getSaenger() {
-        return saenger != null
-                ? saenger
-                : Saenger.UNKNOWN;
+    public SaengerType getSaengerType() {
+        return saengerType;
     }
 
     public StackingTopology getTopology() {
         return topology;
     }
 
-    public BR getBr() {
+    public BaseRiboseType getBr() {
         return br;
     }
 
@@ -86,7 +82,7 @@ public class BasePairDTO extends BasePair {
     }
 
     public boolean isCanonical() {
-        if (leontisWesthof == LeontisWesthof.CWW) {
+        if (leontisWesthofType == LeontisWesthofType.CWW) {
             String sequence = Stream.of(this.left().oneLetterName(), this.right().oneLetterName())
                     .map(c -> Character.toString(c))
                     .map(String::toUpperCase)
@@ -103,8 +99,8 @@ public class BasePairDTO extends BasePair {
     private BasePairDTO(BasePairDTO basePairDTO) {
         this.nt1 = basePairDTO.getNt1();
         this.nt2 = basePairDTO.getNt2();
-        this.leontisWesthof = basePairDTO.getLeontisWesthof();
-        this.saenger = basePairDTO.getSaenger();
+        this.leontisWesthofType = basePairDTO.getLeontisWesthofType();
+        this.saengerType = basePairDTO.getSaengerType();
         this.topology = basePairDTO.getTopology();
         this.br = basePairDTO.getBr();
         this.bph = basePairDTO.getBph();

@@ -15,7 +15,7 @@ public class BaseRibose {
     private Residue nt2;
 
     @JsonProperty("br")
-    private BR br;
+    private BaseRiboseType br;
 
     public Residue getNt1() {
         return nt1;
@@ -25,7 +25,7 @@ public class BaseRibose {
         return nt2;
     }
 
-    public BR getBr() {
+    public BaseRiboseType getBr() {
         return br;
     }
 }
