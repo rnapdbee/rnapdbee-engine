@@ -1,11 +1,14 @@
 package pl.poznan.put.rnapdbee.engine.calculation.tertiary.domain;
 
-import pl.poznan.put.notation.LeontisWesthof;
-import pl.poznan.put.notation.Saenger;
-import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BPh;
-import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BR;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePhosphateType;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BaseRiboseType;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.LeontisWesthofType;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.SaengerType;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.StackingTopology;
 import pl.poznan.put.structure.ClassifiedBasePair;
+
+import java.util.Optional;
 
 
 /**
@@ -13,24 +16,46 @@ import pl.poznan.put.structure.ClassifiedBasePair;
  */
 public class OutputBasePair {
 
-    String interactionType;
-    Saenger saenger;
-    LeontisWesthof leontisWesthof;
-    BPh bPh;
-    BR br;
-    StackingTopology stackingTopology;
+    @JsonProperty("leftResidue")
     OutputNamedResidue leftResidue;
+    @JsonProperty("rightResidue")
     OutputNamedResidue rightResidue;
+    @JsonProperty("interactionType")
+    String interactionType;
+    @JsonProperty("saenger")
+    String saenger;
+    @JsonProperty("leontisWesthof")
+    String leontisWesthof;
+    @JsonProperty("bPh")
+    String bPh;
+    @JsonProperty("br")
+    String br;
+    @JsonProperty("stackingTopology")
+    StackingTopology stackingTopology;
 
     public static OutputBasePair fromClassifiedBasePair(ClassifiedBasePair classifiedBasePair) {
         OutputBasePair outputBasePair = new OutputBasePair();
 
-        outputBasePair.setInteractionType(classifiedBasePair.interactionType().left().name() + " - " + classifiedBasePair.interactionType().right().name());
-        outputBasePair.setSaenger(classifiedBasePair.saenger());
-        outputBasePair.setLeontisWesthof(classifiedBasePair.leontisWesthof());
-        outputBasePair.setbPh(BPh.mapBioCommonsBphToEngineBph(classifiedBasePair.bph()));
-        outputBasePair.setBr(BR.mapBioCommonsBrToEngineBr(classifiedBasePair.br()));
-        outputBasePair.setStackingTopology(StackingTopology.convertFromBioCommonsEntity(classifiedBasePair
+        outputBasePair.setInteractionType(classifiedBasePair.interactionType().left().name().toLowerCase() +
+                " - " +
+                classifiedBasePair.interactionType().right().name().toLowerCase());
+        outputBasePair.setSaenger(
+                Optional.ofNullable(SaengerType.mapFromBioCommonsForm(classifiedBasePair.saenger()))
+                        .map(Enum::toString)
+                        .orElse(null));
+        outputBasePair.setLeontisWesthof(
+                Optional.ofNullable(LeontisWesthofType.mapFromBioCommonsForm(classifiedBasePair.leontisWesthof()))
+                        .map(lw -> lw.presentationValue)
+                        .orElse(null));
+        outputBasePair.setBPh(
+                Optional.ofNullable(BasePhosphateType.mapFromBioCommonsForm(classifiedBasePair.bph()))
+                        .map(bph -> bph.presentationValue)
+                        .orElse(null));
+        outputBasePair.setBr(
+                Optional.ofNullable(BaseRiboseType.mapFromBioCommonsForm(classifiedBasePair.br()))
+                        .map(br -> br.presentationValue)
+                        .orElse(null));
+        outputBasePair.setStackingTopology(StackingTopology.mapFromBioCommonsForm(classifiedBasePair
                 .stackingTopology()));
 
         OutputNamedResidue leftResidue = OutputNamedResidue.fromPdbNamedResidueIdentifier(
@@ -52,36 +77,36 @@ public class OutputBasePair {
         this.interactionType = interactionType;
     }
 
-    public Saenger getSaenger() {
+    public String getSaenger() {
         return saenger;
     }
 
-    public void setSaenger(Saenger saenger) {
+    public void setSaenger(String saenger) {
         this.saenger = saenger;
     }
 
-    public LeontisWesthof getLeontisWesthof() {
+    public String getLeontisWesthof() {
         return leontisWesthof;
     }
 
-    public void setLeontisWesthof(LeontisWesthof leontisWesthof) {
+    public void setLeontisWesthof(String leontisWesthof) {
         this.leontisWesthof = leontisWesthof;
     }
 
-    public BPh getbPh() {
+    public String getBPh() {
         return bPh;
     }
 
-    public void setbPh(BPh bPh) {
-        this.bPh = bPh;
+    public void setBPh(String basePhosphateType) {
+        this.bPh = basePhosphateType;
     }
 
-    public BR getBr() {
+    public String getBr() {
         return br;
     }
 
-    public void setBr(BR br) {
-        this.br = br;
+    public void setBr(String baseRiboseType) {
+        this.br = baseRiboseType;
     }
 
     public StackingTopology getStackingTopology() {

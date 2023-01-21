@@ -17,14 +17,14 @@ public enum StackingTopology {
     @JsonProperty("outward")
     OUTWARD;
 
-    public static pl.poznan.put.notation.StackingTopology convertToBioCommonsEntity(StackingTopology stackingTopology) {
+    public static pl.poznan.put.notation.StackingTopology mapToBioCommonsForm(StackingTopology stackingTopology) {
         if (stackingTopology == null) {
             return pl.poznan.put.notation.StackingTopology.UNKNOWN;
         }
         return pl.poznan.put.notation.StackingTopology.valueOf(stackingTopology.toString());
     }
 
-    public static StackingTopology convertFromBioCommonsEntity(pl.poznan.put.notation.StackingTopology stackingTopology) {
+    public static StackingTopology mapFromBioCommonsForm(pl.poznan.put.notation.StackingTopology stackingTopology) {
         if (stackingTopology == pl.poznan.put.notation.StackingTopology.UNKNOWN || stackingTopology == null) {
             return null;
         }

@@ -14,7 +14,7 @@ public class BasePhosphate {
     private Residue nt2;
 
     @JsonProperty("bph")
-    private BPh bph;
+    private BasePhosphateType bph;
 
     public Residue getNt1() {
         return nt1;
@@ -24,7 +24,7 @@ public class BasePhosphate {
         return nt2;
     }
 
-    public BPh getBph() {
+    public BasePhosphateType getBph() {
         return bph;
     }
 

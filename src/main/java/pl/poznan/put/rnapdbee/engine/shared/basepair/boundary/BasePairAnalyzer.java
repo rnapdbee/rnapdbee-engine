@@ -14,6 +14,10 @@ import pl.poznan.put.rna.InteractionType;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.AdaptersAnalysisDTO;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairDTO;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePhosphateType;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BaseRiboseType;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.LeontisWesthofType;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.SaengerType;
 import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.exception.AdaptersErrorException;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
@@ -30,9 +34,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BPh.mapToBioCommonsBph;
-import static pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BR.mapToBioCommonsBr;
-import static pl.poznan.put.rnapdbee.engine.shared.basepair.domain.StackingTopology.convertToBioCommonsEntity;
+import static pl.poznan.put.rnapdbee.engine.shared.basepair.domain.StackingTopology.mapToBioCommonsForm;
 
 // TODO: WebFlux would be really efficient with the 3D->multi 2D analysis as we there perform multiple calls to the
 //  adapters, it could be done in parallel and then joined up after each call is performed. We would save a tone of
@@ -87,8 +89,8 @@ public abstract class BasePairAnalyzer {
                 .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair, pairIdentifiersWithModifiedNames))
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair)
                         .withInteractionType(InteractionType.BASE_BASE)
-                        .withSaenger(basePair.getSaenger())
-                        .withLeontisWesthof(basePair.getLeontisWesthof())
+                        .withSaenger(SaengerType.mapToBioCommonsForm(basePair.getSaengerType()))
+                        .withLeontisWesthof(LeontisWesthofType.mapToBioCommonsForm(basePair.getLeontisWesthofType()))
                         .withBph(BPh.UNKNOWN)
                         .withBr(BR.UNKNOWN)
                         .withStackingTopology(StackingTopology.UNKNOWN))
@@ -98,27 +100,29 @@ public abstract class BasePairAnalyzer {
                 .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair, pairIdentifiersWithModifiedNames))
                 .map(basePair -> ImmutableAnalyzedBasePair.of(basePair)
                         .withInteractionType(InteractionType.BASE_BASE)
-                        .withSaenger(basePair.getSaenger())
-                        .withLeontisWesthof(basePair.getLeontisWesthof())
+                        .withSaenger(SaengerType.mapToBioCommonsForm(basePair.getSaengerType()))
+                        .withLeontisWesthof(LeontisWesthofType.mapToBioCommonsForm(basePair.getLeontisWesthofType()))
                         .withBph(BPh.UNKNOWN)
                         .withBr(BR.UNKNOWN)
                         .withStackingTopology(StackingTopology.UNKNOWN))
                 .collect(Collectors.toList());
         List<AnalyzedBasePair> stackings = responseFromAdapter.getStackings().stream()
                 .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair, pairIdentifiersWithModifiedNames))
-                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.STACKING)
+                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair)
+                        .withInteractionType(InteractionType.STACKING)
                         .withSaenger(Saenger.UNKNOWN)
                         .withLeontisWesthof(LeontisWesthof.UNKNOWN)
                         .withBph(BPh.UNKNOWN)
                         .withBr(BR.UNKNOWN)
-                        .withStackingTopology(convertToBioCommonsEntity(basePair.getTopology())))
+                        .withStackingTopology(mapToBioCommonsForm(basePair.getTopology())))
                 .collect(Collectors.toList());
         List<AnalyzedBasePair> basePhosphate = responseFromAdapter.getBasePhosphateInteractions().stream()
                 .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair, pairIdentifiersWithModifiedNames))
-                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.BASE_PHOSPHATE)
+                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair)
+                        .withInteractionType(InteractionType.BASE_PHOSPHATE)
                         .withSaenger(Saenger.UNKNOWN)
                         .withLeontisWesthof(LeontisWesthof.UNKNOWN)
-                        .withBph(mapToBioCommonsBph(basePair.getBph()))
+                        .withBph(BasePhosphateType.mapToBioCommonsForm(basePair.getBph()))
                         .withBr(BR.UNKNOWN)
                         .withStackingTopology(StackingTopology.UNKNOWN))
                 .collect(Collectors.toList());
@@ -128,12 +132,13 @@ public abstract class BasePairAnalyzer {
                         .withSaenger(Saenger.UNKNOWN)
                         .withLeontisWesthof(LeontisWesthof.UNKNOWN)
                         .withBph(BPh.UNKNOWN)
-                        .withBr(mapToBioCommonsBr(basePair.getBr()))
+                        .withBr(BaseRiboseType.mapToBioCommonsForm(basePair.getBr()))
                         .withStackingTopology(StackingTopology.UNKNOWN))
                 .collect(Collectors.toList());
         List<AnalyzedBasePair> otherInteractions = responseFromAdapter.getOther().stream()
                 .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair, pairIdentifiersWithModifiedNames))
-                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.OTHER)
+                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair)
+                        .withInteractionType(InteractionType.OTHER)
                         .withSaenger(Saenger.UNKNOWN)
                         .withLeontisWesthof(LeontisWesthof.UNKNOWN)
                         .withBph(BPh.UNKNOWN)
@@ -142,9 +147,10 @@ public abstract class BasePairAnalyzer {
                 .collect(Collectors.toList());
         List<AnalyzedBasePair> interStrand = responseFromAdapter.getBasePairs().stream()
                 .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair, pairIdentifiersWithModifiedNames))
-                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.BASE_BASE)
-                        .withSaenger(basePair.getSaenger())
-                        .withLeontisWesthof(basePair.getLeontisWesthof())
+                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair)
+                        .withInteractionType(InteractionType.BASE_BASE)
+                        .withSaenger(SaengerType.mapToBioCommonsForm(basePair.getSaengerType()))
+                        .withLeontisWesthof(LeontisWesthofType.mapToBioCommonsForm(basePair.getLeontisWesthofType()))
                         .withBph(BPh.UNKNOWN)
                         .withBr(BR.UNKNOWN)
                         .withStackingTopology(StackingTopology.UNKNOWN))
