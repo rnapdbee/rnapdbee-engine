@@ -18,7 +18,8 @@ ENV CACHE_EVICT_SPAN_MILLISECONDS=3600000 \
     RNAPDBEE_ADAPTERS_MAX_IDLE_TIME=60 \
     RNAPDBEE_ADAPTERS_MAX_LIFE_TIME=180 \
     RNAPDBEE_ADAPTERS_PENDING_ACQUIRE_TIMEOUT=60 \
-    RNAPDBEE_ADAPTERS_EVICT_IN_BACKGROUND=120
+    RNAPDBEE_ADAPTERS_EVICT_IN_BACKGROUND=120 \
+    MAX_JAVA_HEAP_SIZE=-Xmx4096m
 
 # Install OpenJDK-11, Maven and curl
 RUN apt-get update -y && \
@@ -47,6 +48,7 @@ RUN mvn -f /home/app/pom.xml clean test --no-transfer-progress && \
 
 # Copy & set entrypoint to jar file
 EXPOSE 8081
-ENTRYPOINT ["java", \
-            "-jar", \
-            "/app.jar"]
+ENTRYPOINT java \
+           $MAX_JAVA_HEAP_SIZE \
+           -jar \
+           /app.jar
