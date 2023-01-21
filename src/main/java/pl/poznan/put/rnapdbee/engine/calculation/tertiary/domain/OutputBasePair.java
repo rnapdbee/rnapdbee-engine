@@ -36,7 +36,9 @@ public class OutputBasePair {
     public static OutputBasePair fromClassifiedBasePair(ClassifiedBasePair classifiedBasePair) {
         OutputBasePair outputBasePair = new OutputBasePair();
 
-        outputBasePair.setInteractionType(classifiedBasePair.interactionType().left().name() + " - " + classifiedBasePair.interactionType().right().name());
+        outputBasePair.setInteractionType(classifiedBasePair.interactionType().left().name().toLowerCase() +
+                " - " +
+                classifiedBasePair.interactionType().right().name().toLowerCase());
         outputBasePair.setSaenger(
                 Optional.ofNullable(SaengerType.mapFromBioCommonsForm(classifiedBasePair.saenger()))
                         .map(Enum::toString)
