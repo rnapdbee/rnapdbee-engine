@@ -2,13 +2,17 @@ package pl.poznan.put.rnapdbee.engine.shared.elements;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.poznan.put.pdb.analysis.ResidueCollection;
+import pl.poznan.put.rnapdbee.engine.shared.domain.InputType;
 import pl.poznan.put.structure.DotBracketSymbol;
 import pl.poznan.put.structure.formats.BpSeq;
 import pl.poznan.put.structure.formats.DotBracket;
 import pl.poznan.put.structure.formats.ImmutableStrandView;
 import pl.poznan.put.structure.formats.Strand;
 
+import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +36,7 @@ public class StructuralElementFinder {
     // ----------......(
     // ).....-------------.....(
     // )...---...--..---...---....(
+    private static final Logger LOGGER = LoggerFactory.getLogger(StructuralElementFinder.class);
     private static final Pattern WITH_MISSING = Pattern.compile("([^-]*)(.*?-+)*([^-]*)");
     private final DotBracket dotBracket;
     private final boolean canElementsEndWithPseudoknots;
@@ -71,6 +76,80 @@ public class StructuralElementFinder {
         }
     }
 
+    public String generateCoordinates(final ResidueCollection wholeStructure, final InputType inputType) {
+        if (noStructuralElementsFound()) {
+            return "";
+        }
+        if (inputType == InputType.PDB) {
+            ResidueCollection.PdbBuilder pdbBuilder = new ResidueCollection.PdbBuilder();
+
+            addToPdbBuilder(pdbBuilder, wholeStructure, "D", stems, true);
+            addToPdbBuilder(pdbBuilder, wholeStructure, "L", loops, true);
+            addToPdbBuilder(pdbBuilder, wholeStructure, "SS", singleStrands, true);
+            addToPdbBuilder(pdbBuilder, wholeStructure, "SS5p", singleStrands5p, false);
+            addToPdbBuilder(pdbBuilder, wholeStructure, "SS3p", singleStrands3p, false);
+
+            return pdbBuilder.build();
+        } else if (inputType == InputType.MMCIF) {
+            ResidueCollection.CifBuilder cifBuilder = new ResidueCollection.CifBuilder();
+
+            addToCifBuilder(cifBuilder, wholeStructure, "D", stems, true);
+            addToCifBuilder(cifBuilder, wholeStructure, "L", loops, true);
+            addToCifBuilder(cifBuilder, wholeStructure, "SS", singleStrands, true);
+            addToCifBuilder(cifBuilder, wholeStructure, "SS5p", singleStrands5p, false);
+            addToCifBuilder(cifBuilder, wholeStructure, "SS3p", singleStrands3p, false);
+
+            try {
+                return cifBuilder.build();
+            } catch (IOException e) {
+                LOGGER.error("generation of CIF coordinates threw IOException.", e);
+                throw new RuntimeException(e);
+            }
+        } else {
+            throw new IllegalArgumentException("Method generateCoordinates supports only PDB and MMCIF InputTypes.");
+        }
+    }
+
+    private boolean noStructuralElementsFound() {
+        return singleStrands5p.size() == 0 &&
+                singleStrands3p.size() == 0 &&
+                singleStrands.size() == 0 &&
+                stems.size() == 0 &&
+                loops.size() == 0;
+    }
+
+    private void addToPdbBuilder(ResidueCollection.PdbBuilder pdbBuilder,
+                                 ResidueCollection wholeStructure,
+                                 String abbreviation,
+                                 List<StructuralElement> structuralElements,
+                                 boolean addIndex) {
+        for (int i = 0; i < structuralElements.size(); i++) {
+            StructuralElement element = structuralElements.get(i);
+            StructuralElementFromPdb structuralElement = (StructuralElementFromPdb) element;
+            ResidueCollection residues = structuralElement.apply(wholeStructure);
+            String name = addIndex
+                    ? abbreviation + (i + 1)
+                    : abbreviation;
+            pdbBuilder.add(residues, name);
+        }
+    }
+
+    private void addToCifBuilder(ResidueCollection.CifBuilder cifBuilder,
+                                 ResidueCollection wholeStructure,
+                                 String abbreviation,
+                                 List<StructuralElement> structuralElements,
+                                 boolean addIndex) {
+        for (int i = 0; i < structuralElements.size(); i++) {
+            StructuralElement element = structuralElements.get(i);
+            StructuralElementFromPdb structuralElement = (StructuralElementFromPdb) element;
+            ResidueCollection residues = structuralElement.apply(wholeStructure);
+            String name = addIndex
+                    ? abbreviation + (i + 1)
+                    : abbreviation;
+            cifBuilder.add(residues, name);
+        }
+    }
+
     private static void addStructuralElement(
             final List<StructuralElement> elements, final StructuralElement newElement) {
         if (!elements.contains(newElement)) {
@@ -89,23 +168,6 @@ public class StructuralElementFinder {
             } else {
                 elements.add(newElement);
             }
-        }
-    }
-
-    private static void generatePdb(
-            final StringBuilder builder,
-            final ResidueCollection wholeStructure,
-            final List<StructuralElement> elements,
-            final String header,
-            final boolean addIndex) {
-        for (int i = 0; i < elements.size(); i++) {
-            final StructuralElementFromPdb element = (StructuralElementFromPdb) elements.get(i);
-            builder.append(header);
-            if (addIndex) {
-                builder.append(i + 1);
-            }
-            builder.append('\n');
-            builder.append(element.apply(wholeStructure).toPdb());
         }
     }
 
