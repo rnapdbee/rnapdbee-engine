@@ -15,6 +15,9 @@ public class ResiduePayload {
     @JsonProperty
     private final String name;
 
+    @JsonProperty
+    private final String icode;
+
     public String getChain() {
         return chain;
     }
@@ -27,23 +30,30 @@ public class ResiduePayload {
         return name;
     }
 
-    public ResiduePayload(final String chain, final Integer number, final String name) {
+    public String getIcode() {
+        return icode;
+    }
+
+    public ResiduePayload(final String chain, final Integer number, final String name, String icode) {
         this.chain = chain;
         this.number = number;
         this.name = name;
+        this.icode = icode;
     }
 
     public static ResiduePayload of(final PdbResidue another) {
         return new ResiduePayload(
                 another.chainIdentifier(),
                 another.residueNumber(),
-                String.valueOf(another.oneLetterName()));
+                String.valueOf(another.oneLetterName()),
+                another.insertionCode().orElse(null));
     }
 
     public static ResiduePayload of(final PdbNamedResidueIdentifier another) {
         return new ResiduePayload(
                 another.chainIdentifier(),
                 another.residueNumber(),
-                String.valueOf(another.oneLetterName()));
+                String.valueOf(another.oneLetterName()),
+                another.insertionCode().orElse(null));
     }
 }
