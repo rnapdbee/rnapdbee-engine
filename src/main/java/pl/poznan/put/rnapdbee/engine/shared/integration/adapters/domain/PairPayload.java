@@ -14,13 +14,6 @@ public class PairPayload {
     @JsonProperty
     private final String leontisWesthof;
 
-    public static PairPayload of(ClassifiedBasePair another) {
-        ResiduePayload residueLeft = ResiduePayload.of(another.basePair().left());
-        ResiduePayload residueRight = ResiduePayload.of(another.basePair().right());
-
-        return new PairPayload(residueLeft, residueRight, another.leontisWesthof().shortName());
-    }
-
     private PairPayload(ResiduePayload residueLeft, ResiduePayload residueRight, String leontisWesthof) {
         this.residueLeft = residueLeft;
         this.residueRight = residueRight;
@@ -29,5 +22,12 @@ public class PairPayload {
         } else {
             this.leontisWesthof = leontisWesthof;
         }
+    }
+
+    public static PairPayload of(ClassifiedBasePair another) {
+        ResiduePayload residueLeft = ResiduePayload.of(another.basePair().left());
+        ResiduePayload residueRight = ResiduePayload.of(another.basePair().right());
+
+        return new PairPayload(residueLeft, residueRight, another.leontisWesthof().shortName());
     }
 }
