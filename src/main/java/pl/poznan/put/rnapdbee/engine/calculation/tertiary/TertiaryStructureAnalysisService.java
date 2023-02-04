@@ -182,8 +182,7 @@ public class TertiaryStructureAnalysisService {
                         dotBracket,
                         structuralElementsHandling.canElementsEndWithPseudoknots(),
                         structuralElementsHandling.isReuseSingleStrandsFromLoopsEnabled());
-
-        String coordinates = generateCoordinates(structureModel, inputType);
+        String coordinates = structuralElementFinder.generateCoordinates(structureModel, inputType);
 
         Output2D output2D = new Output2D.Output2DBuilder()
                 .withImageInformation(image)
@@ -247,17 +246,6 @@ public class TertiaryStructureAnalysisService {
         messages.addAll(basePairAnalysis.getMessages());
         messages.addAll(rnaValidator.validate(rna));
         return messages;
-    }
-
-    private String generateCoordinates(PdbModel structureModel, InputType inputType) {
-        switch (inputType) {
-            case PDB:
-                return structureModel.toPdb();
-            case MMCIF:
-                return structureModel.toCif();
-            default:
-                throw new IllegalArgumentException("Only PDB and MMCIF formats are supported by this methods.");
-        }
     }
 
     @Autowired
