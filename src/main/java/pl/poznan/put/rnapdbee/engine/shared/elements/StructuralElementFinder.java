@@ -146,7 +146,7 @@ public class StructuralElementFinder {
             String name = addIndex
                     ? abbreviation + (i + 1)
                     : abbreviation;
-            cifBuilder.add(residues, name);
+            cifBuilder.add(residues, name, element.toString());
         }
     }
 
