@@ -8,7 +8,7 @@ import gurobi.GRBModel;
 import gurobi.GRBVar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import pl.poznan.put.rnapdbee.engine.shared.converter.logic.BracketTranslation;
 import pl.poznan.put.rnapdbee.engine.shared.converter.domain.IntervalGraph;
@@ -19,6 +19,7 @@ import pl.poznan.put.structure.formats.Converter;
 import pl.poznan.put.structure.formats.DefaultDotBracket;
 import pl.poznan.put.structure.formats.DotBracket;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -39,6 +40,19 @@ public class MixedIntegerLinearProgrammingConverter implements Converter {
     private static final String GUROBI_ERROR_MET_FORMAT = "Gurobi error faced during the conversion:";
     private static final int[] WEIGTHS = {10, -1, -2, -3, -4, -5, -6, -7, -8, -9};
     private static final int MAX_BRACKET = 10;
+
+    private final Object lock = new Object();
+    private GRBEnv gurobiEnvironment;
+
+    @PostConstruct
+    @Profile("!test")
+    void initializeGurobiEnvironment() throws GRBException {
+        GRBEnv env = new GRBEnv(true);
+        env.set(GRB.IntParam.LogToConsole, 0);
+        env.set(GRB.IntParam.OutputFlag, 0);
+        env.start();
+        gurobiEnvironment = env;
+    }
 
     @Override
     public DotBracket convert(BpSeq bpSeq) {
@@ -66,27 +80,24 @@ public class MixedIntegerLinearProgrammingConverter implements Converter {
                     position[component.get(componentIndex)] = componentIndex;
                 }
 
-                GRBEnv env = new GRBEnv(true);
-                env.set(GRB.IntParam.LogToConsole, 0);
-                env.set(GRB.IntParam.OutputFlag, 0);
-                env.start();
-                GRBModel model = new GRBModel(env);
+                synchronized (lock) {
+                    GRBModel model = new GRBModel(gurobiEnvironment);
 
-                List<GRBVar> variables = createDecisionVariables(component, model);
-                GRBLinExpr expr = createObjectiveFunction(intervalGraph, component, variables);
-                model.setObjective(expr, GRB.MAXIMIZE);
+                    List<GRBVar> variables = createDecisionVariables(component, model);
+                    GRBLinExpr expr = createObjectiveFunction(intervalGraph, component, variables);
+                    model.setObjective(expr, GRB.MAXIMIZE);
 
-                createEveryRegionOrderAssignedOnceConstraint(component, model, variables);
-                createInterlacingRegionsAreAssignedDifferentPSOrderValuesConstraint(intervalGraph,
-                        component, position, model, variables);
+                    createEveryRegionOrderAssignedOnceConstraint(component, model, variables);
+                    createInterlacingRegionsAreAssignedDifferentPSOrderValuesConstraint(intervalGraph,
+                            component, position, model, variables);
 
-                model.optimize();
+                    model.optimize();
 
-                setBracketingResultInGraph(intervalGraph, component, variables);
+                    setBracketingResultInGraph(intervalGraph, component, variables);
 
-                /* free the resources */
-                model.dispose();
-                env.dispose();
+                    /* free the resources */
+                    model.dispose();
+                }
             }
 
             return createDotBracket(bpSeq, intervalGraph);
