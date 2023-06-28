@@ -3,6 +3,7 @@ package pl.poznan.put.rnapdbee.engine.testhelp.shared.configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import pl.poznan.put.rnapdbee.engine.testhelp.shared.converter.KnotRemoval;
@@ -25,6 +26,9 @@ public class TestConverterConfiguration {
             "Using actual MILP implementation for converting bpseq to dbn format in Integration Tests.";
     private static final String GUROBI_NOT_WORKING = "Gurobi environment or license is not set up on this machine. " +
             "Using DP_NEW implementation for converting bpseq to dbn format in Integration Tests.";
+
+    @MockBean
+    MixedIntegerLinearProgrammingConverter mixedIntegerLinearProgrammingConverter;
 
     @Bean
     @Primary

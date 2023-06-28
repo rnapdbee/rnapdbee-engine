@@ -8,7 +8,6 @@ import gurobi.GRBModel;
 import gurobi.GRBVar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import pl.poznan.put.rnapdbee.engine.shared.converter.logic.BracketTranslation;
 import pl.poznan.put.rnapdbee.engine.shared.converter.domain.IntervalGraph;
@@ -45,7 +44,6 @@ public class MixedIntegerLinearProgrammingConverter implements Converter {
     private GRBEnv gurobiEnvironment;
 
     @PostConstruct
-    @Profile("!test")
     void initializeGurobiEnvironment() throws GRBException {
         GRBEnv env = new GRBEnv(true);
         env.set(GRB.IntParam.LogToConsole, 0);
