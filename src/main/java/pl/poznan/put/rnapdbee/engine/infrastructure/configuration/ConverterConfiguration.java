@@ -8,8 +8,7 @@ import pl.poznan.put.structure.formats.Converter;
 @Configuration
 public class ConverterConfiguration {
 
-    final
-    MixedIntegerLinearProgrammingConverter converter;
+    private final MixedIntegerLinearProgrammingConverter converter;
 
     public ConverterConfiguration(MixedIntegerLinearProgrammingConverter converter) {
         this.converter = converter;
