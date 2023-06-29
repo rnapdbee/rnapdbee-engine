@@ -45,6 +45,7 @@ public class MixedIntegerLinearProgrammingConverter implements Converter {
 
     @PostConstruct
     void initializeGurobiEnvironment() throws GRBException {
+        LOGGER.info("Initializing gurobi environment.");
         GRBEnv env = new GRBEnv(true);
         env.set(GRB.IntParam.LogToConsole, 0);
         env.set(GRB.IntParam.OutputFlag, 0);

@@ -4,9 +4,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Gurobi license path from which it is copied to the image
 ARG LICENSE_PATH
-ARG GUROBI_LICENSE_LOCATION_IN_IMAGE=/opt/gurobi1000/license
+ARG GUROBI_LICENSE_LOCATION_IN_IMAGE=/opt/gurobi1002/license
 # Set gurobi env variables
-ENV GUROBI_HOME=/opt/gurobi1000/linux64
+ENV GUROBI_HOME=/opt/gurobi1002/linux64
 ENV PATH=$PATH:$GUROBI_HOME/bin \
     LD_LIBRARY_PATH=$GUROBI_HOME/lib \
     GRB_LICENSE_FILE=$GUROBI_LICENSE_LOCATION_IN_IMAGE
@@ -28,8 +28,8 @@ RUN apt-get update -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 # Install gurobi & add gurobi.jar to local maven repository
-RUN curl -L https://packages.gurobi.com/10.0/gurobi10.0.0_linux64.tar.gz > gurobi10.0.0_linux64.tar.gz \
-    && tar -xvf gurobi10.0.0_linux64.tar.gz --directory /opt && \
+RUN curl -L https://packages.gurobi.com/10.0/gurobi10.0.2_linux64.tar.gz > gurobi10.0.2_linux64.tar.gz \
+    && tar -xvf gurobi10.0.2_linux64.tar.gz --directory /opt && \
     mvn install:install-file -Dfile=$GUROBI_HOME/lib/gurobi.jar \
         -DgroupId=com -DartifactId=gurobi -Dversion=10.0.0 -Dpackaging=jar -DgeneratePom=true
 # Set up Gurobi WLS license file
