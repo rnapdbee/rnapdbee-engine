@@ -89,12 +89,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com</groupId>
-            <artifactId>gurobi</artifactId>
-            <version>10.0.0</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.github.therapi</groupId>
             <artifactId>therapi-runtime-javadoc-scribe</artifactId>
             <version>0.15.0</version>

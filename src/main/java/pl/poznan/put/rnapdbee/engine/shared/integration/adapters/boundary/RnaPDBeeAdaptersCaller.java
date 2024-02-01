@@ -24,13 +24,16 @@ import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.component.PathDeterminer;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.domain.AdaptersVisualizationPayload;
 import pl.poznan.put.structure.ClassifiedBasePair;
+import pl.poznan.put.structure.formats.BpSeq;
 import pl.poznan.put.structure.formats.DotBracket;
+import pl.poznan.put.structure.formats.ImmutableDefaultDotBracket;
 import pl.poznan.put.utility.svg.SVGHelper;
 
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class RnaPDBeeAdaptersCaller {
@@ -237,6 +240,46 @@ public class RnaPDBeeAdaptersCaller {
             if (tempFile != null) {
                 FileUtils.forceDelete(tempFile);
             }
+        }
+    }
+
+    /**
+     * Calls rnapdbee-adapters to convert BpSeq to DotBracket.
+     *
+     * @param bpSeq BpSeq data to convert
+     * @return data in DotBracket format
+     */
+    public DotBracket performBpSeqConversion(BpSeq bpSeq) throws AdaptersErrorException {
+        try {
+            String adaptersResponse = adaptersWebClient
+                    .post()
+                    .uri(properties.getBpseqConversionPath())
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(BodyInserters.fromValue(bpSeq.toString()))
+                    .retrieve()
+                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> clientResponse
+                            .bodyToMono(String.class)
+                            .map(resp -> {
+                                LOGGER.warn(String.format(ERROR_4XX_GOTTEN_FROM_ADAPTERS_FORMAT,
+                                        clientResponse.rawStatusCode(), resp));
+                                return new IllegalStateException(String.format(
+                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.rawStatusCode()));
+                            }))
+                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> clientResponse
+                            .bodyToMono(String.class)
+                            .map(resp -> {
+                                LOGGER.warn(String.format(ERROR_5XX_GOTTEN_FROM_ADAPTERS_FORMAT,
+                                        clientResponse.rawStatusCode(), resp));
+                                return new IllegalStateException(String.format(
+                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.rawStatusCode()));
+                            }))
+                    .bodyToMono(String.class)
+                    .cache(Duration.ofSeconds(properties.getMonoCacheDurationInSeconds()))
+                    .block();
+            return ImmutableDefaultDotBracket.fromString(Objects.requireNonNull(adaptersResponse));
+        } catch (WebClientException | IllegalStateException exception) {
+            LOGGER.error(ERROR_MET_DURING_CALL_TO_ADAPTERS_LOG, exception);
+            throw new AdaptersErrorException(ERROR_MET_DURING_CALL_TO_ADAPTERS, exception);
         }
     }
 
