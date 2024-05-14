@@ -39,26 +39,22 @@ public class Templates implements Serializable {
         templates = new ArrayList<>();
         ResidueTemplate residue = null;
 
-        try {
-            for (final String line : IOUtils.readLines(stream, Charset.defaultCharset())) {
-                if (line.indexOf(';') >= 0) {
-                    final String[] elems = line.split(";");
-                    if (elems.length == 3) {
-                        if (residue == null) {
-                            residue = new ResidueTemplate(elems[0], elems[1], elems[2]);
+        for (final String line : IOUtils.readLines(stream, Charset.defaultCharset())) {
+            if (line.indexOf(';') >= 0) {
+                final String[] elems = line.split(";");
+                if (elems.length == 3) {
+                    if (residue == null) {
+                        residue = new ResidueTemplate(elems[0], elems[1], elems[2]);
+                    } else {
+                        if (residue.isEqualResidueName(elems[0].split(",")[1])) {
+                            residue.addAtomTemplate(elems[1], elems[2]);
                         } else {
-                            if (residue.isEqualResidueName(elems[0].split(",")[1])) {
-                                residue.addAtomTemplate(elems[1], elems[2]);
-                            } else {
-                                templates.add(residue);
-                                residue = new ResidueTemplate(elems[0], elems[1], elems[2]);
-                            }
+                            templates.add(residue);
+                            residue = new ResidueTemplate(elems[0], elems[1], elems[2]);
                         }
                     }
                 }
             }
-        } catch (final IOException e) {
-            LOGGER.error("Failed to load templates", e);
         }
         if (residue != null) {
             templates.add(residue);
