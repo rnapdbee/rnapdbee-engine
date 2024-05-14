@@ -32,6 +32,8 @@ public class RnaPDBeeAdaptersProperties {
     private String rnaViewPath;
     @Value("${rnapdbee.adapters.global.rnapolis.path}")
     private String rnapolisPath;
+    @Value("${rnapdbee.adapters.global.bpseq-conversion.path}")
+    private String bpseqConversionPath;
     @Value("${rnapdbee.adapters.global.weblogo.path}")
     private String weblogoPath;
     @Value("${rnapdbee.adapters.global.rchie.path}")
@@ -91,6 +93,10 @@ public class RnaPDBeeAdaptersProperties {
 
     public String getRnapolisPath() {
         return rnapolisPath;
+    }
+
+    public String getBpseqConversionPath() {
+        return bpseqConversionPath;
     }
 
     public String getWeblogoPath() {
