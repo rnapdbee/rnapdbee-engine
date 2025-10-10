@@ -31,5 +31,6 @@ RUN mvn -f /home/app/pom.xml clean test --no-transfer-progress && \
 # Copy & set entrypoint to jar file
 EXPOSE 8081
 ENTRYPOINT ["java", \
+            "-XX:+ExitOnOutOfMemoryError", \
             "-jar", \
             "/app.jar"]
