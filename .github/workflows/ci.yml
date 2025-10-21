@@ -10,7 +10,6 @@ on:
   pull_request:
     branches:
       - main
-      - 'dependabot/updates'
 
   workflow_dispatch:
 
@@ -54,7 +53,7 @@ jobs:
         run: DOCKER_BUILDKIT=1 docker-compose up -d
 
   ci-dependabot:
-    if: ${{ github.actor == 'dependabot[bot]' && github.base_ref == 'dependabot/updates'}}
+    if: ${{ github.actor == 'dependabot[bot]' }}
     needs: CI
 
     runs-on: ubuntu-20.04
