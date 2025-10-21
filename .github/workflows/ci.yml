@@ -10,7 +10,6 @@ on:
   pull_request:
     branches:
       - main
-      - 'dependabot/updates'
 
   workflow_dispatch:
 
@@ -24,7 +23,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '11'
-          distribution: 'adopt'
+          distribution: 'temurin'
           cache: maven
 
       - name: Download Gurobi 10.0.0 and add it to local Maven Repository
@@ -38,9 +37,7 @@ jobs:
         run: mvn -B install -DskipTests
 
       - name: Validate, build and run tests
-        run: |
-          mvn test
-          mvn --batch-mode --update-snapshots verify
+        run: mvn --batch-mode --update-snapshots verify
 
       - name: Upload package
         if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
@@ -54,7 +51,7 @@ jobs:
         run: DOCKER_BUILDKIT=1 docker-compose up -d
 
   ci-dependabot:
-    if: ${{ github.actor == 'dependabot[bot]' && github.base_ref == 'dependabot/updates'}}
+    if: ${{ github.actor == 'dependabot[bot]' }}
     needs: CI
 
     runs-on: ubuntu-20.04

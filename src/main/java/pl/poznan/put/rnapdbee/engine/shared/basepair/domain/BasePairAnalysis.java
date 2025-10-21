@@ -3,6 +3,7 @@ package pl.poznan.put.rnapdbee.engine.shared.basepair.domain;
 import pl.poznan.put.pdb.PdbResidueIdentifier;
 import pl.poznan.put.pdb.analysis.DefaultPdbModel;
 import pl.poznan.put.pdb.analysis.PdbModel;
+import pl.poznan.put.rnapdbee.engine.shared.multiplet.BaseTriple;
 import pl.poznan.put.structure.AnalyzedBasePair;
 import pl.poznan.put.structure.BasePair;
 
@@ -31,7 +32,7 @@ public class BasePairAnalysis {
     private final List<AnalyzedBasePair> baseRibose;
     private final List<AnalyzedBasePair> other;
     private final List<AnalyzedBasePair> interStrand;
-    private final List<String> messages;
+    private final List<BaseTriple> baseTriples;
 
     /**
      * Scan provided base pairs to find isolated ones. Here, isolated means that the nucleotides
@@ -70,8 +71,7 @@ public class BasePairAnalysis {
         return isolated;
     }
 
-    private static boolean checkIndexIsolation(
-            final int index, final Map<Integer, Set<Integer>> interactions) {
+    private static boolean checkIndexIsolation(final int index, final Map<Integer, Set<Integer>> interactions) {
         final Set<Integer> me = interactions.getOrDefault(index, Collections.emptySet());
         if (me.size() != 1) {
             return false;
@@ -117,7 +117,7 @@ public class BasePairAnalysis {
         if (!Objects.equals(baseRibose, that.baseRibose)) return false;
         if (!Objects.equals(other, that.other)) return false;
         if (!Objects.equals(interStrand, that.interStrand)) return false;
-        return Objects.equals(messages, that.messages);
+        return Objects.equals(baseTriples, that.baseTriples);
     }
 
     @Override
@@ -130,7 +130,7 @@ public class BasePairAnalysis {
         result = 31 * result + (baseRibose != null ? baseRibose.hashCode() : 0);
         result = 31 * result + (other != null ? other.hashCode() : 0);
         result = 31 * result + (interStrand != null ? interStrand.hashCode() : 0);
-        result = 31 * result + (messages != null ? messages.hashCode() : 0);
+        result = 31 * result + (baseTriples != null ? baseTriples.hashCode() : 0);
         return result;
     }
 
@@ -143,8 +143,7 @@ public class BasePairAnalysis {
      *              residues.
      */
     public final void removeIsolatedBasePairs(final PdbModel model) {
-        final Collection<AnalyzedBasePair> toDelete =
-                BasePairAnalysis.findIsolatedBasePairs(model, represented);
+        final Collection<AnalyzedBasePair> toDelete = BasePairAnalysis.findIsolatedBasePairs(model, represented);
 
         // delete base pairs
         for (final AnalyzedBasePair classifiedBasePair : toDelete) {
@@ -158,12 +157,11 @@ public class BasePairAnalysis {
     }
 
     public final BasePairAnalysis filtered(final Set<PdbResidueIdentifier> residues) {
-        final Predicate<AnalyzedBasePair> filter =
-                cbp -> {
-                    final BasePair basePair = cbp.basePair();
-                    return residues.contains(PdbResidueIdentifier.from(basePair.left()))
-                            || residues.contains(PdbResidueIdentifier.from(basePair.right()));
-                };
+        final Predicate<AnalyzedBasePair> filter = cbp -> {
+            final BasePair basePair = cbp.basePair();
+            return residues.contains(PdbResidueIdentifier.from(basePair.left()))
+                    || residues.contains(PdbResidueIdentifier.from(basePair.right()));
+        };
 
         final List<AnalyzedBasePair> representedFiltered =
                 represented.stream().filter(filter).collect(Collectors.toList());
@@ -181,6 +179,17 @@ public class BasePairAnalysis {
                 other.stream().filter(filter).collect(Collectors.toList());
         final List<AnalyzedBasePair> interStrandFiltered =
                 interStrand.stream().filter(filter).collect(Collectors.toList());
+        final List<BaseTriple> baseTriplesFiltered = baseTriples.stream()
+                .filter(baseTriple -> residues.contains(
+                                baseTriple.getIdentifier().toResidueIdentifier())
+                        || residues.contains(
+                                baseTriple.getFirstBasePair().basePair().right().toResidueIdentifier())
+                        || residues.contains(baseTriple
+                                .getSecondBasePair()
+                                .basePair()
+                                .right()
+                                .toResidueIdentifier()))
+                .collect(Collectors.toList());
 
         return new BasePairAnalysisBuilder()
                 .withRepresented(representedFiltered)
@@ -191,7 +200,7 @@ public class BasePairAnalysis {
                 .withBaseRibose(baseRiboseFiltered)
                 .withOther(otherFiltered)
                 .withInterStrand(interStrandFiltered)
-                .withMessages(new ArrayList<>(messages))
+                .withBaseTriples(baseTriplesFiltered)
                 .build();
     }
 
@@ -227,8 +236,8 @@ public class BasePairAnalysis {
         return interStrand;
     }
 
-    public List<String> getMessages() {
-        return messages;
+    public List<BaseTriple> getBaseTriples() {
+        return baseTriples;
     }
 
     private BasePairAnalysis(
@@ -240,7 +249,7 @@ public class BasePairAnalysis {
             List<AnalyzedBasePair> baseRibose,
             List<AnalyzedBasePair> other,
             List<AnalyzedBasePair> interStrand,
-            List<String> messages) {
+            List<BaseTriple> baseTriples) {
         this.represented = represented;
         this.canonical = canonical;
         this.nonCanonical = nonCanonical;
@@ -249,7 +258,7 @@ public class BasePairAnalysis {
         this.baseRibose = baseRibose;
         this.other = other;
         this.interStrand = interStrand;
-        this.messages = messages;
+        this.baseTriples = baseTriples;
     }
 
     public static class BasePairAnalysisBuilder {
@@ -261,7 +270,7 @@ public class BasePairAnalysis {
         private List<AnalyzedBasePair> baseRibose;
         private List<AnalyzedBasePair> other;
         private List<AnalyzedBasePair> interStrand;
-        private List<String> messages;
+        private List<BaseTriple> baseTriples;
 
         public BasePairAnalysisBuilder withRepresented(List<AnalyzedBasePair> represented) {
             this.represented = represented;
@@ -303,13 +312,22 @@ public class BasePairAnalysis {
             return this;
         }
 
-        public BasePairAnalysisBuilder withMessages(List<String> messages) {
-            this.messages = messages;
+        public BasePairAnalysisBuilder withBaseTriples(List<BaseTriple> baseTriples) {
+            this.baseTriples = baseTriples;
             return this;
         }
 
         public BasePairAnalysis build() {
-            return new BasePairAnalysis(represented, canonical, nonCanonical, stacking, basePhosphate, baseRibose, other, interStrand, messages);
+            return new BasePairAnalysis(
+                    represented,
+                    canonical,
+                    nonCanonical,
+                    stacking,
+                    basePhosphate,
+                    baseRibose,
+                    other,
+                    interStrand,
+                    baseTriples);
         }
     }
 }

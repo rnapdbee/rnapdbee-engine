@@ -20,6 +20,7 @@ import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.SaengerType;
 import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.exception.AdaptersErrorException;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
+import pl.poznan.put.rnapdbee.engine.shared.multiplet.BaseTriple;
 import pl.poznan.put.rnapdbee.engine.shared.multiplet.MultipletSet;
 import pl.poznan.put.structure.AnalyzedBasePair;
 import pl.poznan.put.structure.ImmutableAnalyzedBasePair;
@@ -46,16 +47,14 @@ public abstract class BasePairAnalyzer {
     public abstract AnalysisTool analysisTool();
 
     // TODO: think about using WebFlux advancements when refactoring
-    public abstract BasePairAnalysis analyze(String fileContent,
-                                             boolean includeNonCanonical,
-                                             PdbModel structureModel) throws AdaptersErrorException;
+    public abstract BasePairAnalysis analyze(String fileContent, boolean includeNonCanonical, PdbModel structureModel)
+            throws AdaptersErrorException;
 
-    protected BasePairAnalysis performAnalysis(String fileContent,
-                                               boolean includeNonCanonical,
-                                               PdbModel structureModel) throws AdaptersErrorException {
+    protected BasePairAnalysis performAnalysis(String fileContent, boolean includeNonCanonical, PdbModel structureModel)
+            throws AdaptersErrorException {
         LOGGER.info(String.format("base pair analysis started for model number %s", structureModel.modelNumber()));
-        AdaptersAnalysisDTO adaptersAnalysis = rnapdbeeAdaptersCaller
-                .performBasePairAnalysis(fileContent, analysisTool(), structureModel.modelNumber());
+        AdaptersAnalysisDTO adaptersAnalysis = rnapdbeeAdaptersCaller.performBasePairAnalysis(
+                fileContent, analysisTool(), structureModel.modelNumber());
         LOGGER.info(String.format("base pair analysis finished for model number %s", structureModel.modelNumber()));
         return performPostAnalysisOnResponseFromAdapter(adaptersAnalysis, includeNonCanonical, structureModel);
     }
@@ -72,13 +71,12 @@ public abstract class BasePairAnalyzer {
      * @param includeNonCanonical flag specifying if nonCanonical pairs should be included or not
      * @return {@link AnalyzedBasePair} BasePairAnalysis object with populated pairs lists.
      */
-    protected BasePairAnalysis performPostAnalysisOnResponseFromAdapter(AdaptersAnalysisDTO responseFromAdapter,
-                                                                        boolean includeNonCanonical,
-                                                                        PdbModel structureModel) {
-        final Map<ChainNumberKey, String> pairIdentifiersWithTheirShortNames = structureModel.residues()
-                .stream()
+    protected BasePairAnalysis performPostAnalysisOnResponseFromAdapter(
+            AdaptersAnalysisDTO responseFromAdapter, boolean includeNonCanonical, PdbModel structureModel) {
+        final Map<ChainNumberKey, String> pairIdentifiersWithTheirShortNames = structureModel.residues().stream()
                 .collect(Collectors.toMap(
-                        residue -> new ChainNumberKey(residue.chainIdentifier(),
+                        residue -> new ChainNumberKey(
+                                residue.chainIdentifier(),
                                 residue.residueNumber(),
                                 residue.insertionCode().orElse(null)),
                         residue -> String.valueOf(residue.oneLetterName())));
@@ -127,7 +125,8 @@ public abstract class BasePairAnalyzer {
                 .collect(Collectors.toList());
         List<AnalyzedBasePair> baseRibose = responseFromAdapter.getBaseRiboseInteractions().stream()
                 .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair, pairIdentifiersWithTheirShortNames))
-                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair).withInteractionType(InteractionType.BASE_RIBOSE)
+                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair)
+                        .withInteractionType(InteractionType.BASE_RIBOSE)
                         .withSaenger(Saenger.UNKNOWN)
                         .withLeontisWesthof(LeontisWesthof.UNKNOWN)
                         .withBph(BPh.UNKNOWN)
@@ -153,18 +152,16 @@ public abstract class BasePairAnalyzer {
                         .withBph(BPh.UNKNOWN)
                         .withBr(BR.UNKNOWN)
                         .withStackingTopology(StackingTopology.UNKNOWN))
-                .filter(basePair -> !basePair.basePair().left().chainIdentifier().equals(basePair.basePair().right().chainIdentifier()))
+                .filter(basePair -> !basePair.basePair()
+                        .left()
+                        .chainIdentifier()
+                        .equals(basePair.basePair().right().chainIdentifier()))
                 .collect(Collectors.toList());
         List<AnalyzedBasePair> represented = determineRepresentedPairs(canonical, nonCanonical, includeNonCanonical);
 
-        final Iterable<AnalyzedBasePair> allBasePairs =
-                (includeNonCanonical
-                        ? Stream.of(canonical, nonCanonical, stackings, basePhosphate, baseRibose, otherInteractions)
-                        : Stream.of(canonical, stackings, basePhosphate, baseRibose, otherInteractions)
-                )
-                        .flatMap(Collection::stream)
-                        .collect(Collectors.toList());
-        List<String> messages = (new MultipletSet(allBasePairs)).generateMessages();
+        MultipletSet multipletSet = new MultipletSet(
+                Stream.of(canonical, nonCanonical).flatMap(Collection::stream).collect(Collectors.toList()));
+        List<BaseTriple> baseTriples = multipletSet.getBaseTriples();
 
         return new BasePairAnalysis.BasePairAnalysisBuilder()
                 .withRepresented(represented)
@@ -175,23 +172,24 @@ public abstract class BasePairAnalyzer {
                 .withBaseRibose(baseRibose)
                 .withOther(otherInteractions)
                 .withInterStrand(interStrand)
-                .withMessages(messages)
+                .withBaseTriples(baseTriples)
                 .build();
     }
 
-    private List<AnalyzedBasePair> determineRepresentedPairs(List<AnalyzedBasePair> canonicalPairs,
-                                                             List<AnalyzedBasePair> nonCanonicalPairs,
-                                                             boolean includeNonCanonical) {
+    private List<AnalyzedBasePair> determineRepresentedPairs(
+            List<AnalyzedBasePair> canonicalPairs,
+            List<AnalyzedBasePair> nonCanonicalPairs,
+            boolean includeNonCanonical) {
         List<AnalyzedBasePair> pairsClassifiedAsRepresented = new ArrayList<>();
         final HashSet<PdbNamedResidueIdentifier> classifiedNucleotides = new HashSet<>();
 
         Consumer<AnalyzedBasePair> classifyBasePair = pair -> {
-            if (!classifiedNucleotides.contains(pair.basePair().left()) &&
-                    !classifiedNucleotides.contains(pair.basePair().right())) {
+            if (!classifiedNucleotides.contains(pair.basePair().left())
+                    && !classifiedNucleotides.contains(pair.basePair().right())) {
                 pairsClassifiedAsRepresented.add(pair);
                 /* TODO: ask if this should stay (2.0 version has inverted pairs, however it probably does not matter)
-                     pairsClassifiedAsRepresented.add((AnalyzedBasePair) pair.invert());
-                 */
+                    pairsClassifiedAsRepresented.add((AnalyzedBasePair) pair.invert());
+                */
                 classifiedNucleotides.add(pair.basePair().left());
                 classifiedNucleotides.add(pair.basePair().right());
             }

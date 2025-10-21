@@ -50,8 +50,8 @@ public class TertiaryStructureAnalysisService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TertiaryStructureAnalysisService.class);
 
     private static final String BASE_PAIR_ANALYSIS_FAILED = "Base pair analysis failed";
-    private static final String BASE_PAIR_ANALYSIS_FAILED_DEBUG_FORMAT = "Base pair analysis failed for " +
-            "analysisTool: %s, nonCanonicalHandling: %s, removeIsolated: %s, fileContent: %s rna: %s:";
+    private static final String BASE_PAIR_ANALYSIS_FAILED_DEBUG_FORMAT = "Base pair analysis failed for "
+            + "analysisTool: %s, nonCanonicalHandling: %s, removeIsolated: %s, fileContent: %s rna: %s:";
 
     private final BasePairAnalyzerFactory basePairAnalyzerFactory;
     private final ImageService imageService;
@@ -60,58 +60,73 @@ public class TertiaryStructureAnalysisService {
     private final InputTypeDeterminer inputTypeDeterminer;
     private final Converter converter;
 
-    public Output3D analyze(ModelSelection modelSelection,
-                            AnalysisTool analysisTool,
-                            NonCanonicalHandling nonCanonicalHandling,
-                            boolean removeIsolated,
-                            StructuralElementsHandling structuralElementsHandling,
-                            VisualizationTool visualizationTool,
-                            String filename,
-                            String fileContent) {
+    public Output3D analyze(
+            ModelSelection modelSelection,
+            AnalysisTool analysisTool,
+            NonCanonicalHandling nonCanonicalHandling,
+            boolean removeIsolated,
+            StructuralElementsHandling structuralElementsHandling,
+            VisualizationTool visualizationTool,
+            String filename,
+            String fileContent) {
         var inputType = inputTypeDeterminer.detectTertiaryInputTypeFromFileName(filename);
-        return performAnalysis(modelSelection, analysisTool, nonCanonicalHandling, removeIsolated,
-                structuralElementsHandling, visualizationTool, inputType, fileContent);
+        return performAnalysis(
+                modelSelection,
+                analysisTool,
+                nonCanonicalHandling,
+                removeIsolated,
+                structuralElementsHandling,
+                visualizationTool,
+                inputType,
+                fileContent);
     }
 
-    private Output3D performAnalysis(ModelSelection modelSelection,
-                                     AnalysisTool analysisTool,
-                                     NonCanonicalHandling nonCanonicalHandling,
-                                     boolean removeIsolated,
-                                     StructuralElementsHandling structuralElementsHandling,
-                                     VisualizationTool visualizationTool,
-                                     InputType inputType,
-                                     String fileContent) {
+    private Output3D performAnalysis(
+            ModelSelection modelSelection,
+            AnalysisTool analysisTool,
+            NonCanonicalHandling nonCanonicalHandling,
+            boolean removeIsolated,
+            StructuralElementsHandling structuralElementsHandling,
+            VisualizationTool visualizationTool,
+            InputType inputType,
+            String fileContent) {
         final List<? extends PdbModel> models = tertiaryFileParser.parseFileContents(inputType, fileContent);
         final List<? extends PdbModel> rnaModels = models.stream()
-                .filter(pdbModel -> pdbModel.containsAny(MoleculeType.RNA)).collect(Collectors.toList());
+                .filter(pdbModel -> pdbModel.containsAny(MoleculeType.RNA))
+                .collect(Collectors.toList());
         if (rnaModels.isEmpty()) {
             throw new NoRnaModelsInFileException();
         }
 
-        final int modelsToBeProcessed = modelSelection == ModelSelection.FIRST
-                ? 1
-                : rnaModels.size();
+        final int modelsToBeProcessed = modelSelection == ModelSelection.FIRST ? 1 : rnaModels.size();
         AtomicReference<String> title = new AtomicReference<>();
         final List<SingleTertiaryModelOutput> results = rnaModels.stream()
                 .limit(modelsToBeProcessed)
                 .map(pdbModel -> {
                     final PdbModel rna = pdbModel.filteredNewInstance(MoleculeType.RNA);
-                    final BasePairAnalysis basePairAnalysis = handleBasePairAnalysis(analysisTool,
-                            nonCanonicalHandling, removeIsolated, fileContent, rna);
+                    final BasePairAnalysis basePairAnalysis = handleBasePairAnalysis(
+                            analysisTool, nonCanonicalHandling, removeIsolated, fileContent, rna);
 
                     // assuming the atoms are always to be reordered
                     final PdbModel finalModel = ChainReorderer.reorderAtoms(rna, basePairAnalysis.getRepresented());
-                    final BpSeq bpSeq = BpSeq.fromBasePairs(finalModel.namedResidueIdentifiers(),
-                            basePairAnalysis.getRepresented());
+                    final BpSeq bpSeq = BpSeq.fromBasePairs(
+                            finalModel.namedResidueIdentifiers(), basePairAnalysis.getRepresented());
 
                     final DotBracket dotBracket = converter.convert(bpSeq);
-                    final DefaultDotBracketFromPdb dotBracketFromPdb = ImmutableDefaultDotBracketFromPdb
-                            .of(dotBracket.sequence(), dotBracket.structure(), finalModel);
+                    final DefaultDotBracketFromPdb dotBracketFromPdb = ImmutableDefaultDotBracketFromPdb.of(
+                            dotBracket.sequence(), dotBracket.structure(), finalModel);
                     title.set(finalModel.title());
 
                     return buildSingleModelOutputFromAnalysis(
-                            analysisTool, nonCanonicalHandling, structuralElementsHandling, visualizationTool,
-                            finalModel, basePairAnalysis, dotBracketFromPdb, inputType, rna);
+                            analysisTool,
+                            nonCanonicalHandling,
+                            structuralElementsHandling,
+                            visualizationTool,
+                            finalModel,
+                            basePairAnalysis,
+                            dotBracketFromPdb,
+                            inputType,
+                            rna);
                 })
                 .collect(Collectors.toList());
 
@@ -133,19 +148,27 @@ public class TertiaryStructureAnalysisService {
      * @param rna                  RNA model
      * @return complete {@link BasePairAnalysis}
      */
-    private BasePairAnalysis handleBasePairAnalysis(AnalysisTool analysisTool,
-                                                    NonCanonicalHandling nonCanonicalHandling,
-                                                    boolean removeIsolated,
-                                                    String fileContent,
-                                                    PdbModel rna) {
+    private BasePairAnalysis handleBasePairAnalysis(
+            AnalysisTool analysisTool,
+            NonCanonicalHandling nonCanonicalHandling,
+            boolean removeIsolated,
+            String fileContent,
+            PdbModel rna) {
         final BasePairAnalysis basePairAnalysis;
         try {
-            basePairAnalysis = basePairAnalyzerFactory.provideBasePairAnalyzer(analysisTool)
+            basePairAnalysis = basePairAnalyzerFactory
+                    .provideBasePairAnalyzer(analysisTool)
                     .analyze(fileContent, nonCanonicalHandling.isAnalysis(), rna);
         } catch (AdaptersErrorException exception) {
             LOGGER.warn(BASE_PAIR_ANALYSIS_FAILED, exception);
-            LOGGER.debug(String.format(BASE_PAIR_ANALYSIS_FAILED_DEBUG_FORMAT, analysisTool, nonCanonicalHandling,
-                            removeIsolated, fileContent, rna),
+            LOGGER.debug(
+                    String.format(
+                            BASE_PAIR_ANALYSIS_FAILED_DEBUG_FORMAT,
+                            analysisTool,
+                            nonCanonicalHandling,
+                            removeIsolated,
+                            fileContent,
+                            rna),
                     exception);
             throw new BasePairAnalysisException();
         }
@@ -167,21 +190,21 @@ public class TertiaryStructureAnalysisService {
             DefaultDotBracketFromPdb dotBracket,
             InputType inputType,
             PdbModel rna) {
-        final BasePairAnalysis filteredResults =
-                basePairAnalysis.filtered(dotBracket.identifierSet());
-
-        ImageInformationOutput image = imageService.visualizeCanonicalOrNonCanonical(visualizationTool,
-                dotBracket, structureModel, basePairAnalysis.getNonCanonical(), nonCanonicalHandling);
+        ImageInformationOutput image = imageService.visualizeCanonicalOrNonCanonical(
+                visualizationTool,
+                dotBracket,
+                structureModel,
+                basePairAnalysis.getNonCanonical(),
+                nonCanonicalHandling);
 
         final BpSeq bpseq = BpSeq.fromDotBracket(dotBracket);
         final Ct ct = Ct.fromBpSeqAndPdbModel(bpseq, structureModel);
-        final List<String> messages = generateMessageLog(filteredResults, image, analysisTool, rna);
+        final List<String> messages = generateMessageLog(image, analysisTool, rna);
 
-        final StructuralElementFinder structuralElementFinder =
-                new StructuralElementFinder(
-                        dotBracket,
-                        structuralElementsHandling.canElementsEndWithPseudoknots(),
-                        structuralElementsHandling.isReuseSingleStrandsFromLoopsEnabled());
+        final StructuralElementFinder structuralElementFinder = new StructuralElementFinder(
+                dotBracket,
+                structuralElementsHandling.canElementsEndWithPseudoknots(),
+                structuralElementsHandling.isReuseSingleStrandsFromLoopsEnabled());
         String coordinates = structuralElementFinder.generateCoordinates(structureModel, inputType);
 
         Output2D output2D = new Output2D.Output2DBuilder()
@@ -203,6 +226,7 @@ public class TertiaryStructureAnalysisService {
                 .withBaseRiboseInteractions(basePairAnalysis.getBaseRibose())
                 .withStackingInteractions(basePairAnalysis.getStacking())
                 .withOutput2D(output2D)
+                .withBaseTriples(basePairAnalysis.getBaseTriples())
                 .build();
     }
 
@@ -210,30 +234,23 @@ public class TertiaryStructureAnalysisService {
      * Generates message log out of information about output image, messages about Multiplets contained in basePairAnalysis,
      * messages generated by validation of {@link PdbModel} and information about used {@link AnalysisTool}.
      *
-     * @param basePairAnalysis given basePairAnalysis, which contains influential messages
      * @param image            given image with its metadata, which are used to generate messages
      * @param analysisTool     analysis
      * @param rna              rna model which is valiated
      * @return message log generated using input parameters
      */
-    private List<String> generateMessageLog(BasePairAnalysis basePairAnalysis,
-                                            ImageInformationOutput image,
-                                            AnalysisTool analysisTool,
-                                            PdbModel rna) {
+    private List<String> generateMessageLog(ImageInformationOutput image, AnalysisTool analysisTool, PdbModel rna) {
         final List<String> messages = new ArrayList<>();
         messages.add(String.format("Base-pairs identified by %s", analysisTool));
 
         switch (image.getDrawingResult()) {
             case DONE_BY_MAIN_DRAWER:
-                messages.add(
-                        String.format("Graphical image generated by %s", image.getSuccessfulVisualizationTool()));
+                messages.add(String.format("Graphical image generated by %s", image.getSuccessfulVisualizationTool()));
                 break;
             case DONE_BY_BACKUP_DRAWER:
-                messages.add(
-                        String.format(
-                                "Graphical image generated by %s (failed to generate image with %s)",
-                                image.getSuccessfulVisualizationTool(),
-                                image.getFailedVisualizationTool()));
+                messages.add(String.format(
+                        "Graphical image generated by %s (failed to generate image with %s)",
+                        image.getSuccessfulVisualizationTool(), image.getFailedVisualizationTool()));
                 break;
             case FAILED_BY_BOTH_DRAWERS:
                 messages.add("Both drawers failed to generate image");
@@ -243,18 +260,18 @@ public class TertiaryStructureAnalysisService {
                 break;
         }
 
-        messages.addAll(basePairAnalysis.getMessages());
         messages.addAll(rnaValidator.validate(rna));
         return messages;
     }
 
     @Autowired
-    public TertiaryStructureAnalysisService(BasePairAnalyzerFactory basePairAnalyzerFactory,
-                                            ImageService imageService,
-                                            TertiaryFileParser tertiaryFileParser,
-                                            @Value("${templates.path}") String pathToTemplates,
-                                            InputTypeDeterminer inputTypeDeterminer,
-                                            Converter converter) {
+    public TertiaryStructureAnalysisService(
+            BasePairAnalyzerFactory basePairAnalyzerFactory,
+            ImageService imageService,
+            TertiaryFileParser tertiaryFileParser,
+            @Value("${templates.path}") String pathToTemplates,
+            InputTypeDeterminer inputTypeDeterminer,
+            Converter converter) {
         this.basePairAnalyzerFactory = basePairAnalyzerFactory;
         this.imageService = imageService;
         this.tertiaryFileParser = tertiaryFileParser;

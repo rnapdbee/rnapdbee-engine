@@ -4,67 +4,63 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import pl.poznan.put.pdb.PdbNamedResidueIdentifier;
 import pl.poznan.put.structure.AnalyzedBasePair;
 import pl.poznan.put.structure.BasePair;
+import pl.poznan.put.structure.ClassifiedBasePair;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MultipletSet implements Serializable {
-    private final Collection<Multiplet> multiplets;
+    private final List<BaseTriple> baseTriples;
 
-    public MultipletSet(final Iterable<AnalyzedBasePair> basePairs) {
+    public MultipletSet(final List<AnalyzedBasePair> basePairs) {
         super();
-        multiplets = MultipletSet.analyze(basePairs);
+        baseTriples = MultipletSet.analyze(basePairs);
     }
 
-    private static Collection<Multiplet> analyze(
-            final Iterable<? extends AnalyzedBasePair> basePairs) {
-        final Map<PdbNamedResidueIdentifier, List<PdbNamedResidueIdentifier>> interactionMap =
-                new HashMap<>();
-        for (final AnalyzedBasePair cbp : basePairs) {
-            final BasePair basePair = cbp.basePair();
+    public List<BaseTriple> getBaseTriples() {
+        return baseTriples;
+    }
+
+    private static List<BaseTriple> analyze(final List<? extends AnalyzedBasePair> basePairs) {
+        final List<ClassifiedBasePair> filteredBasePairs = basePairs.stream()
+                .filter(ClassifiedBasePair::isPairing)
+                .flatMap(analyzedBasePair -> Stream.of(analyzedBasePair, analyzedBasePair.invert()))
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+        final Map<PdbNamedResidueIdentifier, List<ClassifiedBasePair>> residueInteractionsMap = new HashMap<>();
+
+        for (final ClassifiedBasePair classifiedBasePair : filteredBasePairs) {
+            final BasePair basePair = classifiedBasePair.basePair();
             final PdbNamedResidueIdentifier left = basePair.left();
-            final PdbNamedResidueIdentifier right = basePair.right();
-
-            if (!interactionMap.containsKey(left)) {
-                interactionMap.put(left, new ArrayList<>());
+            if (!residueInteractionsMap.containsKey(left)) {
+                residueInteractionsMap.put(left, new ArrayList<>());
             }
-            if (!interactionMap.containsKey(right)) {
-                interactionMap.put(right, new ArrayList<>());
-            }
-
-            interactionMap.get(left).add(right);
-            interactionMap.get(right).add(left);
+            residueInteractionsMap.get(left).add(classifiedBasePair);
         }
 
-        final Collection<Multiplet> multiplets = new ArrayList<>();
-        for (final Map.Entry<PdbNamedResidueIdentifier, List<PdbNamedResidueIdentifier>> entry :
-                interactionMap.entrySet()) {
-            final PdbNamedResidueIdentifier identifier = entry.getKey();
-            final List<PdbNamedResidueIdentifier> interactions = entry.getValue();
-
-            if (interactions.size() > 1) {
-                multiplets.add(new Multiplet(identifier, interactions));
+        final List<BaseTriple> baseTriples = new ArrayList<>();
+        residueInteractionsMap.forEach((key, value) -> {
+            if (value.size() == 2) {
+                baseTriples.add(new BaseTriple(key, value.get(0), value.get(1)));
             }
-        }
-
-        return multiplets;
+        });
+        return baseTriples;
     }
 
     public final List<String> generateMessages() {
-        return multiplets.stream()
-                .map(multiplet -> "Multiplet identified: " + multiplet)
+        return baseTriples.stream()
+                .map(baseTriple -> "Multiplet identified: " + baseTriple)
                 .collect(Collectors.toList());
     }
 
     @Override
     public final String toString() {
-        final Object[] array = multiplets.toArray();
-        return new ToStringBuilder(this).append("multiplets", Arrays.toString(array)).toString();
+        final Object[] array = baseTriples.toArray();
+        return new ToStringBuilder(this)
+                .append("multiplets", Arrays.toString(array))
+                .toString();
     }
 }
