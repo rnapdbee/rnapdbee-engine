@@ -30,9 +30,21 @@ public class BaseTriple implements Serializable {
         }
     }
 
+    public PdbNamedResidueIdentifier getIdentifier() {
+        return identifier;
+    }
+
+    public ClassifiedBasePair getFirstBasePair() {
+        return firstBasePair;
+    }
+
+    public ClassifiedBasePair getSecondBasePair() {
+        return secondBasePair;
+    }
+
     public String type() {
-        return firstBasePair.leontisWesthof().fullName() + " / "
-                + secondBasePair.leontisWesthof().fullName();
+        return firstBasePair.leontisWesthof().shortName() + "/"
+                + secondBasePair.leontisWesthof().shortName();
     }
 
     /**

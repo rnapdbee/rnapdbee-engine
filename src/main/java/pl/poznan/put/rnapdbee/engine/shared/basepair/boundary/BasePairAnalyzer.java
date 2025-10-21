@@ -20,6 +20,7 @@ import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.SaengerType;
 import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.exception.AdaptersErrorException;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
+import pl.poznan.put.rnapdbee.engine.shared.multiplet.BaseTriple;
 import pl.poznan.put.rnapdbee.engine.shared.multiplet.MultipletSet;
 import pl.poznan.put.structure.AnalyzedBasePair;
 import pl.poznan.put.structure.ImmutableAnalyzedBasePair;
@@ -160,7 +161,7 @@ public abstract class BasePairAnalyzer {
 
         MultipletSet multipletSet = new MultipletSet(
                 Stream.of(canonical, nonCanonical).flatMap(Collection::stream).collect(Collectors.toList()));
-        List<String> messages = multipletSet.generateMessages();
+        List<BaseTriple> baseTriples = multipletSet.getBaseTriples();
 
         return new BasePairAnalysis.BasePairAnalysisBuilder()
                 .withRepresented(represented)
@@ -171,7 +172,7 @@ public abstract class BasePairAnalyzer {
                 .withBaseRibose(baseRibose)
                 .withOther(otherInteractions)
                 .withInterStrand(interStrand)
-                .withMessages(messages)
+                .withBaseTriples(baseTriples)
                 .build();
     }
 

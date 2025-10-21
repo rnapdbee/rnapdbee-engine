@@ -1,8 +1,8 @@
 package pl.poznan.put.rnapdbee.engine.calculation.tertiary.domain;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import pl.poznan.put.rnapdbee.engine.calculation.secondary.domain.Output2D;
+import pl.poznan.put.rnapdbee.engine.shared.multiplet.BaseTriple;
 import pl.poznan.put.structure.AnalyzedBasePair;
 
 import java.util.List;
@@ -40,6 +40,9 @@ public class SingleTertiaryModelOutput {
     @JsonProperty("baseRiboseInteractions")
     private List<OutputBasePair> baseRiboseInteractions;
 
+    @JsonProperty("baseTriples")
+    private List<OutputBaseTriple> baseTriples;
+
     public Output2D getOutput2D() {
         return output2D;
     }
@@ -72,19 +75,25 @@ public class SingleTertiaryModelOutput {
         return baseRiboseInteractions;
     }
 
+    public List<OutputBaseTriple> getBaseTriples() {
+        return baseTriples;
+    }
+
     public Integer getModelNumber() {
         return modelNumber;
     }
 
-    private SingleTertiaryModelOutput(Integer modelNumber,
-                                      Output2D output2D,
-                                      List<String> messages,
-                                      List<OutputBasePair> canonicalInteractions,
-                                      List<OutputBasePair> nonCanonicalInteractions,
-                                      List<OutputBasePair> interStrandInteractions,
-                                      List<OutputBasePair> stackingInteractions,
-                                      List<OutputBasePair> basePhosphateInteractions,
-                                      List<OutputBasePair> baseRiboseInteractions) {
+    private SingleTertiaryModelOutput(
+            Integer modelNumber,
+            Output2D output2D,
+            List<String> messages,
+            List<OutputBasePair> canonicalInteractions,
+            List<OutputBasePair> nonCanonicalInteractions,
+            List<OutputBasePair> interStrandInteractions,
+            List<OutputBasePair> stackingInteractions,
+            List<OutputBasePair> basePhosphateInteractions,
+            List<OutputBasePair> baseRiboseInteractions,
+            List<OutputBaseTriple> baseTriples) {
         this.modelNumber = modelNumber;
         this.output2D = output2D;
         this.messages = messages;
@@ -94,6 +103,7 @@ public class SingleTertiaryModelOutput {
         this.stackingInteractions = stackingInteractions;
         this.basePhosphateInteractions = basePhosphateInteractions;
         this.baseRiboseInteractions = baseRiboseInteractions;
+        this.baseTriples = baseTriples;
     }
 
     public static class Builder {
@@ -106,6 +116,7 @@ public class SingleTertiaryModelOutput {
         private List<OutputBasePair> stackingInteractions;
         private List<OutputBasePair> basePhosphateInteractions;
         private List<OutputBasePair> baseRiboseInteractions;
+        private List<OutputBaseTriple> baseTriples;
 
         public Builder withModelNumber(Integer modelNumber) {
             this.modelNumber = modelNumber;
@@ -164,8 +175,15 @@ public class SingleTertiaryModelOutput {
             return this;
         }
 
+        public Builder withBaseTriples(List<BaseTriple> baseTriples) {
+            this.baseTriples =
+                    baseTriples.stream().map(OutputBaseTriple::fromBaseTriple).collect(Collectors.toList());
+            return this;
+        }
+
         public SingleTertiaryModelOutput build() {
-            return new SingleTertiaryModelOutput(modelNumber,
+            return new SingleTertiaryModelOutput(
+                    modelNumber,
                     output2D,
                     messages,
                     canonicalInteractions,
@@ -173,7 +191,8 @@ public class SingleTertiaryModelOutput {
                     interStrandInteractions,
                     stackingInteractions,
                     basePhosphateInteractions,
-                    baseRiboseInteractions);
+                    baseRiboseInteractions,
+                    baseTriples);
         }
     }
 }

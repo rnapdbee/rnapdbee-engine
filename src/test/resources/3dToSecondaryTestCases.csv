@@ -8,6 +8,6 @@
 # First test case
 2LBK.pdb,ALL,MC_ANNOTATE,TEXT_AND_VISUALIZATION,true,USE_PSEUDOKNOTS,VARNA,17,18,1,1,1,0,1,1,54124,2,5,0,0,8,0,0,17,18,1,1,1,0,1,1,54124,2,5,0,0,8,0,0,17,18,1,1,1,0,1,1,54124,2,5,0,0,8,0,0,17,18,1,1,1,0,1,1,54124,2,5,0,0,8,0,0,17,18,1,1,1,0,1,1,54124,2,5,0,0,8,0,0,17,18,1,1,1,0,1,1,54124,2,5,0,0,8,0,0,17,18,1,1,1,0,1,1,54124,2,5,0,0,8,0,0,17,18,1,1,1,0,1,1,54124,2,5,0,0,8,0,0
 # Second test case. Special feature - without treating non-canonical pairs, this model has two separate strands. It should be represented as 1 entry,though.
-2KBP.cif,FIRST,MC_ANNOTATE,IGNORE,true,USE_PSEUDOKNOTS,VARNA,24,25,2,0,0,0,0,0,0,14,0,13,7,10,2,4
+2KBP.cif,FIRST,MC_ANNOTATE,IGNORE,true,USE_PSEUDOKNOTS,VARNA,24,25,2,0,0,0,0,0,0,2,0,13,7,10,2,4
 # Third test case. Checking output attributes when treating non-canonical pairs, compared to 3rd test case
-2KBP.cif,FIRST,MC_ANNOTATE,TEXT_AND_VISUALIZATION,true,USE_PSEUDOKNOTS,VARNA,24,25,2,0,0,0,0,0,0,14,0,6,7,10,2,4
+2KBP.cif,FIRST,MC_ANNOTATE,TEXT_AND_VISUALIZATION,true,USE_PSEUDOKNOTS,VARNA,24,25,2,0,0,0,0,0,0,2,0,6,7,10,2,4
