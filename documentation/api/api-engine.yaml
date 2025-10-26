@@ -5,26 +5,25 @@ info:
   version: "1.0.18"
   title: "RNApdbee Engine API"
 
-
 tags:
   - name: "Calculations"
     description: "RNApdbee engine API which is able to perform sequential calculations"
 
 servers:
-  - url: '{protocol}://{URL}:{port}/calculation-api/v1/'
+  - url: "{protocol}://{URL}:{port}/calculation-api/v1/"
     variables:
       port:
         enum:
-          - '8080'
-          - '8081'
-        default: '8080'
+          - "8080"
+          - "8081"
+        default: "8080"
       URL:
-        default: 'localhost'
+        default: "localhost"
       protocol:
         enum:
-          - 'http'
-          - 'https'
-        default: 'http'
+          - "http"
+          - "https"
+        default: "http"
 
 paths:
   /3d:
@@ -120,14 +119,13 @@ paths:
 
 components:
   parameters:
-
     modelSelection:
       in: query
       name: modelSelection
       required: true
       schema:
         type: "string"
-        enum: [ "FIRST", "ALL" ]
+        enum: ["FIRST", "ALL"]
 
     optionalModelSelection:
       in: query
@@ -135,7 +133,7 @@ components:
       schema:
         type: "string"
         default: "FIRST"
-        enum: [ "FIRST", "ALL" ]
+        enum: ["FIRST", "ALL"]
 
     analysisTool:
       in: query
@@ -150,6 +148,7 @@ components:
           - "BARNABA"
           - "RNAVIEW"
           - "MC_ANNOTATE"
+          - "MAXIT"
     nonCanonicalHandling:
       in: query
       name: nonCanonicalHandling
@@ -166,28 +165,28 @@ components:
       required: true
       schema:
         type: "boolean"
-        enum: [ true, false ]
+        enum: [true, false]
     includeNonCanonical:
       in: query
       name: includeNonCanonical
       required: true
       schema:
         type: "boolean"
-        enum: [ true, false ]
+        enum: [true, false]
     structuralElementsHandling:
       in: query
       name: structuralElementsHandling
       required: true
       schema:
         type: "string"
-        enum: [ "USE_PSEUDOKNOTS", "IGNORE_PSEUDOKNOTS" ]
+        enum: ["USE_PSEUDOKNOTS", "IGNORE_PSEUDOKNOTS"]
     visualizationTool:
       in: query
       name: visualizationTool
       required: true
       schema:
         type: "string"
-        enum: [ "RNA_PUZZLER", "VARNA", "PSEUDO_VIEWER", "R_CHIE", "NONE" ]
+        enum: ["RNA_PUZZLER", "VARNA", "PSEUDO_VIEWER", "R_CHIE", "NONE"]
     contentDispositionHeader:
       in: header
       name: Content-Disposition
@@ -532,11 +531,17 @@ components:
 
     VisualizationTool:
       type: "string"
-      enum: [ "VARNA", "PSEUDO_VIEWER", "R_CHIE", "RNA_PUZZLER", "NONE" ]
+      enum: ["VARNA", "PSEUDO_VIEWER", "R_CHIE", "RNA_PUZZLER", "NONE"]
 
     DrawingResult:
       type: "string"
-      enum: [ "DONE_BY_MAIN_DRAWER", "DONE_BY_BACKUP_DRAWER", "FAILED_BY_BOTH_DRAWERS", "NOT_DRAWN" ]
+      enum:
+        [
+          "DONE_BY_MAIN_DRAWER",
+          "DONE_BY_BACKUP_DRAWER",
+          "FAILED_BY_BOTH_DRAWERS",
+          "NOT_DRAWN",
+        ]
 
 externalDocs:
   description: "Find out more about Swagger"

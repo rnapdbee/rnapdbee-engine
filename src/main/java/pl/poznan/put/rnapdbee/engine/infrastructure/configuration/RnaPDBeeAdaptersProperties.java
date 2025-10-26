@@ -42,6 +42,8 @@ public class RnaPDBeeAdaptersProperties {
     private String pseudoViewerPath;
     @Value("${rnapdbee.adapters.global.rnapuzzler.path}")
     private String rnaPuzzlerPath;
+    @Value("${rnapdbee.adapters.global.maxit.path}")
+    private String maxitPath;
 
     public Integer getMaxConnections() {
         return maxConnections;
@@ -113,5 +115,9 @@ public class RnaPDBeeAdaptersProperties {
 
     public String getRnaPuzzlerPath() {
         return rnaPuzzlerPath;
+    }
+
+    public String getMaxitPath() {
+        return maxitPath;
     }
 }

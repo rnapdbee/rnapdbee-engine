@@ -16,6 +16,7 @@ import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.Fr3dBasePairAnalyz
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.MCAnnotateBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.RnaViewBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.RnapolisBasePairAnalyzer;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.MaxitBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.service.BasePairAnalyzerFactory;
 import pl.poznan.put.rnapdbee.engine.testhelp.shared.AbstractTertiaryStructureAnalysisTestingClass;
 import pl.poznan.put.rnapdbee.engine.testhelp.shared.configuration.TestConverterConfiguration;
@@ -32,12 +33,11 @@ import java.util.List;
 
 import static org.mockito.Mockito.when;
 
-
 @SpringBootTest
 @ActiveProfiles("test")
 @ContextConfiguration(classes = {
         AbstractTertiaryStructureAnalysisTestingClass.BeansReplacement.class,
-        TestConverterConfiguration.class})
+        TestConverterConfiguration.class })
 class TertiaryStructureAnalysisServiceIntegrationTest extends AbstractTertiaryStructureAnalysisTestingClass {
 
     @Autowired
@@ -55,6 +55,8 @@ class TertiaryStructureAnalysisServiceIntegrationTest extends AbstractTertiarySt
     RnapolisBasePairAnalyzer rnapolisBasePairAnalyzer;
     @Autowired
     Fr3dBasePairAnalyzer fr3dBasePairAnalyzer;
+    @Autowired
+    MaxitBasePairAnalyzer maxitBasePairAnalyzer;
 
     @MockBean
     BasePairAnalyzerFactory basePairAnalyzerFactory;
@@ -63,14 +65,13 @@ class TertiaryStructureAnalysisServiceIntegrationTest extends AbstractTertiarySt
     @CsvFileSource(resources = "/3dToSecondaryTestCases.csv")
     @Timeout(60)
     void testTertiaryToDotBracketNotationAnalysis(String exampleFilename,
-                                                  ModelSelection modelSelection,
-                                                  AnalysisTool analysisTool,
-                                                  NonCanonicalHandling nonCanonicalHandling,
-                                                  boolean removeIsolated,
-                                                  StructuralElementsHandling structuralElementsHandling,
-                                                  VisualizationTool visualizationTool,
-                                                  @AggregateWith(TertiaryAnalysisOutputTestInformationAggregator.class)
-                                                  List<TertiaryAnalysisOutputTestInformation> expectedInformationList) {
+            ModelSelection modelSelection,
+            AnalysisTool analysisTool,
+            NonCanonicalHandling nonCanonicalHandling,
+            boolean removeIsolated,
+            StructuralElementsHandling structuralElementsHandling,
+            VisualizationTool visualizationTool,
+            @AggregateWith(TertiaryAnalysisOutputTestInformationAggregator.class) List<TertiaryAnalysisOutputTestInformation> expectedInformationList) {
         when(basePairAnalyzerFactory.provideBasePairAnalyzer(analysisTool))
                 .thenReturn(prepareMockBasePairAnalyzer(analysisTool));
         prepareMockWebServerStubs(exampleFilename);
@@ -100,6 +101,8 @@ class TertiaryStructureAnalysisServiceIntegrationTest extends AbstractTertiarySt
                 return mcAnnotateBasePairAnalyzer;
             case RNAPOLIS:
                 return rnapolisBasePairAnalyzer;
+            case MAXIT:
+                return maxitBasePairAnalyzer;
             default:
                 throw new IllegalArgumentException("unhandled enum passed to provideBasePairAnalyzer method");
         }
@@ -115,5 +118,6 @@ class TertiaryStructureAnalysisServiceIntegrationTest extends AbstractTertiarySt
         RNAVIEW_RESPONSE_MOCK_PATH_FORMAT = "/3DToSecondaryMocks/%s/rnaview_response.json";
         RNAPOLIS_RESPONSE_MOCK_PATH_FORMAT = "/3DToSecondaryMocks/%s/rnapolis_response.json";
         FR3D_RESPONSE_MOCK_PATH_FORMAT = "/3DToSecondaryMocks/%s/fr3d_response.json";
+        MAXIT_RESPONSE_MOCK_PATH_FORMAT = "/3DToSecondaryMocks/%s/maxit_response.json";
     }
 }
