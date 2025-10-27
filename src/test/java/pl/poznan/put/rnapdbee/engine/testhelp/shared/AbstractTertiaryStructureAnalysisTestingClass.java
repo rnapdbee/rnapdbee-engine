@@ -56,7 +56,10 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
     protected String FR3D_RESPONSE_MOCK_PATH_FORMAT;
     protected String MAXIT_RESPONSE_MOCK_PATH_FORMAT;
 
-    private final String MOCKED_WEBLOGO_RESPONSE = "mock";
+    // Minimal valid SVG content so the adapters visualization mock returns parsable
+    // bytes
+    private final String MOCKED_WEBLOGO_RESPONSE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\"></svg>";
 
     protected String readFileContentFromFile(String exampleFilename) {
         if (exampleFilename.contains(".pdb")) {
