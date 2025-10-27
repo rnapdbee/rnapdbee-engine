@@ -10,19 +10,19 @@ import java.util.List;
  */
 public class AdaptersAnalysisDTO {
 
-    @JsonProperty("basePairs")
+    @JsonProperty("base_pairs")
     private List<BasePairDTO> basePairs;
 
     @JsonProperty("stackings")
     private List<BasePairDTO> stackings;
 
-    @JsonProperty("baseRiboseInteractions")
+    @JsonProperty("base_ribose_interactions")
     private List<BasePairDTO> baseRiboseInteractions;
 
-    @JsonProperty("basePhosphateInteractions")
+    @JsonProperty("base_phosphate_interactions")
     private List<BasePairDTO> basePhosphateInteractions;
 
-    @JsonProperty("otherInteractions")
+    @JsonProperty("other_interactions")
     private List<BasePairDTO> other;
 
     public List<BasePairDTO> getBasePairs() {

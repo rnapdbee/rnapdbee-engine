@@ -1,8 +1,20 @@
-# syntax=docker/dockerfile:1
-FROM ubuntu:20.04
-ENV DEBIAN_FRONTEND=noninteractive
+FROM maven:3.9.11-eclipse-temurin-17-alpine AS builder
 
-# Set application environment variables
+WORKDIR /app
+
+COPY pom.xml /app/pom.xml
+
+RUN mvn dependency:resolve -DskipTests -B
+
+COPY src /app/src
+
+RUN mvn clean test --no-transfer-progress -B \
+ && mvn package -Pdev --no-transfer-progress -DskipTests -B
+
+#######################################
+
+FROM eclipse-temurin:25-alpine
+
 ENV CACHE_EVICT_SPAN_MILLISECONDS=3600000 \
     ADAPTERS_HOST=http://rnapdbee-adapters-container \
     RNAPDBEE_ADAPTERS_MONO_CACHE_DURATION=3600 \
@@ -12,25 +24,8 @@ ENV CACHE_EVICT_SPAN_MILLISECONDS=3600000 \
     RNAPDBEE_ADAPTERS_PENDING_ACQUIRE_TIMEOUT=60 \
     RNAPDBEE_ADAPTERS_EVICT_IN_BACKGROUND=120
 
-# Install OpenJDK-11, Maven and curl
-RUN apt-get update -y && \
-    apt-get install -y openjdk-11-jre-headless \
-            maven \
-            curl && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Run tests build jar with dev Spring profile
-COPY src /home/app/src
-COPY pom.xml /home/app
-RUN mvn -f /home/app/pom.xml clean test --no-transfer-progress && \
-    mvn -f /home/app/pom.xml clean package -Pdev --no-transfer-progress -Dmaven.test.skip=true && \
-    mv /home/app/target/rnapdbee-engine-0.0.1-SNAPSHOT.jar /app.jar && \
-    rm -rf /home/app
-
-# Copy & set entrypoint to jar file
 EXPOSE 8081
-ENTRYPOINT ["java", \
-            "-XX:+ExitOnOutOfMemoryError", \
-            "-jar", \
-            "/app.jar"]
+
+COPY --from=builder /app/target/rnapdbee-engine-0.0.1-SNAPSHOT.jar /app.jar
+
+ENTRYPOINT ["java", "-XX:+ExitOnOutOfMemoryError", "-jar", "/app.jar"]
