@@ -1,7 +1,5 @@
 package pl.poznan.put.rnapdbee.engine.shared.basepair.boundary;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.poznan.put.notation.BPh;
@@ -44,7 +42,8 @@ import static pl.poznan.put.rnapdbee.engine.shared.basepair.domain.StackingTopol
 public abstract class BasePairAnalyzer {
 
         protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
-        protected final RnaPDBeeAdaptersCaller rnapdbeeAdaptersCaller;
+        private final RnaPDBeeAdaptersCaller rnapdbeeAdaptersCaller;
+
 
         public abstract AnalysisTool analysisTool();
 
@@ -56,13 +55,29 @@ public abstract class BasePairAnalyzer {
         protected BasePairAnalysis performAnalysis(String fileContent, boolean includeNonCanonical,
                         PdbModel structureModel)
                         throws AdaptersErrorException {
-                LOGGER.info(String.format("base pair analysis started for model number %s",
-                                structureModel.modelNumber()));
-                AdaptersAnalysisDTO adaptersAnalysis = rnapdbeeAdaptersCaller.performBasePairAnalysis(
-                                fileContent, analysisTool(), structureModel.modelNumber());
-                LOGGER.info(String.format("base pair analysis finished for model number %s",
-                                structureModel.modelNumber()));
-                return performPostAnalysisOnResponseFromAdapter(adaptersAnalysis, includeNonCanonical, structureModel);
+                LOGGER.info("Base pair analysis started for model number {} with tool {}",
+                                structureModel.modelNumber(), analysisTool());
+                try {
+                        AdaptersAnalysisDTO adaptersAnalysis = rnapdbeeAdaptersCaller.performBasePairAnalysis(
+                                        fileContent, analysisTool(), structureModel.modelNumber());
+                        LOGGER.debug("Received adapter response: {}", adaptersAnalysis);
+
+                        if (adaptersAnalysis == null) {
+                                throw new AdaptersErrorException("Null response from adapter");
+                        }
+                        if (adaptersAnalysis.getBasePairs() == null) {
+                                throw new AdaptersErrorException("Null base pairs in adapter response");
+                        }
+
+                        LOGGER.info("Base pair analysis finished for model number {} with {} base pairs",
+                                        structureModel.modelNumber(), adaptersAnalysis.getBasePairs().size());
+
+                        return performPostAnalysisOnResponseFromAdapter(adaptersAnalysis, includeNonCanonical,
+                                        structureModel);
+                } catch (Exception e) {
+                        LOGGER.error("Error during base pair analysis", e);
+                        throw e;
+                }
         }
 
         /**
