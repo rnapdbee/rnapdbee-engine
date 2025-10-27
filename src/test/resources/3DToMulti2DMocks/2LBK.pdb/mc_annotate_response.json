@@ -1,5 +1,5 @@
 {
-  "basePairs": [
+  "base_pairs": [
     {
       "nt1": {
         "label": null,
@@ -281,7 +281,7 @@
       "topology": "upward"
     }
   ],
-  "baseRiboseInteractions": [],
-  "basePhosphateInteractions": [],
-  "otherInteractions": []
+  "base_ribose_interactions": [],
+  "base_phosphate_interactions": [],
+  "other_interactions": []
 }
