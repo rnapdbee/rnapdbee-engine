@@ -21,6 +21,7 @@ public class AdaptersAnalysisDTO {
     @JsonProperty("base_phosphate_interactions")
     @JsonAlias("basePhosphateInteractions")
     private List<BasePairDTO> basePhosphateInteractions;
+
     @JsonProperty("other_interactions")
     private List<BasePairDTO> other;
 
