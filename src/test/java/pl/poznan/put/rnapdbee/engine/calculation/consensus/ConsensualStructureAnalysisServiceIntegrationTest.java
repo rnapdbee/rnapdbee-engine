@@ -16,6 +16,7 @@ import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.Fr3dBasePairAnalyz
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.MCAnnotateBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.RnaViewBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.RnapolisBasePairAnalyzer;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.MaxitBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.service.BasePairAnalyzerFactory;
 import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.testhelp.shared.AbstractTertiaryStructureAnalysisTestingClass;
@@ -33,61 +34,66 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 @ActiveProfiles("test")
 @ContextConfiguration(classes = {
-        AbstractTertiaryStructureAnalysisTestingClass.BeansReplacement.class,
-        TestConverterConfiguration.class})
+                AbstractTertiaryStructureAnalysisTestingClass.BeansReplacement.class,
+                TestConverterConfiguration.class })
 class ConsensualStructureAnalysisServiceIntegrationTest extends AbstractTertiaryStructureAnalysisTestingClass {
 
-    @Autowired
-    ConsensualStructureAnalysisService cut;
+        @Autowired
+        ConsensualStructureAnalysisService cut;
 
-    @Autowired
-    BarnabaBasePairAnalyzer barnabaBasePairAnalyzer;
-    @Autowired
-    BPNetBasePairAnalyzer bpNetBasePairAnalyzer;
-    @Autowired
-    MCAnnotateBasePairAnalyzer mcAnnotateBasePairAnalyzer;
-    @Autowired
-    RnaViewBasePairAnalyzer rnaViewBasePairAnalyzer;
-    @Autowired
-    RnapolisBasePairAnalyzer rnapolisBasePairAnalyzer;
-    @Autowired
-    Fr3dBasePairAnalyzer fr3dBasePairAnalyzer;
+        @Autowired
+        BarnabaBasePairAnalyzer barnabaBasePairAnalyzer;
+        @Autowired
+        BPNetBasePairAnalyzer bpNetBasePairAnalyzer;
+        @Autowired
+        MCAnnotateBasePairAnalyzer mcAnnotateBasePairAnalyzer;
+        @Autowired
+        RnaViewBasePairAnalyzer rnaViewBasePairAnalyzer;
+        @Autowired
+        RnapolisBasePairAnalyzer rnapolisBasePairAnalyzer;
+        @Autowired
+        Fr3dBasePairAnalyzer fr3dBasePairAnalyzer;
+        @Autowired
+        MaxitBasePairAnalyzer maxitBasePairAnalyzer;
 
-    @MockBean
-    BasePairAnalyzerFactory basePairAnalyzerFactory;
+        @MockBean
+        BasePairAnalyzerFactory basePairAnalyzerFactory;
 
-    @ParameterizedTest
-    @CsvFileSource(resources = "/3dToMulti2DTestCases.csv")
-    @Timeout(60)
-    void testConsensualAnalysis(String exampleFilename, ModelSelection modelSelection, boolean includeNonCanonical,
-                                boolean removeIsolated, VisualizationTool visualizationTool,
-                                @AggregateWith(ConsensualAnalysisTestInformationAggregator.class)
-                                List<ConsensualAnalysisTestInformation> expectedInformationList) {
-        when(basePairAnalyzerFactory.prepareAnalyzerPairs())
-                .thenReturn(List.of(
-                        Pair.of(AnalysisTool.MC_ANNOTATE, mcAnnotateBasePairAnalyzer),
-                        Pair.of(AnalysisTool.FR3D_PYTHON, fr3dBasePairAnalyzer),
-                        Pair.of(AnalysisTool.BARNABA, barnabaBasePairAnalyzer),
-                        Pair.of(AnalysisTool.BPNET, bpNetBasePairAnalyzer),
-                        Pair.of(AnalysisTool.RNAVIEW, rnaViewBasePairAnalyzer),
-                        Pair.of(AnalysisTool.RNAPOLIS, rnapolisBasePairAnalyzer)
-                ));
-        prepareMockWebServerStubs(exampleFilename);
-        String fileContent = readFileContentFromFile(exampleFilename);
-        var result = cut.analyze(modelSelection, includeNonCanonical, removeIsolated, visualizationTool, exampleFilename, fileContent);
-        // TODO: add assertions for adapterEnums when rnapdbee-common code is merged with rnapdbee-engine
-        ConsensualAnalysisTestUtils.assertAnalysisOutput(result, expectedInformationList);
-    }
+        @ParameterizedTest
+        @CsvFileSource(resources = "/3dToMulti2DTestCases.csv")
+        @Timeout(60)
+        void testConsensualAnalysis(String exampleFilename, ModelSelection modelSelection, boolean includeNonCanonical,
+                        boolean removeIsolated, VisualizationTool visualizationTool,
+                        @AggregateWith(ConsensualAnalysisTestInformationAggregator.class) List<ConsensualAnalysisTestInformation> expectedInformationList) {
+                when(basePairAnalyzerFactory.prepareAnalyzerPairs())
+                                .thenReturn(List.of(
+                                                Pair.of(AnalysisTool.MC_ANNOTATE, mcAnnotateBasePairAnalyzer),
+                                                Pair.of(AnalysisTool.FR3D_PYTHON, fr3dBasePairAnalyzer),
+                                                Pair.of(AnalysisTool.BARNABA, barnabaBasePairAnalyzer),
+                                                Pair.of(AnalysisTool.BPNET, bpNetBasePairAnalyzer),
+                                                Pair.of(AnalysisTool.RNAVIEW, rnaViewBasePairAnalyzer),
+                                                Pair.of(AnalysisTool.RNAPOLIS, rnapolisBasePairAnalyzer),
+                                                Pair.of(AnalysisTool.MAXIT, maxitBasePairAnalyzer)));
+                prepareMockWebServerStubs(exampleFilename);
+                String fileContent = readFileContentFromFile(exampleFilename);
+                var result = cut.analyze(modelSelection, includeNonCanonical, removeIsolated, visualizationTool,
+                                exampleFilename, fileContent);
+                // TODO: add assertions for adapterEnums when rnapdbee-common code is merged
+                // with rnapdbee-engine
+                ConsensualAnalysisTestUtils.assertAnalysisOutput(result, expectedInformationList);
+        }
 
-    ConsensualStructureAnalysisServiceIntegrationTest() {
-        EXAMPLE_PDB_FILE_PATH_FORMAT = "/3DToMulti2DMocks/%s/pdbfile.pdb";
-        EXAMPLE_CIF_FILE_PATH_FORMAT = "/3DToMulti2DMocks/%s/mmciffile.cif";
+        ConsensualStructureAnalysisServiceIntegrationTest() {
+                EXAMPLE_PDB_FILE_PATH_FORMAT = "/3DToMulti2DMocks/%s/pdbfile.pdb";
+                EXAMPLE_CIF_FILE_PATH_FORMAT = "/3DToMulti2DMocks/%s/mmciffile.cif";
 
-        BARNABA_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/barnaba_response.json";
-        BPNET_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/bpnet_response.json";
-        MC_ANNOTATE_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/mc_annotate_response.json";
-        RNAVIEW_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/rnaview_response.json";
-        RNAPOLIS_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/rnapolis_response.json";
-        FR3D_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/fr3d_response.json";
-    }
+                BARNABA_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/barnaba_response.json";
+                MAXIT_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/maxit_response.json";
+                BPNET_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/bpnet_response.json";
+                MC_ANNOTATE_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/mc_annotate_response.json";
+                RNAVIEW_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/rnaview_response.json";
+                RNAPOLIS_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/rnapolis_response.json";
+                FR3D_RESPONSE_MOCK_PATH_FORMAT = "/3DToMulti2DMocks/%s/fr3d_response.json";
+
+        }
 }

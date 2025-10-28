@@ -25,6 +25,8 @@ public class PathDeterminer {
                 return properties.getRnapolisPath();
             case FR3D_PYTHON:
                 return properties.getFr3dPath();
+            case MAXIT:
+                return properties.getMaxitPath();
             default:
                 throw new IllegalArgumentException("received analysisTool not supported by rnapdbee-adapters");
         }

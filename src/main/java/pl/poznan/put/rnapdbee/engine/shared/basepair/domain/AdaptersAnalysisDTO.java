@@ -1,9 +1,8 @@
 package pl.poznan.put.rnapdbee.engine.shared.basepair.domain;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import java.util.List;
-
 
 /**
  * DTO class for AdaptersAnalysisDTO
@@ -20,6 +19,7 @@ public class AdaptersAnalysisDTO {
     private List<BasePairDTO> baseRiboseInteractions;
 
     @JsonProperty("base_phosphate_interactions")
+    @JsonAlias("basePhosphateInteractions")
     private List<BasePairDTO> basePhosphateInteractions;
 
     @JsonProperty("other_interactions")

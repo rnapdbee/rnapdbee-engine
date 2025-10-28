@@ -1,6 +1,5 @@
 package pl.poznan.put.rnapdbee.engine.shared.domain;
 
-
 /**
  * Enum for base pair analyzers supported by rnapdbee 3.0.
  */
@@ -10,5 +9,6 @@ public enum AnalysisTool {
     BARNABA,
     RNAVIEW,
     MC_ANNOTATE,
-    RNAPOLIS
+    RNAPOLIS,
+    MAXIT
 }

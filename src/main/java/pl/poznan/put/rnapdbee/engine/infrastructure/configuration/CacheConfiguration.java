@@ -27,7 +27,8 @@ public class CacheConfiguration {
             "AnalysisFr3d",
             "AnalysisMCAnnotate",
             "AnalysisRNAPolis",
-            "AnalysisRnaView"
+            "AnalysisRnaView",
+            "AnalysisMaxit"
     }, allEntries = true)
     @Scheduled(fixedRateString = "${scheduler.caching.remove-cache-entries.milliseconds}")
     public void emptyCache() {

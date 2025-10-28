@@ -23,6 +23,7 @@ import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.MCAnnotateBasePair
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.RnaViewBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.RnapolisBasePairAnalyzer;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.MaxitBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.infrastructure.configuration.AdapterWebClientConfiguration;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.component.PathDeterminer;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
@@ -35,9 +36,11 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
- * Abstract testing Class mocking the calls to rnapdbee-adapters thanks to {@link MockWebServer}.
+ * Abstract testing Class mocking the calls to rnapdbee-adapters thanks to
+ * {@link MockWebServer}.
  * Overrides {@link BasePairAnalyzer} beans with beans that
- * depends on state of mockWebServer. Cleanup of those beans is assured by usage of {@link DirtiesContext} annotation.
+ * depends on state of mockWebServer. Cleanup of those beans is assured by usage
+ * of {@link DirtiesContext} annotation.
  */
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public abstract class AbstractTertiaryStructureAnalysisTestingClass {
@@ -51,8 +54,12 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
     protected String RNAVIEW_RESPONSE_MOCK_PATH_FORMAT;
     protected String RNAPOLIS_RESPONSE_MOCK_PATH_FORMAT;
     protected String FR3D_RESPONSE_MOCK_PATH_FORMAT;
+    protected String MAXIT_RESPONSE_MOCK_PATH_FORMAT;
 
-    private final String MOCKED_WEBLOGO_RESPONSE = "mock";
+    // Minimal valid SVG content so the adapters visualization mock returns parsable
+    // bytes
+    private final String MOCKED_WEBLOGO_RESPONSE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\"></svg>";
 
     protected String readFileContentFromFile(String exampleFilename) {
         if (exampleFilename.contains(".pdb")) {
@@ -85,7 +92,8 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
                     return new MockResponse()
                             .setResponseCode(200)
                             .addHeader("Content-Type", MediaType.APPLICATION_JSON)
-                            .setBody(readFileAsString(String.format(BARNABA_RESPONSE_MOCK_PATH_FORMAT, exampleFileName)));
+                            .setBody(readFileAsString(
+                                    String.format(BARNABA_RESPONSE_MOCK_PATH_FORMAT, exampleFileName)));
                 }
                 if ("/analysis-api/v1/bpnet".equals(request.getPath())) {
                     return new MockResponse()
@@ -97,19 +105,22 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
                     return new MockResponse()
                             .setResponseCode(200)
                             .addHeader("Content-Type", MediaType.APPLICATION_JSON)
-                            .setBody(readFileAsString(String.format(MC_ANNOTATE_RESPONSE_MOCK_PATH_FORMAT, exampleFileName)));
+                            .setBody(readFileAsString(
+                                    String.format(MC_ANNOTATE_RESPONSE_MOCK_PATH_FORMAT, exampleFileName)));
                 }
                 if ("/analysis-api/v1/rnaview".equals(request.getPath())) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .addHeader("Content-Type", MediaType.APPLICATION_JSON)
-                            .setBody(readFileAsString(String.format(RNAVIEW_RESPONSE_MOCK_PATH_FORMAT, exampleFileName)));
+                            .setBody(readFileAsString(
+                                    String.format(RNAVIEW_RESPONSE_MOCK_PATH_FORMAT, exampleFileName)));
                 }
                 if ("/analysis-api/v1/rnapolis".equals(request.getPath())) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .addHeader("Content-Type", MediaType.APPLICATION_JSON)
-                            .setBody(readFileAsString(String.format(RNAPOLIS_RESPONSE_MOCK_PATH_FORMAT, exampleFileName)));
+                            .setBody(readFileAsString(
+                                    String.format(RNAPOLIS_RESPONSE_MOCK_PATH_FORMAT, exampleFileName)));
                 }
                 if ("/analysis-api/v1/fr3d".equals(request.getPath())) {
                     return new MockResponse()
@@ -117,12 +128,19 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
                             .addHeader("Content-Type", MediaType.APPLICATION_JSON)
                             .setBody(readFileAsString(String.format(FR3D_RESPONSE_MOCK_PATH_FORMAT, exampleFileName)));
                 }
+                if ("/analysis-api/v1/maxit".equals(request.getPath())) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .addHeader("Content-Type", MediaType.APPLICATION_JSON)
+                            .setBody(readFileAsString(String.format(MAXIT_RESPONSE_MOCK_PATH_FORMAT, exampleFileName)));
+                }
                 if ("/visualization-api/v1/weblogo".equals(request.getPath())) {
                     return new MockResponse()
                             .setResponseCode(200)
                             .addHeader("Content-Type", "image/svg+xml")
                             .setBody(MOCKED_WEBLOGO_RESPONSE);
                 }
+
                 return new MockResponse().setResponseCode(404);
             }
         };
@@ -150,9 +168,9 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
                 .exchangeStrategies(AdapterWebClientConfiguration.EXCHANGE_STRATEGIES)
                 .build();
 
-        Supplier<RnaPDBeeAdaptersCaller> mockedRnapdbeeAdaptersCallerSupplier =
-                () -> new RnaPDBeeAdaptersCaller(rnapdbeeAdaptersProperties, mockedWebClientSupplier.get(),
-                        pathDeterminer);
+        Supplier<RnaPDBeeAdaptersCaller> mockedRnapdbeeAdaptersCallerSupplier = () -> new RnaPDBeeAdaptersCaller(
+                rnapdbeeAdaptersProperties, mockedWebClientSupplier.get(),
+                pathDeterminer);
 
         @Primary
         @Bean
@@ -184,11 +202,16 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
             return new RnapolisBasePairAnalyzer(mockedRnapdbeeAdaptersCallerSupplier.get());
         }
 
-
         @Primary
         @Bean
         Fr3dBasePairAnalyzer mockFr3dBasePairAnalyzer() {
             return new Fr3dBasePairAnalyzer(mockedRnapdbeeAdaptersCallerSupplier.get());
+        }
+
+        @Primary
+        @Bean
+        MaxitBasePairAnalyzer mockMaxitBasePairAnalyzer() {
+            return new MaxitBasePairAnalyzer(mockedRnapdbeeAdaptersCallerSupplier.get());
         }
 
         @Primary
