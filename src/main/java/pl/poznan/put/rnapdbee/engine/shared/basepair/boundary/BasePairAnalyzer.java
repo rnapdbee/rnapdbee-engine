@@ -112,7 +112,7 @@ public abstract class BasePairAnalyzer {
                                 .filter(BasePairDTO::isCanonical)
                                 .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair,
                                                 pairIdentifiersWithTheirShortNames))
-                                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair)
+                                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair.toBasePair())
                                                 .withInteractionType(InteractionType.BASE_BASE)
                                                 .withSaenger(basePair.getSaengerType() != null
                                                                 ? SaengerType.mapToBioCommonsForm(
@@ -130,7 +130,7 @@ public abstract class BasePairAnalyzer {
                                 .filter(basePair -> !basePair.isCanonical())
                                 .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair,
                                                 pairIdentifiersWithTheirShortNames))
-                                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair)
+                                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair.toBasePair())
                                                 .withInteractionType(InteractionType.BASE_BASE)
                                                 .withSaenger(basePair.getSaengerType() != null
                                                                 ? SaengerType.mapToBioCommonsForm(
@@ -147,7 +147,7 @@ public abstract class BasePairAnalyzer {
                 List<AnalyzedBasePair> stackings = responseFromAdapter.getStackings().stream()
                                 .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair,
                                                 pairIdentifiersWithTheirShortNames))
-                                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair)
+                                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair.toBasePair())
                                                 .withInteractionType(InteractionType.STACKING)
                                                 .withSaenger(Saenger.UNKNOWN)
                                                 .withLeontisWesthof(LeontisWesthof.UNKNOWN)
@@ -158,7 +158,7 @@ public abstract class BasePairAnalyzer {
                 List<AnalyzedBasePair> basePhosphate = responseFromAdapter.getBasePhosphateInteractions().stream()
                                 .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair,
                                                 pairIdentifiersWithTheirShortNames))
-                                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair)
+                                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair.toBasePair())
                                                 .withInteractionType(InteractionType.BASE_PHOSPHATE)
                                                 .withSaenger(Saenger.UNKNOWN)
                                                 .withLeontisWesthof(LeontisWesthof.UNKNOWN)
@@ -169,7 +169,7 @@ public abstract class BasePairAnalyzer {
                 List<AnalyzedBasePair> baseRibose = responseFromAdapter.getBaseRiboseInteractions().stream()
                                 .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair,
                                                 pairIdentifiersWithTheirShortNames))
-                                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair)
+                                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair.toBasePair())
                                                 .withInteractionType(InteractionType.BASE_RIBOSE)
                                                 .withSaenger(Saenger.UNKNOWN)
                                                 .withLeontisWesthof(LeontisWesthof.UNKNOWN)
@@ -180,7 +180,7 @@ public abstract class BasePairAnalyzer {
                 List<AnalyzedBasePair> otherInteractions = responseFromAdapter.getOther().stream()
                                 .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair,
                                                 pairIdentifiersWithTheirShortNames))
-                                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair)
+                                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair.toBasePair())
                                                 .withInteractionType(InteractionType.OTHER)
                                                 .withSaenger(Saenger.UNKNOWN)
                                                 .withLeontisWesthof(LeontisWesthof.UNKNOWN)
@@ -191,7 +191,7 @@ public abstract class BasePairAnalyzer {
                 List<AnalyzedBasePair> interStrand = responseFromAdapter.getBasePairs().stream()
                                 .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair,
                                                 pairIdentifiersWithTheirShortNames))
-                                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair)
+                                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair.toBasePair())
                                                 .withInteractionType(InteractionType.BASE_BASE)
                                                 .withSaenger(basePair.getSaengerType() != null
                                                                 ? SaengerType.mapToBioCommonsForm(

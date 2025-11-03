@@ -19,11 +19,13 @@ public class AdaptersAnalysisDTO {
     private List<BasePairDTO> baseRiboseInteractions;
 
     @JsonProperty("base_phosphate_interactions")
-    @JsonAlias("basePhosphateInteractions")
     private List<BasePairDTO> basePhosphateInteractions;
 
     @JsonProperty("other_interactions")
     private List<BasePairDTO> other;
+
+    public AdaptersAnalysisDTO() {
+    }
 
     public List<BasePairDTO> getBasePairs() {
         return basePairs;
@@ -45,4 +47,23 @@ public class AdaptersAnalysisDTO {
         return other;
     }
 
+    public void setBasePairs(List<BasePairDTO> basePairs) {
+        this.basePairs = basePairs;
+    }
+
+    public void setStackings(List<BasePairDTO> stackings) {
+        this.stackings = stackings;
+    }
+
+    public void setBaseRiboseInteractions(List<BasePairDTO> baseRiboseInteractions) {
+        this.baseRiboseInteractions = baseRiboseInteractions;
+    }
+
+    public void setBasePhosphateInteractions(List<BasePairDTO> basePhosphateInteractions) {
+        this.basePhosphateInteractions = basePhosphateInteractions;
+    }
+
+    public void setOther(List<BasePairDTO> other) {
+        this.other = other;
+    }
 }

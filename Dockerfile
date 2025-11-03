@@ -13,7 +13,7 @@ RUN mvn clean test --no-transfer-progress -B \
 
 #######################################
 
-FROM eclipse-temurin:25-alpine
+FROM eclipse-temurin:17-alpine
 
 ENV CACHE_EVICT_SPAN_MILLISECONDS=3600000 \
     ADAPTERS_HOST=http://rnapdbee-adapters-container \

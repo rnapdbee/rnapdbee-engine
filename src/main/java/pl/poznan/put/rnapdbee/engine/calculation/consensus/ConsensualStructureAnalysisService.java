@@ -8,38 +8,26 @@ import org.springframework.stereotype.Component;
 import pl.poznan.put.pdb.analysis.MoleculeType;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.ConsensualVisualization;
-import pl.poznan.put.rnapdbee.engine.shared.exception.ConsensualVisualizationException;
-import pl.poznan.put.rnapdbee.engine.shared.exception.NoRnaModelsInFileException;
-import pl.poznan.put.rnapdbee.engine.shared.image.exception.VisualizationException;
-import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.ConsensualVisualizationDrawer;
 import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.OutputMulti;
 import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.OutputMultiEntry;
 import pl.poznan.put.rnapdbee.engine.calculation.secondary.domain.Output2D;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
-import pl.poznan.put.rnapdbee.engine.shared.basepair.service.BasePairAnalyzerFactory;
-import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
-import pl.poznan.put.rnapdbee.engine.shared.domain.InputType;
-import pl.poznan.put.rnapdbee.engine.shared.domain.InputTypeDeterminer;
-import pl.poznan.put.rnapdbee.engine.shared.domain.ModelSelection;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.exception.AdaptersErrorException;
-import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementOutput;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.service.BasePairAnalyzerFactory;
+import pl.poznan.put.rnapdbee.engine.shared.domain.*;
+import pl.poznan.put.rnapdbee.engine.shared.exception.ConsensualVisualizationException;
+import pl.poznan.put.rnapdbee.engine.shared.exception.NoRnaModelsInFileException;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
+import pl.poznan.put.rnapdbee.engine.shared.image.exception.VisualizationException;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.ImageService;
+import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.ConsensualVisualizationDrawer;
 import pl.poznan.put.rnapdbee.engine.shared.parser.TertiaryFileParser;
 import pl.poznan.put.structure.AnalyzedBasePair;
-import pl.poznan.put.structure.formats.BpSeq;
-import pl.poznan.put.structure.formats.Converter;
-import pl.poznan.put.structure.formats.Ct;
-import pl.poznan.put.structure.formats.DotBracket;
-import pl.poznan.put.structure.formats.ImmutableDefaultDotBracketFromPdb;
+import pl.poznan.put.structure.formats.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -55,13 +43,12 @@ public class ConsensualStructureAnalysisService {
             "Base pair analysis failed.";
     private static final String BASE_PAIR_ANALYSIS_FAILED_DEBUG_FORMAT =
             "Base pair analysis failed for visualizationTool %s, includeNonCanonical %s and modelNumber %s." +
-                    " Continuing analysis for other models & adapters. FileContent: %s";
+                    " Continuing analysis for other models & adapters";
     private static final String BIOCOMMONS_ERROR_MET =
             "BioCommons exception met when creating models out of base pair analysis.";
     private static final String BIOCOMMONS_ERROR_MET_DEBUG_FORMAT =
             "BioCommons exception met when creating models out of base pair analysis for visualizationTool %s, " +
-                    "includeNonCanonical %s and modelNumber %s. Continuing analysis for other models & adapters. " +
-                    "FileContent: %s";
+                    "includeNonCanonical %s and modelNumber %s. Continuing analysis for other models & adapters.";
 
     private final ImageService imageService;
     private final TertiaryFileParser tertiaryFileParser;
@@ -69,6 +56,21 @@ public class ConsensualStructureAnalysisService {
     private final InputTypeDeterminer inputTypeDeterminer;
     private final Converter converter;
     private final ConsensualVisualizationDrawer consensualVisualizationDrawer;
+
+    @Autowired
+    public ConsensualStructureAnalysisService(ImageService imageService,
+                                              TertiaryFileParser tertiaryFileParser,
+                                              BasePairAnalyzerFactory basePairAnalyzerFactory,
+                                              InputTypeDeterminer inputTypeDeterminer,
+                                              Converter converter,
+                                              ConsensualVisualizationDrawer consensualVisualizationDrawer) {
+        this.imageService = imageService;
+        this.tertiaryFileParser = tertiaryFileParser;
+        this.basePairAnalyzerFactory = basePairAnalyzerFactory;
+        this.inputTypeDeterminer = inputTypeDeterminer;
+        this.converter = converter;
+        this.consensualVisualizationDrawer = consensualVisualizationDrawer;
+    }
 
     /**
      * Performs 3D -> multi 2D analysis.
@@ -161,7 +163,7 @@ public class ConsensualStructureAnalysisService {
         } catch (AdaptersErrorException exception) {
             LOGGER.warn(BASE_PAIR_ANALYSIS_FAILED, exception);
             LOGGER.debug(String.format(BASE_PAIR_ANALYSIS_FAILED_DEBUG_FORMAT, visualizationTool, includeNonCanonical,
-                            rna.modelNumber(), fileContents),
+                            rna.modelNumber()),
                     exception);
             return;
         }
@@ -176,7 +178,7 @@ public class ConsensualStructureAnalysisService {
         } catch (IllegalArgumentException exception) {
             LOGGER.error(BIOCOMMONS_ERROR_MET, exception);
             LOGGER.debug(String.format(BIOCOMMONS_ERROR_MET_DEBUG_FORMAT, visualizationTool, includeNonCanonical,
-                            rna.modelNumber(), fileContents),
+                            rna.modelNumber()),
                     exception);
             return;
         }
@@ -211,20 +213,5 @@ public class ConsensualStructureAnalysisService {
                 .build();
 
         uniqueInputs.put(bpSeq, outputMultiEntry);
-    }
-
-    @Autowired
-    public ConsensualStructureAnalysisService(ImageService imageService,
-                                              TertiaryFileParser tertiaryFileParser,
-                                              BasePairAnalyzerFactory basePairAnalyzerFactory,
-                                              InputTypeDeterminer inputTypeDeterminer,
-                                              Converter converter,
-                                              ConsensualVisualizationDrawer consensualVisualizationDrawer) {
-        this.imageService = imageService;
-        this.tertiaryFileParser = tertiaryFileParser;
-        this.basePairAnalyzerFactory = basePairAnalyzerFactory;
-        this.inputTypeDeterminer = inputTypeDeterminer;
-        this.converter = converter;
-        this.consensualVisualizationDrawer = consensualVisualizationDrawer;
     }
 }

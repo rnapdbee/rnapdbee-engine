@@ -5,6 +5,7 @@ import pl.poznan.put.pdb.ImmutablePdbNamedResidueIdentifier;
 import pl.poznan.put.pdb.PdbNamedResidueIdentifier;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.ChainNumberKey;
 import pl.poznan.put.structure.BasePair;
+import pl.poznan.put.structure.ImmutableBasePair;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -18,7 +19,7 @@ import java.util.stream.Stream;
  * DTO class for BasePair
  * instances of this class are being returned by rnapdbee-adapters as array members.
  */
-public class BasePairDTO extends BasePair {
+public class BasePairDTO {
 
     private static final Set<String> CANONICAL_ONE_LETTER_NAME_SORTED_PAIRS = new HashSet<>(Arrays.asList("AU", "GU", "CG"));
 
@@ -71,12 +72,42 @@ public class BasePairDTO extends BasePair {
         return bph;
     }
 
-    @Override
+    public void setNt1(Residue nt1) {
+        this.nt1 = nt1;
+    }
+
+    public void setNt2(Residue nt2) {
+        this.nt2 = nt2;
+    }
+
+    public void setLeontisWesthofType(LeontisWesthofType leontisWesthofType) {
+        this.leontisWesthofType = leontisWesthofType;
+    }
+
+    public void setSaengerType(SaengerType saengerType) {
+        this.saengerType = saengerType;
+    }
+
+    public void setTopology(StackingTopology topology) {
+        this.topology = topology;
+    }
+
+    public void setBr(BaseRiboseType br) {
+        this.br = br;
+    }
+
+    public void setBph(BasePhosphateType bph) {
+        this.bph = bph;
+    }
+
+    public ImmutableBasePair toBasePair() {
+        return ImmutableBasePair.of(left(), right());
+    }
+
     public PdbNamedResidueIdentifier left() {
         return mapResidueToPdbNamedResidueIdentifier(nt1);
     }
 
-    @Override
     public PdbNamedResidueIdentifier right() {
         return mapResidueToPdbNamedResidueIdentifier(nt2);
     }

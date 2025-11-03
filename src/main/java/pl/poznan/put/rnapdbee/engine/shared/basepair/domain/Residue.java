@@ -26,6 +26,14 @@ public class Residue {
         return auth;
     }
 
+    public void setLabel(ResidueLabel label) {
+        this.label = label;
+    }
+
+    public void setAuth(ResidueAuth auth) {
+        this.auth = auth;
+    }
+
     public Residue() {
     }
 

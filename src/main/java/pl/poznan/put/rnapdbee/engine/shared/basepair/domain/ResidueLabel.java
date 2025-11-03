@@ -46,4 +46,16 @@ public class ResidueLabel {
     public String getName() {
         return name;
     }
+
+    public void setChainIdentifier(String chainIdentifier) {
+        this.chainIdentifier = chainIdentifier;
+    }
+
+    public void setResidueNumber(Integer residueNumber) {
+        this.residueNumber = residueNumber;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }
