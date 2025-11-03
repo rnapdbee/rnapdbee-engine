@@ -51,7 +51,7 @@ public class TertiaryStructureAnalysisService {
 
     private static final String BASE_PAIR_ANALYSIS_FAILED = "Base pair analysis failed";
     private static final String BASE_PAIR_ANALYSIS_FAILED_DEBUG_FORMAT = "Base pair analysis failed for "
-            + "analysisTool: %s, nonCanonicalHandling: %s, removeIsolated: %s, fileContent: %s rna: %s:";
+            + "analysisTool: %s, nonCanonicalHandling: %s, removeIsolated: %s, rna: %s:";
 
     private final BasePairAnalyzerFactory basePairAnalyzerFactory;
     private final ImageService imageService;
@@ -167,8 +167,7 @@ public class TertiaryStructureAnalysisService {
                             analysisTool,
                             nonCanonicalHandling,
                             removeIsolated,
-                            fileContent,
-                            rna),
+                            rna.title()),
                     exception);
             throw new BasePairAnalysisException();
         }
