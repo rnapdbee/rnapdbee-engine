@@ -22,7 +22,7 @@ public class TertiaryFileParser {
 
     // TODO: Are these classes are stateless?
     private final CifParser cifParser = new CifParser();
-    private final PdbParser pdbParser = new PdbParser(false);
+    private final PdbParser pdbParser = new PdbParser();
 
     @Nonnull
     @Cacheable("FileContents")

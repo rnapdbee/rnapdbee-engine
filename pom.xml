@@ -45,7 +45,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
-            <version>2.7.7</version>
         </dependency>
 
         <dependency>
@@ -61,7 +60,7 @@
         <dependency>
             <groupId>pl.poznan.put</groupId>
             <artifactId>BioCommons</artifactId>
-            <version>3.1.10</version>
+            <version>3.2.1</version>
         </dependency>
 
         <dependency>
@@ -105,21 +104,18 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>4.10.0</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>mockwebserver</artifactId>
-            <version>4.10.0</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-inline</artifactId>
-            <version>4.11.0</version>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
 
