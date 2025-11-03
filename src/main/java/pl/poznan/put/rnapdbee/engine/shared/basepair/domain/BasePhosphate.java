@@ -16,6 +16,9 @@ public class BasePhosphate {
     @JsonProperty("bph")
     private BasePhosphateType bph;
 
+    public BasePhosphate() {
+    }
+
     public Residue getNt1() {
         return nt1;
     }
@@ -28,4 +31,7 @@ public class BasePhosphate {
         return bph;
     }
 
+    public void setNt1(Residue nt1) {
+        this.nt1 = nt1;
+    }
 }

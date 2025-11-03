@@ -478,7 +478,7 @@
     }
   ],
   "base_ribose_interactions": [],
-  "basePhosphateInteractions": [],
+  "base_phosphate_interactions": [],
   "other_interactions": [
     {
       "nt1": {
