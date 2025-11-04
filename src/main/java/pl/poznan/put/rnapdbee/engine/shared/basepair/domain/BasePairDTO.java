@@ -3,14 +3,13 @@ package pl.poznan.put.rnapdbee.engine.shared.basepair.domain;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import pl.poznan.put.pdb.ImmutablePdbNamedResidueIdentifier;
 import pl.poznan.put.pdb.PdbNamedResidueIdentifier;
+import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.ChainNumberKey;
-import pl.poznan.put.structure.BasePair;
 import pl.poznan.put.structure.ImmutableBasePair;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -44,86 +43,6 @@ public class BasePairDTO {
     @JsonProperty("bph")
     private BasePhosphateType bph;
 
-    public Residue getNt1() {
-        return nt1;
-    }
-
-    public Residue getNt2() {
-        return nt2;
-    }
-
-    public LeontisWesthofType getLeontisWesthofType() {
-        return leontisWesthofType;
-    }
-
-    public SaengerType getSaengerType() {
-        return saengerType;
-    }
-
-    public StackingTopology getTopology() {
-        return topology;
-    }
-
-    public BaseRiboseType getBr() {
-        return br;
-    }
-
-    public BasePhosphateType getBph() {
-        return bph;
-    }
-
-    public void setNt1(Residue nt1) {
-        this.nt1 = nt1;
-    }
-
-    public void setNt2(Residue nt2) {
-        this.nt2 = nt2;
-    }
-
-    public void setLeontisWesthofType(LeontisWesthofType leontisWesthofType) {
-        this.leontisWesthofType = leontisWesthofType;
-    }
-
-    public void setSaengerType(SaengerType saengerType) {
-        this.saengerType = saengerType;
-    }
-
-    public void setTopology(StackingTopology topology) {
-        this.topology = topology;
-    }
-
-    public void setBr(BaseRiboseType br) {
-        this.br = br;
-    }
-
-    public void setBph(BasePhosphateType bph) {
-        this.bph = bph;
-    }
-
-    public ImmutableBasePair toBasePair() {
-        return ImmutableBasePair.of(left(), right());
-    }
-
-    public PdbNamedResidueIdentifier left() {
-        return mapResidueToPdbNamedResidueIdentifier(nt1);
-    }
-
-    public PdbNamedResidueIdentifier right() {
-        return mapResidueToPdbNamedResidueIdentifier(nt2);
-    }
-
-    public boolean isCanonical() {
-        if (leontisWesthofType == LeontisWesthofType.CWW) {
-            String sequence = Stream.of(this.left().oneLetterName(), this.right().oneLetterName())
-                    .map(c -> Character.toString(c))
-                    .map(String::toUpperCase)
-                    .sorted().collect(Collectors.joining());
-
-            return CANONICAL_ONE_LETTER_NAME_SORTED_PAIRS.contains(sequence);
-        }
-        return false;
-    }
-
     public BasePairDTO() {
     }
 
@@ -137,6 +56,62 @@ public class BasePairDTO {
         this.bph = basePairDTO.getBph();
     }
 
+    public Residue getNt1() {
+        return nt1;
+    }
+
+    public void setNt1(Residue nt1) {
+        this.nt1 = nt1;
+    }
+
+    public Residue getNt2() {
+        return nt2;
+    }
+
+    public void setNt2(Residue nt2) {
+        this.nt2 = nt2;
+    }
+
+    public LeontisWesthofType getLeontisWesthofType() {
+        return leontisWesthofType;
+    }
+
+    public void setLeontisWesthofType(LeontisWesthofType leontisWesthofType) {
+        this.leontisWesthofType = leontisWesthofType;
+    }
+
+    public SaengerType getSaengerType() {
+        return saengerType;
+    }
+
+    public void setSaengerType(SaengerType saengerType) {
+        this.saengerType = saengerType;
+    }
+
+    public StackingTopology getTopology() {
+        return topology;
+    }
+
+    public void setTopology(StackingTopology topology) {
+        this.topology = topology;
+    }
+
+    public BaseRiboseType getBr() {
+        return br;
+    }
+
+    public void setBr(BaseRiboseType br) {
+        this.br = br;
+    }
+
+    public BasePhosphateType getBph() {
+        return bph;
+    }
+
+    public void setBph(BasePhosphateType bph) {
+        this.bph = bph;
+    }
+
     public static BasePairDTO ofBasePairDTOWithNameFromMap(BasePairDTO basePairDTO,
                                                            Map<ChainNumberKey, String> modifiedNamesMap) {
         BasePairDTO newBasePair = new BasePairDTO(basePairDTO);
@@ -145,18 +120,35 @@ public class BasePairDTO {
         return newBasePair;
     }
 
-    private PdbNamedResidueIdentifier mapResidueToPdbNamedResidueIdentifier(Residue residue) {
-        return residue.getAuth() != null
-                ? ImmutablePdbNamedResidueIdentifier.of(
-                residue.getAuth().getChainIdentifier(),
-                residue.getAuth().getResidueNumber(),
-                residue.getAuth().getInsertionCode(),
-                residue.getAuth().getName().charAt(0))
-                : ImmutablePdbNamedResidueIdentifier.of(
-                residue.getLabel().getChainIdentifier(),
-                residue.getLabel().getResidueNumber(),
-                Optional.empty(),
-                residue.getLabel().getName().charAt(0));
+    public ImmutableBasePair toBasePair(PdbModel pdbModel) {
+        PdbNamedResidueIdentifier left = mapResidueToPdbNamedResidueIdentifier(nt1,  pdbModel);
+        PdbNamedResidueIdentifier right = mapResidueToPdbNamedResidueIdentifier(nt2,   pdbModel);
+        return ImmutableBasePair.of(left, right);
+    }
+
+    private PdbNamedResidueIdentifier mapResidueToPdbNamedResidueIdentifier(Residue residue, PdbModel pdbModel) {
+        if (pdbModel.hasResidue(residue)) {
+        return pdbModel.findResidue(residue).namedResidueIdentifier();
+        }
+
+        String name = residue.getAuth().getName();
+        return ImmutablePdbNamedResidueIdentifier.of(residue.chainIdentifier(), residue.residueNumber(), residue.insertionCode(), name.charAt(name.length() - 1));
+    }
+
+    public boolean isCanonical(PdbModel pdbModel) {
+        if (saengerType == SaengerType.XIX || saengerType == SaengerType.XX || saengerType == SaengerType.XXVIII) {
+            return true;
+        }
+        if (leontisWesthofType == LeontisWesthofType.CWW) {
+            PdbNamedResidueIdentifier left = mapResidueToPdbNamedResidueIdentifier(nt1, pdbModel);
+            PdbNamedResidueIdentifier right = mapResidueToPdbNamedResidueIdentifier(nt2, pdbModel);
+            String sequence = Stream.of(left.oneLetterName(), right.oneLetterName())
+                    .map(c -> Character.toString(c))
+                    .map(String::toUpperCase)
+                    .sorted().collect(Collectors.joining());
+            return CANONICAL_ONE_LETTER_NAME_SORTED_PAIRS.contains(sequence);
+        }
+        return false;
     }
 }
 

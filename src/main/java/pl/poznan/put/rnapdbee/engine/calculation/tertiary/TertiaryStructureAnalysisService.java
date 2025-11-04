@@ -16,13 +16,7 @@ import pl.poznan.put.rnapdbee.engine.calculation.tertiary.validator.Templates;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.exception.AdaptersErrorException;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.service.BasePairAnalyzerFactory;
-import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
-import pl.poznan.put.rnapdbee.engine.shared.domain.InputType;
-import pl.poznan.put.rnapdbee.engine.shared.domain.InputTypeDeterminer;
-import pl.poznan.put.rnapdbee.engine.shared.domain.ModelSelection;
-import pl.poznan.put.rnapdbee.engine.shared.domain.NonCanonicalHandling;
-import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementOutput;
-import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementsHandling;
+import pl.poznan.put.rnapdbee.engine.shared.domain.*;
 import pl.poznan.put.rnapdbee.engine.shared.elements.StructuralElementFinder;
 import pl.poznan.put.rnapdbee.engine.shared.exception.BasePairAnalysisException;
 import pl.poznan.put.rnapdbee.engine.shared.exception.NoRnaModelsInFileException;
@@ -30,12 +24,7 @@ import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.ImageService;
 import pl.poznan.put.rnapdbee.engine.shared.parser.TertiaryFileParser;
-import pl.poznan.put.structure.formats.BpSeq;
-import pl.poznan.put.structure.formats.Converter;
-import pl.poznan.put.structure.formats.Ct;
-import pl.poznan.put.structure.formats.DefaultDotBracketFromPdb;
-import pl.poznan.put.structure.formats.DotBracket;
-import pl.poznan.put.structure.formats.ImmutableDefaultDotBracketFromPdb;
+import pl.poznan.put.structure.formats.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,6 +49,30 @@ public class TertiaryStructureAnalysisService {
     private final InputTypeDeterminer inputTypeDeterminer;
     private final Converter converter;
 
+    @Autowired
+    public TertiaryStructureAnalysisService(
+            BasePairAnalyzerFactory basePairAnalyzerFactory,
+            ImageService imageService,
+            TertiaryFileParser tertiaryFileParser,
+            @Value("${templates.path}") String pathToTemplates,
+            InputTypeDeterminer inputTypeDeterminer,
+            Converter converter) {
+        this.basePairAnalyzerFactory = basePairAnalyzerFactory;
+        this.imageService = imageService;
+        this.tertiaryFileParser = tertiaryFileParser;
+        this.rnaValidator = new RNAValidator(loadTemplates(pathToTemplates));
+        this.inputTypeDeterminer = inputTypeDeterminer;
+        this.converter = converter;
+    }
+
+    private Templates loadTemplates(String pathToTemplates) {
+        try (final InputStream stream = getClass().getResourceAsStream(pathToTemplates)) {
+            return new Templates(stream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public Output3D analyze(
             ModelSelection modelSelection,
             AnalysisTool analysisTool,
@@ -69,6 +82,7 @@ public class TertiaryStructureAnalysisService {
             VisualizationTool visualizationTool,
             String filename,
             String fileContent) {
+
         var inputType = inputTypeDeterminer.detectTertiaryInputTypeFromFileName(filename);
         return performAnalysis(
                 modelSelection,
@@ -261,29 +275,5 @@ public class TertiaryStructureAnalysisService {
 
         messages.addAll(rnaValidator.validate(rna));
         return messages;
-    }
-
-    @Autowired
-    public TertiaryStructureAnalysisService(
-            BasePairAnalyzerFactory basePairAnalyzerFactory,
-            ImageService imageService,
-            TertiaryFileParser tertiaryFileParser,
-            @Value("${templates.path}") String pathToTemplates,
-            InputTypeDeterminer inputTypeDeterminer,
-            Converter converter) {
-        this.basePairAnalyzerFactory = basePairAnalyzerFactory;
-        this.imageService = imageService;
-        this.tertiaryFileParser = tertiaryFileParser;
-        this.rnaValidator = new RNAValidator(loadTemplates(pathToTemplates));
-        this.inputTypeDeterminer = inputTypeDeterminer;
-        this.converter = converter;
-    }
-
-    private Templates loadTemplates(String pathToTemplates) {
-        try (final InputStream stream = getClass().getResourceAsStream(pathToTemplates)) {
-            return new Templates(stream);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

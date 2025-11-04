@@ -26,6 +26,30 @@ public class ResidueLabel {
         this.name = residueLabel.getName();
     }
 
+    public String getChainIdentifier() {
+        return chainIdentifier;
+    }
+
+    public void setChainIdentifier(String chainIdentifier) {
+        this.chainIdentifier = chainIdentifier;
+    }
+
+    public Integer getResidueNumber() {
+        return residueNumber;
+    }
+
+    public void setResidueNumber(Integer residueNumber) {
+        this.residueNumber = residueNumber;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public static ResidueLabel ofResidueLabelWithExchangedName(ResidueLabel residueLabel,
                                                                String name) {
         ResidueLabel newResidueLabel = new ResidueLabel(residueLabel);
@@ -35,27 +59,12 @@ public class ResidueLabel {
         return newResidueLabel;
     }
 
-    public String getChainIdentifier() {
-        return chainIdentifier;
-    }
-
-    public Integer getResidueNumber() {
-        return residueNumber;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setChainIdentifier(String chainIdentifier) {
-        this.chainIdentifier = chainIdentifier;
-    }
-
-    public void setResidueNumber(Integer residueNumber) {
-        this.residueNumber = residueNumber;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    @Override
+    public String toString() {
+        return "ResidueLabel{" +
+                "chainIdentifier='" + chainIdentifier + '\'' +
+                ", residueNumber=" + residueNumber +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

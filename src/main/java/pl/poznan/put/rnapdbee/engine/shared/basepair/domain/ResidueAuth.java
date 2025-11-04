@@ -32,6 +32,45 @@ public class ResidueAuth {
         this.name = residueAuth.getName();
     }
 
+    public String getChainIdentifier() {
+        return chainIdentifier;
+    }
+
+    public void setChainIdentifier(String chainIdentifier) {
+        this.chainIdentifier = chainIdentifier;
+    }
+
+    public Integer getResidueNumber() {
+        return residueNumber;
+    }
+
+    public void setResidueNumber(Integer residueNumber) {
+        this.residueNumber = residueNumber;
+    }
+
+    public Optional<String> getInsertionCode() {
+        if (insertionCode == null || "null".equals(insertionCode)) {
+            return Optional.empty();
+        }
+        return Optional.of(insertionCode);
+    }
+
+    public void setInsertionCode(String insertionCode) {
+        if ("null".equals(insertionCode)) {
+            this.insertionCode = null;
+        }  else {
+            this.insertionCode = insertionCode;
+        }
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public static ResidueAuth ofResidueAuthWithExchangedName(ResidueAuth residueAuth,
                                                              String name) {
         ResidueAuth newResidueAuth = new ResidueAuth(residueAuth);
@@ -41,35 +80,13 @@ public class ResidueAuth {
         return newResidueAuth;
     }
 
-    public String getChainIdentifier() {
-        return chainIdentifier;
-    }
-
-    public Integer getResidueNumber() {
-        return residueNumber;
-    }
-
-    public Optional<String> getInsertionCode() {
-        return Optional.ofNullable(insertionCode);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setChainIdentifier(String chainIdentifier) {
-        this.chainIdentifier = chainIdentifier;
-    }
-
-    public void setResidueNumber(Integer residueNumber) {
-        this.residueNumber = residueNumber;
-    }
-
-    public void setInsertionCode(String insertionCode) {
-        this.insertionCode = insertionCode;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    @Override
+    public String toString() {
+        return "ResidueAuth{" +
+                "chainIdentifier='" + chainIdentifier + '\'' +
+                ", residueNumber=" + residueNumber +
+                ", insertionCode='" + insertionCode + '\'' +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

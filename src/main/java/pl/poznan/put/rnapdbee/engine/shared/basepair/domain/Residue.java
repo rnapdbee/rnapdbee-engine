@@ -2,15 +2,17 @@ package pl.poznan.put.rnapdbee.engine.shared.basepair.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import pl.poznan.put.pdb.ChainNumberICode;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.ChainNumberKey;
 
 import java.util.Map;
+import java.util.Optional;
 
 
 /**
  * DTO class for Residue
  */
-public class Residue {
+public class Residue implements ChainNumberICode {
 
     @JsonProperty("label")
     private ResidueLabel label;
@@ -18,28 +20,28 @@ public class Residue {
     @JsonProperty("auth")
     private ResidueAuth auth;
 
-    public ResidueLabel getLabel() {
-        return label;
-    }
-
-    public ResidueAuth getAuth() {
-        return auth;
-    }
-
-    public void setLabel(ResidueLabel label) {
-        this.label = label;
-    }
-
-    public void setAuth(ResidueAuth auth) {
-        this.auth = auth;
-    }
-
     public Residue() {
     }
 
     private Residue(Residue residue) {
         this.label = residue.getLabel();
         this.auth = residue.getAuth();
+    }
+
+    public ResidueLabel getLabel() {
+        return label;
+    }
+
+    public void setLabel(ResidueLabel label) {
+        this.label = label;
+    }
+
+    public ResidueAuth getAuth() {
+        return auth;
+    }
+
+    public void setAuth(ResidueAuth auth) {
+        this.auth = auth;
     }
 
     public static Residue ofResidueWithNameFromMap(Residue residue,
@@ -64,4 +66,26 @@ public class Residue {
         return newResidue;
     }
 
+    @Override
+    public String chainIdentifier() {
+        return auth.getChainIdentifier();
+    }
+
+    @Override
+    public int residueNumber() {
+        return auth.getResidueNumber();
+    }
+
+    @Override
+    public Optional<String> insertionCode() {
+        return auth.getInsertionCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Residue{" +
+                "label=" + label +
+                ", auth=" + auth +
+                '}';
+    }
 }
