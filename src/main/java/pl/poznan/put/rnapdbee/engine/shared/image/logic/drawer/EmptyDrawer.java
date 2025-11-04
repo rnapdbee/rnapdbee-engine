@@ -20,7 +20,8 @@ import java.util.List;
 public class EmptyDrawer implements SecondaryStructureDrawer {
 
     @Override
-    public final SVGDocument drawSecondaryStructure(final DotBracket dotBracket) {
+    public final SVGDocument drawSecondaryStructure(
+            final DotBracket dotBracket, List<? extends ClassifiedBasePair> stacking) {
         return SVGHelper.emptyDocument();
     }
 
@@ -28,7 +29,8 @@ public class EmptyDrawer implements SecondaryStructureDrawer {
     public final SVGDocument drawSecondaryStructure(
             final DotBracketFromPdb dotBracket,
             final PdbModel structureModel,
-            final List<? extends ClassifiedBasePair> nonCanonicalBasePairs) {
+            final List<? extends ClassifiedBasePair> nonCanonicalBasePairs,
+            List<? extends ClassifiedBasePair> stacking) {
         return SVGHelper.emptyDocument();
     }
 

@@ -14,13 +14,14 @@ import java.util.List;
  * Interface for classes that provide possibility to generate an SVG document from result of analysis.
  */
 public interface SecondaryStructureDrawer {
-    SVGDocument drawSecondaryStructure(DotBracket dotBracket)
+    SVGDocument drawSecondaryStructure(DotBracket dotBracket, List<? extends ClassifiedBasePair> stacking)
             throws VisualizationException;
 
     SVGDocument drawSecondaryStructure(
             DotBracketFromPdb dotBracket,
             PdbModel structureModel,
-            List<? extends ClassifiedBasePair> nonCanonicalBasePairs)
+            List<? extends ClassifiedBasePair> nonCanonicalBasePairs,
+            List<? extends ClassifiedBasePair> stacking)
             throws VisualizationException;
 
     VisualizationTool getEnum();

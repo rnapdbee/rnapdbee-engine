@@ -6,10 +6,12 @@ import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rnapdbee.engine.shared.domain.NonCanonicalHandling;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
+import pl.poznan.put.structure.AnalyzedBasePair;
 import pl.poznan.put.structure.ClassifiedBasePair;
 import pl.poznan.put.structure.formats.DotBracket;
 import pl.poznan.put.structure.formats.DotBracketFromPdb;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -20,30 +22,30 @@ public class ImageService {
 
     private final DrawerManager drawerManager;
 
+    @Autowired
+    public ImageService(DrawerManager drawerManager) {
+        this.drawerManager = drawerManager;
+    }
+
     public ImageInformationOutput visualizeCanonicalOrNonCanonical(
             VisualizationTool visualizationTool,
             DotBracketFromPdb dotBracketFromPdb,
             PdbModel structureModel,
             List<? extends ClassifiedBasePair> nonCanonicalBasePairs,
-            NonCanonicalHandling nonCanonicalHandling) {
+            List<AnalyzedBasePair> stacking, NonCanonicalHandling nonCanonicalHandling) {
         if (visualizationTool == VisualizationTool.NONE) {
             return ImageInformationOutput.EMPTY_INSTANCE;
         }
         return nonCanonicalHandling.isVisualization()
                 ? drawerManager.drawCanonicalAndNonCanonical(visualizationTool, dotBracketFromPdb, structureModel,
-                nonCanonicalBasePairs)
-                : drawerManager.drawCanonical(visualizationTool, dotBracketFromPdb);
+                nonCanonicalBasePairs, stacking)
+                : drawerManager.drawCanonical(visualizationTool, dotBracketFromPdb, stacking);
     }
 
     public ImageInformationOutput visualizeCanonical(VisualizationTool visualizationTool, DotBracket combinedStrand) {
         if (visualizationTool == VisualizationTool.NONE) {
             return ImageInformationOutput.EMPTY_INSTANCE;
         }
-        return drawerManager.drawCanonical(visualizationTool, combinedStrand);
-    }
-
-    @Autowired
-    public ImageService(DrawerManager drawerManager) {
-        this.drawerManager = drawerManager;
+        return drawerManager.drawCanonical(visualizationTool, combinedStrand, Collections.emptyList());
     }
 }

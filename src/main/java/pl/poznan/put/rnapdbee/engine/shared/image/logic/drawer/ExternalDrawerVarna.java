@@ -11,6 +11,7 @@ import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.shared.image.exception.VisualizationException;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.model.Nucleotide;
+import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.model.Stacking;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.model.StructureData;
 import pl.poznan.put.structure.ClassifiedBasePair;
 import pl.poznan.put.structure.formats.DotBracket;
@@ -40,17 +41,34 @@ public class ExternalDrawerVarna implements SecondaryStructureDrawer {
     }
 
     @Override
-    public final SVGDocument drawSecondaryStructure(final DotBracket dotBracket) throws VisualizationException {
+    public final SVGDocument drawSecondaryStructure(
+            final DotBracket dotBracket, List<? extends ClassifiedBasePair> stacking) throws VisualizationException {
         var svgs = new ArrayList<SVGDocument>();
         for (var combinedStrand : dotBracket.combineStrands()) {
-            var structureData = createStructureData(combinedStrand, Collections.emptyList());
+            var currentStacking = stacking;
+            if (combinedStrand instanceof DotBracketFromPdb) {
+                var currentChains = ((DotBracketFromPdb) combinedStrand)
+                        .identifierSet().stream()
+                                .map(PdbResidueIdentifier::chainIdentifier)
+                                .collect(Collectors.toSet());
+                currentStacking = stacking.stream()
+                        .filter(ClassifiedBasePair::isStacking)
+                        .filter(classifiedBasePair -> currentChains.contains(
+                                classifiedBasePair.basePair().left().chainIdentifier()))
+                        .filter(classifiedBasePair -> currentChains.contains(
+                                classifiedBasePair.basePair().right().chainIdentifier()))
+                        .collect(Collectors.toList());
+            }
+            var structureData = createStructureData(combinedStrand, Collections.emptyList(), currentStacking);
             svgs.add(varnaTzClient.draw(structureData));
         }
         return SVGHelper.merge(svgs);
     }
 
     private static StructureData createStructureData(
-            DotBracket combinedStrand, List<? extends ClassifiedBasePair> nonCanonicalBasePairs) {
+            DotBracket combinedStrand,
+            List<? extends ClassifiedBasePair> nonCanonicalBasePairs,
+            List<? extends ClassifiedBasePair> stackingInteractions) {
         var nucleotides = new ArrayList<Nucleotide>();
         var symbols = combinedStrand.symbols();
         for (int i = 0; i < symbols.size(); i++) {
@@ -90,6 +108,7 @@ public class ExternalDrawerVarna implements SecondaryStructureDrawer {
         }
         for (var classifiedBasePair : nonCanonicalBasePairs) {
             assert combinedStrand instanceof DotBracketFromPdb;
+
             var left = ((DotBracketFromPdb) combinedStrand)
                     .symbol(classifiedBasePair.basePair().left().toResidueIdentifier());
             var right = ((DotBracketFromPdb) combinedStrand)
@@ -104,10 +123,24 @@ public class ExternalDrawerVarna implements SecondaryStructureDrawer {
             basePairs.add(basePair);
         }
 
+        var stackings = new ArrayList<Stacking>();
+        for (var stackingInteraction : stackingInteractions) {
+            assert combinedStrand instanceof DotBracketFromPdb;
+
+            var left = ((DotBracketFromPdb) combinedStrand)
+                    .symbol(stackingInteraction.basePair().left().toResidueIdentifier());
+            var right = ((DotBracketFromPdb) combinedStrand)
+                    .symbol(stackingInteraction.basePair().right().toResidueIdentifier());
+            var stacking = new Stacking();
+            stacking.id1 = left.index();
+            stacking.id2 = right.index();
+            stackings.add(stacking);
+        }
+
         var structureData = new StructureData();
         structureData.nucleotides = nucleotides;
         structureData.basePairs = basePairs;
-        structureData.stackings = Collections.emptyList();
+        structureData.stackings = stackings;
         structureData.drawingAlgorithm = "NAVIEW";
         return structureData;
     }
@@ -138,7 +171,8 @@ public class ExternalDrawerVarna implements SecondaryStructureDrawer {
     public final SVGDocument drawSecondaryStructure(
             final DotBracketFromPdb dotBracket,
             final PdbModel structureModel,
-            final List<? extends ClassifiedBasePair> nonCanonicalBasePairs)
+            final List<? extends ClassifiedBasePair> nonCanonicalBasePairs,
+            final List<? extends ClassifiedBasePair> stacking)
             throws VisualizationException {
         final List<ClassifiedBasePair> availableNonCanonical = nonCanonicalBasePairs.stream()
                 .filter(ClassifiedBasePair::isPairing)
@@ -157,7 +191,14 @@ public class ExternalDrawerVarna implements SecondaryStructureDrawer {
                     .filter(classifiedBasePair -> currentChains.contains(
                             classifiedBasePair.basePair().right().chainIdentifier()))
                     .collect(Collectors.toList());
-            var structureData = createStructureData(combinedStrand, currentNonCanonical);
+            var currentStacking = stacking.stream()
+                    .filter(ClassifiedBasePair::isStacking)
+                    .filter(classifiedBasePair -> currentChains.contains(
+                            classifiedBasePair.basePair().left().chainIdentifier()))
+                    .filter(classifiedBasePair -> currentChains.contains(
+                            classifiedBasePair.basePair().right().chainIdentifier()))
+                    .collect(Collectors.toList());
+            var structureData = createStructureData(combinedStrand, currentNonCanonical, currentStacking);
             svgs.add(varnaTzClient.draw(structureData));
         }
         return SVGHelper.merge(svgs);

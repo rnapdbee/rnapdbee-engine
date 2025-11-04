@@ -217,6 +217,7 @@ public class TertiaryStructureAnalysisService {
                 dotBracket,
                 structureModel,
                 basePairAnalysis.getNonCanonical(),
+                basePairAnalysis.getStacking(),
                 nonCanonicalHandling);
 
         final BpSeq bpseq = BpSeq.fromDotBracket(dotBracket);

@@ -14,25 +14,25 @@ public abstract class RnaPDBeeAdaptersStructureDrawer implements SecondaryStruct
 
     private final RnaPDBeeAdaptersCaller rnaPDBeeAdaptersCaller;
 
+    protected RnaPDBeeAdaptersStructureDrawer(RnaPDBeeAdaptersCaller rnaPDBeeAdaptersCaller) {
+        this.rnaPDBeeAdaptersCaller = rnaPDBeeAdaptersCaller;
+    }
+
     @Override
-    public SVGDocument drawSecondaryStructure(DotBracket dotBracket) throws VisualizationException {
+    public SVGDocument drawSecondaryStructure(DotBracket dotBracket, List<? extends ClassifiedBasePair> stacking) throws VisualizationException {
         return rnaPDBeeAdaptersCaller.performVisualization(dotBracket, getEnum());
     }
 
     @Override
     public SVGDocument drawSecondaryStructure(DotBracketFromPdb dotBracket,
                                               PdbModel structureModel,
-                                              List<? extends ClassifiedBasePair> nonCanonicalBasePairs)
+                                              List<? extends ClassifiedBasePair> nonCanonicalBasePairs, List<? extends ClassifiedBasePair> stacking)
             throws VisualizationException {
         return rnaPDBeeAdaptersCaller.performVisualization(
                 dotBracket,
                 structureModel,
                 getEnum(),
                 nonCanonicalBasePairs);
-    }
-
-    protected RnaPDBeeAdaptersStructureDrawer(RnaPDBeeAdaptersCaller rnaPDBeeAdaptersCaller) {
-        this.rnaPDBeeAdaptersCaller = rnaPDBeeAdaptersCaller;
     }
 
 }
