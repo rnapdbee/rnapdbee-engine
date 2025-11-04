@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
  * The implementation has been taken from RNApdbee 2.0.
  */
 @Component
+@Deprecated
 public class DrawerVarnaTz implements SecondaryStructureDrawer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DrawerVarnaTz.class);

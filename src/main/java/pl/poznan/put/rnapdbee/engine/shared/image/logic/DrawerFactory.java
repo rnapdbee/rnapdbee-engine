@@ -3,12 +3,7 @@ package pl.poznan.put.rnapdbee.engine.shared.image.logic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
-import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.DrawerVarnaTz;
-import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.EmptyDrawer;
-import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.PseudoViewerStructureDrawer;
-import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.RChieStructureDrawer;
-import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.RnaPuzzlerStructureDrawer;
-import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.SecondaryStructureDrawer;
+import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.*;
 
 
 /**
@@ -19,7 +14,7 @@ public class DrawerFactory {
 
     private final EmptyDrawer emptyDrawer;
 
-    private final DrawerVarnaTz drawerVarnaTz;
+    private final ExternalDrawerVarna drawerVarnaTz;
 
     private final RChieStructureDrawer rChieStructureDrawer;
 
@@ -51,7 +46,7 @@ public class DrawerFactory {
 
     @Autowired
     public DrawerFactory(EmptyDrawer emptyDrawer,
-                         DrawerVarnaTz drawerVarnaTz,
+                         ExternalDrawerVarna drawerVarnaTz,
                          RChieStructureDrawer rChieStructureDrawer,
                          PseudoViewerStructureDrawer pseudoViewerStructureDrawer,
                          RnaPuzzlerStructureDrawer rnaPuzzlerStructureDrawer) {
