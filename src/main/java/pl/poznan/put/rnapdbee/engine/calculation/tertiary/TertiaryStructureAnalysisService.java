@@ -23,6 +23,7 @@ import pl.poznan.put.rnapdbee.engine.shared.exception.NoRnaModelsInFileException
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.ImageService;
+import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
 import pl.poznan.put.rnapdbee.engine.shared.parser.TertiaryFileParser;
 import pl.poznan.put.structure.formats.*;
 
@@ -48,6 +49,7 @@ public class TertiaryStructureAnalysisService {
     private final RNAValidator rnaValidator;
     private final InputTypeDeterminer inputTypeDeterminer;
     private final Converter converter;
+    private final RnaPDBeeAdaptersCaller rnaPDBeeAdaptersCaller;
 
     @Autowired
     public TertiaryStructureAnalysisService(
@@ -56,13 +58,15 @@ public class TertiaryStructureAnalysisService {
             TertiaryFileParser tertiaryFileParser,
             @Value("${templates.path}") String pathToTemplates,
             InputTypeDeterminer inputTypeDeterminer,
-            Converter converter) {
+            Converter converter,
+            RnaPDBeeAdaptersCaller rnaPDBeeAdaptersCaller) {
         this.basePairAnalyzerFactory = basePairAnalyzerFactory;
         this.imageService = imageService;
         this.tertiaryFileParser = tertiaryFileParser;
         this.rnaValidator = new RNAValidator(loadTemplates(pathToTemplates));
         this.inputTypeDeterminer = inputTypeDeterminer;
         this.converter = converter;
+        this.rnaPDBeeAdaptersCaller = rnaPDBeeAdaptersCaller;
     }
 
     private Templates loadTemplates(String pathToTemplates) {
@@ -82,8 +86,13 @@ public class TertiaryStructureAnalysisService {
             VisualizationTool visualizationTool,
             String filename,
             String fileContent) {
-
-        var inputType = inputTypeDeterminer.detectTertiaryInputTypeFromFileName(filename);
+        InputType inputType = inputTypeDeterminer.detectTertiaryInputTypeFromFileName(filename);
+        try {
+            fileContent = rnaPDBeeAdaptersCaller.ensureMmCif(fileContent);
+            inputType = InputType.MMCIF;
+        } catch (AdaptersErrorException e) {
+            LOGGER.warn("Failed to ensure PDBx/mmCIF format; will try to continue with the default format " + inputType, e);
+        }
         return performAnalysis(
                 modelSelection,
                 analysisTool,

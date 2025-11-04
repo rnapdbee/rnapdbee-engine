@@ -283,6 +283,45 @@ public class RnaPDBeeAdaptersCaller {
         }
     }
 
+    /**
+     * Calls rnapdbee-adapters to ensure the content is a valid mmCIF file.
+     *
+     * @param fileContent Input in PDB or PDBx/mmCIF format.
+     * @return data in PDBx/mmCIF format.
+     */
+    public String ensureMmCif(String fileContent) throws AdaptersErrorException {
+        try {
+            return adaptersWebClient
+                    .post()
+                    .uri(properties.getEnsureMmCifPath())
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(BodyInserters.fromValue(fileContent))
+                    .retrieve()
+                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> clientResponse
+                            .bodyToMono(String.class)
+                            .map(resp -> {
+                                LOGGER.warn(String.format(ERROR_4XX_GOTTEN_FROM_ADAPTERS_FORMAT,
+                                        clientResponse.rawStatusCode(), resp));
+                                return new IllegalStateException(String.format(
+                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.rawStatusCode()));
+                            }))
+                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> clientResponse
+                            .bodyToMono(String.class)
+                            .map(resp -> {
+                                LOGGER.warn(String.format(ERROR_5XX_GOTTEN_FROM_ADAPTERS_FORMAT,
+                                        clientResponse.rawStatusCode(), resp));
+                                return new IllegalStateException(String.format(
+                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.rawStatusCode()));
+                            }))
+                    .bodyToMono(String.class)
+                    .cache(Duration.ofSeconds(properties.getMonoCacheDurationInSeconds()))
+                    .block();
+        } catch (WebClientException | IllegalStateException exception) {
+            LOGGER.error(ERROR_MET_DURING_CALL_TO_ADAPTERS_LOG, exception);
+            throw new AdaptersErrorException(ERROR_MET_DURING_CALL_TO_ADAPTERS, exception);
+        }
+    }
+
     @Autowired
     public RnaPDBeeAdaptersCaller(RnaPDBeeAdaptersProperties properties,
                                   @Autowired @Qualifier("adaptersWebClient") WebClient adaptersWebClient,

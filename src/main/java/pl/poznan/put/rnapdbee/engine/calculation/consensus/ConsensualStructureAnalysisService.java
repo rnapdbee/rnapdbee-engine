@@ -23,6 +23,7 @@ import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.shared.image.exception.VisualizationException;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.ImageService;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.ConsensualVisualizationDrawer;
+import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
 import pl.poznan.put.rnapdbee.engine.shared.parser.TertiaryFileParser;
 import pl.poznan.put.structure.AnalyzedBasePair;
 import pl.poznan.put.structure.formats.*;
@@ -56,6 +57,7 @@ public class ConsensualStructureAnalysisService {
     private final InputTypeDeterminer inputTypeDeterminer;
     private final Converter converter;
     private final ConsensualVisualizationDrawer consensualVisualizationDrawer;
+    private final RnaPDBeeAdaptersCaller rnaPDBeeAdaptersCaller;
 
     @Autowired
     public ConsensualStructureAnalysisService(ImageService imageService,
@@ -63,13 +65,15 @@ public class ConsensualStructureAnalysisService {
                                               BasePairAnalyzerFactory basePairAnalyzerFactory,
                                               InputTypeDeterminer inputTypeDeterminer,
                                               Converter converter,
-                                              ConsensualVisualizationDrawer consensualVisualizationDrawer) {
+                                              ConsensualVisualizationDrawer consensualVisualizationDrawer,
+                                              RnaPDBeeAdaptersCaller  rnaPDBeeAdaptersCaller) {
         this.imageService = imageService;
         this.tertiaryFileParser = tertiaryFileParser;
         this.basePairAnalyzerFactory = basePairAnalyzerFactory;
         this.inputTypeDeterminer = inputTypeDeterminer;
         this.converter = converter;
         this.consensualVisualizationDrawer = consensualVisualizationDrawer;
+        this.rnaPDBeeAdaptersCaller = rnaPDBeeAdaptersCaller;
     }
 
     /**
@@ -88,10 +92,18 @@ public class ConsensualStructureAnalysisService {
                                final boolean removeIsolated,
                                final VisualizationTool visualizationTool,
                                final String filename,
-                               final String content) {
-        final var analyzerPairs = basePairAnalyzerFactory.prepareAnalyzerPairs();
-        final var inputType = inputTypeDeterminer.detectTertiaryInputTypeFromFileName(filename);
+                               String content) {
+        var inputType = inputTypeDeterminer.detectTertiaryInputTypeFromFileName(filename);
+        try {
+            if (rnaPDBeeAdaptersCaller != null) {
+                content = rnaPDBeeAdaptersCaller.ensureMmCif(content);
+                inputType = InputType.MMCIF;
+            }
+        } catch (AdaptersErrorException e) {
+            LOGGER.warn("Failed to ensure PDBx/mmCIF format; will try to continue with the default format " + inputType, e);
+        }
 
+        final var analyzerPairs = basePairAnalyzerFactory.prepareAnalyzerPairs();
         return findConsensus(modelSelection,
                 inputType,
                 content,

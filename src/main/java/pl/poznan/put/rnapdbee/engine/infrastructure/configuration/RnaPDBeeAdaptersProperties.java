@@ -44,6 +44,8 @@ public class RnaPDBeeAdaptersProperties {
     private String rnaPuzzlerPath;
     @Value("${rnapdbee.adapters.global.maxit.path}")
     private String maxitPath;
+    @Value("${rnapdbee.adapters.global.ensure-mmcif.path}")
+    private String ensureMmCifPath;
 
     public Integer getMaxConnections() {
         return maxConnections;
@@ -99,6 +101,10 @@ public class RnaPDBeeAdaptersProperties {
 
     public String getBpseqConversionPath() {
         return bpseqConversionPath;
+    }
+
+    public String getEnsureMmCifPath() {
+        return ensureMmCifPath;
     }
 
     public String getWeblogoPath() {
