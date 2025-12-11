@@ -140,7 +140,8 @@ public class ExternalDrawerVarna implements SecondaryStructureDrawer {
         var structureData = new StructureData();
         structureData.nucleotides = nucleotides;
         structureData.basePairs = basePairs;
-        structureData.stackings = stackings;
+        // TODO: disable stacking visualization for now
+        // structureData.stackings = stackings;
         structureData.drawingAlgorithm = "NAVIEW";
         return structureData;
     }
