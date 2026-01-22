@@ -28,4 +28,4 @@ EXPOSE 8081
 
 COPY --from=builder /app/target/rnapdbee-engine-0.0.1-SNAPSHOT.jar /app.jar
 
-ENTRYPOINT ["java", "-XX:+ExitOnOutOfMemoryError", "-XX:MaxRAMPercentage=75.0", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-XX:+ExitOnOutOfMemoryError", "-XX:MaxRAMPercentage=75.0", "-XX:+UseZGC", "-jar", "/app.jar"]

@@ -48,7 +48,7 @@ jobs:
           retention-days: 1
 
       - name: Docker Build
-        run: DOCKER_BUILDKIT=1 docker-compose up -d
+        run: DOCKER_BUILDKIT=1 docker-compose build
 
   ci-dependabot:
     if: ${{ github.actor == 'dependabot[bot]' }}
