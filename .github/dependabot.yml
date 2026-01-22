@@ -10,7 +10,7 @@ updates:
     open-pull-requests-limit: 15
     commit-message:
       prefix: "build"
-    target-branch: "dependabot/updates"
+    target-branch: "main"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -19,4 +19,4 @@ updates:
     open-pull-requests-limit: 15
     commit-message:
       prefix: "build"
-    target-branch: "dependabot/updates"
+    target-branch: "main"
