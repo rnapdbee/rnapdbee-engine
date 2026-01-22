@@ -15,7 +15,7 @@ on:
 
 jobs:
   CI:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
@@ -54,7 +54,7 @@ jobs:
     if: ${{ github.actor == 'dependabot[bot]' }}
     needs: CI
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     permissions:
       contents: write
