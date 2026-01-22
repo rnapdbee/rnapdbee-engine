@@ -4,24 +4,22 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
@@ -76,23 +74,22 @@ public class VarnaTzClient {
                     .toUriString();
             logger.debug("Sending draw request to Varna-tz service at: {}", url);
 
-            try {
-                ResponseEntity<MultiValueMap<String, Object>> responseEntity = restTemplate.exchange(
-                        url,
-                        HttpMethod.POST,
-                        requestEntity,
-                        new org.springframework.core.ParameterizedTypeReference<MultiValueMap<String, Object>>() {
-                        });
+            ResponseEntity<byte[]> responseEntity = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    requestEntity,
+                    byte[].class);
 
-                MediaType contentType = responseEntity.getHeaders().getContentType();
-                if (contentType != null && MediaType.MULTIPART_FORM_DATA.includes(contentType)) {
-                    return handleMultipartResponse(responseEntity.getBody());
+            MediaType contentType = responseEntity.getHeaders().getContentType();
+            if (contentType != null && MediaType.MULTIPART_FORM_DATA.includes(contentType)) {
+                String boundary = extractBoundary(contentType);
+                if (boundary != null) {
+                    return handleMultipartResponse(responseEntity.getBody(), boundary);
                 }
-            } catch (RestClientException e) {
-                logger.debug("Multipart parsing failed, falling back to JSON response parsing.", e);
+                throw new VisualizationException("Multipart response missing boundary parameter");
             }
 
-            Map<String, Object> response = restTemplate.postForObject(url, requestEntity, Map.class);
+            Map<String, Object> response = parseJsonResponse(responseEntity.getBody());
             return handleLegacyResponse(response);
         } catch (RestClientException e) {
             throw new VisualizationException("Error communicating with Varna-tz service", e);
@@ -101,12 +98,13 @@ public class VarnaTzClient {
         }
     }
 
-    private SVGDocument handleMultipartResponse(MultiValueMap<String, Object> parts)
+    private SVGDocument handleMultipartResponse(byte[] responseBody, String boundary)
             throws IOException, VisualizationException {
-        if (CollectionUtils.isEmpty(parts)) {
+        if (responseBody == null || responseBody.length == 0) {
             throw new VisualizationException("Received empty multipart response from Varna-tz service");
         }
 
+        List<MultipartPart> parts = parseMultipartParts(responseBody, boundary);
         Map<String, Object> metadata = parseMetadataPart(parts);
         logMetadata(metadata);
         validateExitCode(metadata);
@@ -148,45 +146,24 @@ public class VarnaTzClient {
         throw new VisualizationException("No clean.svg file found in the response from Varna-tz service");
     }
 
-    private Map<String, Object> parseMetadataPart(MultiValueMap<String, Object> parts) throws IOException {
-        Object metadataPart = parts.getFirst("metadata");
-        if (metadataPart == null) {
-            metadataPart = findPartByName(parts, "metadata");
-        }
-
-        if (metadataPart == null) {
-            return Collections.emptyMap();
-        }
-
-        if (metadataPart instanceof Map) {
-            return (Map<String, Object>) metadataPart;
-        }
-
-        byte[] bytes = readPartBytes(metadataPart);
-        if (bytes != null) {
-            return objectMapper.readValue(bytes, new TypeReference<Map<String, Object>>() {
-            });
-        }
-
-        if (metadataPart instanceof String) {
-            return objectMapper.readValue((String) metadataPart, new TypeReference<Map<String, Object>>() {
-            });
-        }
-
-        return objectMapper.convertValue(metadataPart, new TypeReference<Map<String, Object>>() {
-        });
-    }
-
-    private Object findPartByName(MultiValueMap<String, Object> parts, String name) {
-        for (Map.Entry<String, List<Object>> entry : parts.entrySet()) {
-            for (Object part : entry.getValue()) {
-                String partName = getPartName(part);
-                if (name.equals(partName)) {
-                    return part;
-                }
+    private Map<String, Object> parseMetadataPart(List<MultipartPart> parts) throws IOException {
+        for (MultipartPart part : parts) {
+            if ("metadata".equals(part.getName())) {
+                return objectMapper.readValue(part.getContent(), new TypeReference<Map<String, Object>>() {
+                });
             }
         }
+
         return null;
+    }
+
+    private Map<String, Object> parseJsonResponse(byte[] responseBody) throws IOException {
+        if (responseBody == null || responseBody.length == 0) {
+            return null;
+        }
+
+        return objectMapper.readValue(responseBody, new TypeReference<Map<String, Object>>() {
+        });
     }
 
     private void logMetadata(Map<String, Object> metadata) {
@@ -229,69 +206,131 @@ public class VarnaTzClient {
         }
     }
 
-    private byte[] extractFileBytes(MultiValueMap<String, Object> parts, String expectedFilename)
-            throws IOException {
-        for (Map.Entry<String, List<Object>> entry : parts.entrySet()) {
-            for (Object part : entry.getValue()) {
-                String filename = getFilename(part);
-                if (filename == null && expectedFilename.equals(entry.getKey())) {
-                    filename = entry.getKey();
-                }
-
-                if (expectedFilename.equals(filename)) {
-                    return readPartBytes(part);
-                }
+    private byte[] extractFileBytes(List<MultipartPart> parts, String expectedFilename) {
+        for (MultipartPart part : parts) {
+            if (expectedFilename.equals(part.getFilename())) {
+                return part.getContent();
             }
         }
         return null;
     }
 
-    private String getFilename(Object part) {
-        if (part instanceof HttpEntity) {
-            HttpHeaders headers = ((HttpEntity<?>) part).getHeaders();
-            ContentDisposition contentDisposition = headers.getContentDisposition();
-            if (contentDisposition != null) {
-                return contentDisposition.getFilename();
+    private List<MultipartPart> parseMultipartParts(byte[] responseBody, String boundary)
+            throws VisualizationException {
+        String rawBody = new String(responseBody, StandardCharsets.ISO_8859_1);
+        String boundaryMarker = "--" + boundary;
+        String[] sections = rawBody.split(Pattern.quote(boundaryMarker));
+
+        List<MultipartPart> parts = new java.util.ArrayList<>();
+        for (String section : sections) {
+            String trimmed = trimSection(section);
+            if (trimmed.isEmpty() || "--".equals(trimmed)) {
+                continue;
+            }
+
+            int headerEndIndex = trimmed.indexOf("\r\n\r\n");
+            if (headerEndIndex < 0) {
+                continue;
+            }
+
+            String headerBlock = trimmed.substring(0, headerEndIndex);
+            String bodyBlock = trimmed.substring(headerEndIndex + 4);
+            if (bodyBlock.endsWith("\r\n")) {
+                bodyBlock = bodyBlock.substring(0, bodyBlock.length() - 2);
+            }
+
+            MultipartHeaders headers = parseHeaders(headerBlock);
+            byte[] content = bodyBlock.getBytes(StandardCharsets.ISO_8859_1);
+            parts.add(new MultipartPart(headers.name, headers.filename, content));
+        }
+
+        if (parts.isEmpty()) {
+            throw new VisualizationException("No parts parsed from multipart response");
+        }
+        return parts;
+    }
+
+    private String trimSection(String section) {
+        String trimmed = section;
+        if (trimmed.startsWith("\r\n")) {
+            trimmed = trimmed.substring(2);
+        }
+        if (trimmed.endsWith("--")) {
+            trimmed = trimmed.substring(0, trimmed.length() - 2);
+        }
+        return trimmed;
+    }
+
+    private MultipartHeaders parseHeaders(String headerBlock) {
+        String[] lines = headerBlock.split("\r\n");
+        String name = null;
+        String filename = null;
+        for (String line : lines) {
+            int colonIndex = line.indexOf(':');
+            if (colonIndex < 0) {
+                continue;
+            }
+            String headerName = line.substring(0, colonIndex).trim();
+            String headerValue = line.substring(colonIndex + 1).trim();
+            if ("Content-Disposition".equalsIgnoreCase(headerName)) {
+                name = extractDispositionValue(headerValue, "name");
+                filename = extractDispositionValue(headerValue, "filename");
             }
         }
+        return new MultipartHeaders(name, filename);
+    }
 
-        if (part instanceof Resource) {
-            return ((Resource) part).getFilename();
+    private String extractDispositionValue(String headerValue, String attribute) {
+        Pattern pattern = Pattern.compile(attribute + "=\"([^\"]+)\"");
+        Matcher matcher = pattern.matcher(headerValue);
+        if (matcher.find()) {
+            return matcher.group(1);
         }
-
         return null;
     }
 
-    private String getPartName(Object part) {
-        if (part instanceof HttpEntity) {
-            HttpHeaders headers = ((HttpEntity<?>) part).getHeaders();
-            ContentDisposition contentDisposition = headers.getContentDisposition();
-            if (contentDisposition != null) {
-                return contentDisposition.getName();
-            }
+    private String extractBoundary(MediaType contentType) {
+        String boundary = contentType.getParameter("boundary");
+        if (boundary == null) {
+            return null;
         }
-        return null;
+        if (boundary.startsWith("\"") && boundary.endsWith("\"") && boundary.length() > 1) {
+            return boundary.substring(1, boundary.length() - 1);
+        }
+        return boundary;
     }
 
-    private byte[] readPartBytes(Object part) throws IOException {
-        if (part instanceof HttpEntity) {
-            Object body = ((HttpEntity<?>) part).getBody();
-            return readPartBytes(body);
+    private static final class MultipartHeaders {
+        private final String name;
+        private final String filename;
+
+        private MultipartHeaders(String name, String filename) {
+            this.name = name;
+            this.filename = filename;
+        }
+    }
+
+    private static final class MultipartPart {
+        private final String name;
+        private final String filename;
+        private final byte[] content;
+
+        private MultipartPart(String name, String filename, byte[] content) {
+            this.name = name;
+            this.filename = filename;
+            this.content = content;
         }
 
-        if (part instanceof byte[]) {
-            return (byte[]) part;
+        private String getName() {
+            return name;
         }
 
-        if (part instanceof String) {
-            return ((String) part).getBytes(StandardCharsets.UTF_8);
+        private String getFilename() {
+            return filename;
         }
 
-        if (part instanceof Resource) {
-            Resource resource = (Resource) part;
-            return resource.getInputStream().readAllBytes();
+        private byte[] getContent() {
+            return content;
         }
-
-        return null;
     }
 }
