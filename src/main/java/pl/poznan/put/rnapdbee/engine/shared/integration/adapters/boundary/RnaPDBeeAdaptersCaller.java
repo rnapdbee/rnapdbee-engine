@@ -55,6 +55,10 @@ public class RnaPDBeeAdaptersCaller {
 
     /**
      * Calls rnapdbee-adapters in order to receive base pair analysis of fileContent.
+     * <p>
+     * The header {@code X-MMCIF-Ensured: 1} skips time-consuming operation on the adapters service
+     * side, but works only if {@code fileContent} was produced by
+     * {@link RnaPDBeeAdaptersCaller#ensureMmCif}.
      *
      * @param fileContent content of file
      * @return {@link AdaptersAnalysisDTO} - performed analysis as Java object
@@ -69,6 +73,7 @@ public class RnaPDBeeAdaptersCaller {
             return adaptersWebClient
                     .post()
                     .uri(adapterUri, modelNumber)
+                    .header("X-MMCIF-Ensured", "1")
                     .contentType(MediaType.TEXT_PLAIN)
                     .body(BodyInserters.fromValue(fileContent))
                     .retrieve()
