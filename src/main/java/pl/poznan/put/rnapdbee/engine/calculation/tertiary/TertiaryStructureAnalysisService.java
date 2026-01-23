@@ -1,5 +1,11 @@
 package pl.poznan.put.rnapdbee.engine.calculation.tertiary;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +22,13 @@ import pl.poznan.put.rnapdbee.engine.calculation.tertiary.validator.Templates;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.exception.AdaptersErrorException;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.service.BasePairAnalyzerFactory;
-import pl.poznan.put.rnapdbee.engine.shared.domain.*;
+import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
+import pl.poznan.put.rnapdbee.engine.shared.domain.InputType;
+import pl.poznan.put.rnapdbee.engine.shared.domain.InputTypeDeterminer;
+import pl.poznan.put.rnapdbee.engine.shared.domain.ModelSelection;
+import pl.poznan.put.rnapdbee.engine.shared.domain.NonCanonicalHandling;
+import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementOutput;
+import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementsHandling;
 import pl.poznan.put.rnapdbee.engine.shared.elements.StructuralElementFinder;
 import pl.poznan.put.rnapdbee.engine.shared.exception.BasePairAnalysisException;
 import pl.poznan.put.rnapdbee.engine.shared.exception.NoRnaModelsInFileException;
@@ -25,14 +37,12 @@ import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.ImageService;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
 import pl.poznan.put.rnapdbee.engine.shared.parser.TertiaryFileParser;
-import pl.poznan.put.structure.formats.*;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
+import pl.poznan.put.structure.formats.BpSeq;
+import pl.poznan.put.structure.formats.Converter;
+import pl.poznan.put.structure.formats.Ct;
+import pl.poznan.put.structure.formats.DefaultDotBracketFromPdb;
+import pl.poznan.put.structure.formats.DotBracket;
+import pl.poznan.put.structure.formats.ImmutableDefaultDotBracketFromPdb;
 
 @Component
 public class TertiaryStructureAnalysisService {

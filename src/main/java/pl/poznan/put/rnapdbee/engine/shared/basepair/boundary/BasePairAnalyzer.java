@@ -1,13 +1,31 @@
 package pl.poznan.put.rnapdbee.engine.shared.basepair.boundary;
 
+import static pl.poznan.put.rnapdbee.engine.shared.basepair.domain.StackingTopology.mapToBioCommonsForm;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pl.poznan.put.notation.*;
+import pl.poznan.put.notation.BPh;
+import pl.poznan.put.notation.BR;
+import pl.poznan.put.notation.LeontisWesthof;
+import pl.poznan.put.notation.Saenger;
 import pl.poznan.put.notation.StackingTopology;
 import pl.poznan.put.pdb.PdbNamedResidueIdentifier;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rna.InteractionType;
-import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.*;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.AdaptersAnalysisDTO;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairDTO;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePhosphateType;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BaseRiboseType;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.LeontisWesthofType;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.SaengerType;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.exception.AdaptersErrorException;
 import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
@@ -15,13 +33,6 @@ import pl.poznan.put.rnapdbee.engine.shared.multiplet.BaseTriple;
 import pl.poznan.put.rnapdbee.engine.shared.multiplet.MultipletSet;
 import pl.poznan.put.structure.AnalyzedBasePair;
 import pl.poznan.put.structure.ImmutableAnalyzedBasePair;
-
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static pl.poznan.put.rnapdbee.engine.shared.basepair.domain.StackingTopology.mapToBioCommonsForm;
 
 // TODO: WebFlux would be really efficient with the 3D->multi 2D analysis as we there perform multiple calls to the
 //  adapters, it could be done in parallel and then joined up after each call is performed. We would save a tone of

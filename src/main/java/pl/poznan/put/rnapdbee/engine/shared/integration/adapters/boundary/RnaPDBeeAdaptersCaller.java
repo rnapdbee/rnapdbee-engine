@@ -1,5 +1,10 @@
 package pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary;
 
+import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.List;
+import java.util.Objects;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,26 +19,20 @@ import org.springframework.web.reactive.function.client.WebClientException;
 import org.w3c.dom.svg.SVGDocument;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rnapdbee.engine.calculation.consensus.domain.OutputMultiEntry;
-import pl.poznan.put.rnapdbee.engine.shared.basepair.exception.AdaptersErrorException;
-import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
-import pl.poznan.put.rnapdbee.engine.shared.image.exception.VisualizationException;
-import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.domain.AdaptersConsensualVisualizationPayload;
 import pl.poznan.put.rnapdbee.engine.infrastructure.configuration.RnaPDBeeAdaptersProperties;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.AdaptersAnalysisDTO;
+import pl.poznan.put.rnapdbee.engine.shared.basepair.exception.AdaptersErrorException;
 import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
+import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
+import pl.poznan.put.rnapdbee.engine.shared.image.exception.VisualizationException;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.component.PathDeterminer;
+import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.domain.AdaptersConsensualVisualizationPayload;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.domain.AdaptersVisualizationPayload;
 import pl.poznan.put.structure.ClassifiedBasePair;
 import pl.poznan.put.structure.formats.BpSeq;
 import pl.poznan.put.structure.formats.DotBracket;
 import pl.poznan.put.structure.formats.ImmutableDefaultDotBracket;
 import pl.poznan.put.utility.svg.SVGHelper;
-
-import java.io.File;
-import java.io.IOException;
-import java.time.Duration;
-import java.util.List;
-import java.util.Objects;
 
 @Component
 public class RnaPDBeeAdaptersCaller {

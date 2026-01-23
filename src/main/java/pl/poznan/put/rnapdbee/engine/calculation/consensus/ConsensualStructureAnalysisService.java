@@ -1,5 +1,12 @@
 package pl.poznan.put.rnapdbee.engine.calculation.consensus;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +22,11 @@ import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.exception.AdaptersErrorException;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.service.BasePairAnalyzerFactory;
-import pl.poznan.put.rnapdbee.engine.shared.domain.*;
+import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
+import pl.poznan.put.rnapdbee.engine.shared.domain.InputType;
+import pl.poznan.put.rnapdbee.engine.shared.domain.InputTypeDeterminer;
+import pl.poznan.put.rnapdbee.engine.shared.domain.ModelSelection;
+import pl.poznan.put.rnapdbee.engine.shared.domain.StructuralElementOutput;
 import pl.poznan.put.rnapdbee.engine.shared.exception.ConsensualVisualizationException;
 import pl.poznan.put.rnapdbee.engine.shared.exception.NoRnaModelsInFileException;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
@@ -26,11 +37,11 @@ import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.ConsensualVisuali
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
 import pl.poznan.put.rnapdbee.engine.shared.parser.TertiaryFileParser;
 import pl.poznan.put.structure.AnalyzedBasePair;
-import pl.poznan.put.structure.formats.*;
-
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
+import pl.poznan.put.structure.formats.BpSeq;
+import pl.poznan.put.structure.formats.Converter;
+import pl.poznan.put.structure.formats.Ct;
+import pl.poznan.put.structure.formats.DotBracket;
+import pl.poznan.put.structure.formats.ImmutableDefaultDotBracketFromPdb;
 
 /**
  * Service which purpose is to handle 3D -> Multi 2D analysis.
