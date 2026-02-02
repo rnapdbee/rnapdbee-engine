@@ -7,6 +7,7 @@ import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.domain.BasePairAnalysis;
 import pl.poznan.put.rnapdbee.engine.shared.domain.AnalysisTool;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
+import pl.poznan.put.rnapdbee.engine.shared.multiplet.boundary.CoplanarityClient;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.exception.AdaptersErrorException;
 
 @Component
@@ -25,7 +26,8 @@ public class BPNetBasePairAnalyzer extends BasePairAnalyzer {
     }
 
     @Autowired
-    public BPNetBasePairAnalyzer(RnaPDBeeAdaptersCaller rnaPDBeeAdaptersCaller) {
-        super(rnaPDBeeAdaptersCaller);
+    public BPNetBasePairAnalyzer(RnaPDBeeAdaptersCaller rnaPDBeeAdaptersCaller,
+                                 CoplanarityClient coplanarityClient) {
+        super(rnaPDBeeAdaptersCaller, coplanarityClient);
     }
 }

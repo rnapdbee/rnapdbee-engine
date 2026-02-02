@@ -35,6 +35,7 @@ import pl.poznan.put.rnapdbee.engine.shared.exception.NoRnaModelsInFileException
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.ImageInformationOutput;
 import pl.poznan.put.rnapdbee.engine.shared.image.domain.VisualizationTool;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.ImageService;
+import pl.poznan.put.rnapdbee.engine.shared.multiplet.BaseTriple;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
 import pl.poznan.put.rnapdbee.engine.shared.parser.TertiaryFileParser;
 import pl.poznan.put.structure.formats.BpSeq;
@@ -232,7 +233,8 @@ public class TertiaryStructureAnalysisService {
 
         final BpSeq bpseq = BpSeq.fromDotBracket(dotBracket);
         final Ct ct = Ct.fromBpSeqAndPdbModel(bpseq, structureModel);
-        final List<String> messages = generateMessageLog(image, analysisTool, rna);
+        final List<String> messages = generateMessageLog(image, analysisTool, rna,
+                basePairAnalysis.getNonCoplanarBaseTriples());
 
         final StructuralElementFinder structuralElementFinder = new StructuralElementFinder(
                 dotBracket,
@@ -272,7 +274,11 @@ public class TertiaryStructureAnalysisService {
      * @param rna              rna model which is valiated
      * @return message log generated using input parameters
      */
-    private List<String> generateMessageLog(ImageInformationOutput image, AnalysisTool analysisTool, PdbModel rna) {
+    private List<String> generateMessageLog(
+            ImageInformationOutput image,
+            AnalysisTool analysisTool,
+            PdbModel rna,
+            List<BaseTriple> nonCoplanarBaseTriples) {
         final List<String> messages = new ArrayList<>();
         messages.add(String.format("Base-pairs identified by %s", analysisTool));
 
@@ -291,6 +297,15 @@ public class TertiaryStructureAnalysisService {
             case NOT_DRAWN:
             default:
                 break;
+        }
+
+        if (nonCoplanarBaseTriples != null && !nonCoplanarBaseTriples.isEmpty()) {
+            messages.add(String.format(
+                    "Filtered %d base triples due to non-coplanar bases",
+                    nonCoplanarBaseTriples.size()));
+            for (BaseTriple baseTriple : nonCoplanarBaseTriples) {
+                messages.add("Filtered non-coplanar base triple: " + baseTriple);
+            }
         }
 
         messages.addAll(rnaValidator.validate(rna));

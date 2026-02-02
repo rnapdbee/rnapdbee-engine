@@ -7,6 +7,7 @@ import okhttp3.mockwebserver.RecordedRequest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +28,7 @@ import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.MaxitBasePairAnaly
 import pl.poznan.put.rnapdbee.engine.infrastructure.configuration.AdapterWebClientConfiguration;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.component.PathDeterminer;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
+import pl.poznan.put.rnapdbee.engine.shared.multiplet.boundary.CoplanarityClient;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -172,46 +174,66 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
                 rnapdbeeAdaptersProperties, mockedWebClientSupplier.get(),
                 pathDeterminer);
 
+        Supplier<CoplanarityClient> mockedCoplanarityClientSupplier = () -> {
+            CoplanarityClient client = Mockito.mock(CoplanarityClient.class);
+            Mockito.when(client.areBasesCoplanar(Mockito.anyString())).thenReturn(null);
+            return client;
+        };
+
         @Primary
         @Bean
         BarnabaBasePairAnalyzer mockBarnabaBasePairAnalyzer() {
-            return new BarnabaBasePairAnalyzer(mockedRnapdbeeAdaptersCallerSupplier.get());
+            return new BarnabaBasePairAnalyzer(
+                    mockedRnapdbeeAdaptersCallerSupplier.get(),
+                    mockedCoplanarityClientSupplier.get());
         }
 
         @Primary
         @Bean
         BPNetBasePairAnalyzer mockBPNetBasePairAnalyzer() {
-            return new BPNetBasePairAnalyzer(mockedRnapdbeeAdaptersCallerSupplier.get());
+            return new BPNetBasePairAnalyzer(
+                    mockedRnapdbeeAdaptersCallerSupplier.get(),
+                    mockedCoplanarityClientSupplier.get());
         }
 
         @Primary
         @Bean
         MCAnnotateBasePairAnalyzer mockMcAnnotateBasePairAnalyzer() {
-            return new MCAnnotateBasePairAnalyzer(mockedRnapdbeeAdaptersCallerSupplier.get());
+            return new MCAnnotateBasePairAnalyzer(
+                    mockedRnapdbeeAdaptersCallerSupplier.get(),
+                    mockedCoplanarityClientSupplier.get());
         }
 
         @Primary
         @Bean
         RnaViewBasePairAnalyzer mockRnaViewBasePairAnalyzer() {
-            return new RnaViewBasePairAnalyzer(mockedRnapdbeeAdaptersCallerSupplier.get());
+            return new RnaViewBasePairAnalyzer(
+                    mockedRnapdbeeAdaptersCallerSupplier.get(),
+                    mockedCoplanarityClientSupplier.get());
         }
 
         @Primary
         @Bean
         RnapolisBasePairAnalyzer mockRnapolisBasePairAnalyzer() {
-            return new RnapolisBasePairAnalyzer(mockedRnapdbeeAdaptersCallerSupplier.get());
+            return new RnapolisBasePairAnalyzer(
+                    mockedRnapdbeeAdaptersCallerSupplier.get(),
+                    mockedCoplanarityClientSupplier.get());
         }
 
         @Primary
         @Bean
         Fr3dBasePairAnalyzer mockFr3dBasePairAnalyzer() {
-            return new Fr3dBasePairAnalyzer(mockedRnapdbeeAdaptersCallerSupplier.get());
+            return new Fr3dBasePairAnalyzer(
+                    mockedRnapdbeeAdaptersCallerSupplier.get(),
+                    mockedCoplanarityClientSupplier.get());
         }
 
         @Primary
         @Bean
         MaxitBasePairAnalyzer mockMaxitBasePairAnalyzer() {
-            return new MaxitBasePairAnalyzer(mockedRnapdbeeAdaptersCallerSupplier.get());
+            return new MaxitBasePairAnalyzer(
+                    mockedRnapdbeeAdaptersCallerSupplier.get(),
+                    mockedCoplanarityClientSupplier.get());
         }
 
         @Primary

@@ -33,6 +33,7 @@ public class BasePairAnalysis {
     private final List<AnalyzedBasePair> other;
     private final List<AnalyzedBasePair> interStrand;
     private final List<BaseTriple> baseTriples;
+    private final List<BaseTriple> nonCoplanarBaseTriples;
 
     /**
      * Scan provided base pairs to find isolated ones. Here, isolated means that the nucleotides
@@ -117,7 +118,8 @@ public class BasePairAnalysis {
         if (!Objects.equals(baseRibose, that.baseRibose)) return false;
         if (!Objects.equals(other, that.other)) return false;
         if (!Objects.equals(interStrand, that.interStrand)) return false;
-        return Objects.equals(baseTriples, that.baseTriples);
+        if (!Objects.equals(baseTriples, that.baseTriples)) return false;
+        return Objects.equals(nonCoplanarBaseTriples, that.nonCoplanarBaseTriples);
     }
 
     @Override
@@ -131,6 +133,7 @@ public class BasePairAnalysis {
         result = 31 * result + (other != null ? other.hashCode() : 0);
         result = 31 * result + (interStrand != null ? interStrand.hashCode() : 0);
         result = 31 * result + (baseTriples != null ? baseTriples.hashCode() : 0);
+        result = 31 * result + (nonCoplanarBaseTriples != null ? nonCoplanarBaseTriples.hashCode() : 0);
         return result;
     }
 
@@ -190,6 +193,19 @@ public class BasePairAnalysis {
                                 .right()
                                 .toResidueIdentifier()))
                 .collect(Collectors.toList());
+        final List<BaseTriple> nonCoplanarBaseTriplesFiltered =
+                (nonCoplanarBaseTriples == null ? List.<BaseTriple>of() : nonCoplanarBaseTriples)
+                        .stream()
+                .filter(baseTriple -> residues.contains(
+                                baseTriple.getIdentifier().toResidueIdentifier())
+                        || residues.contains(
+                                baseTriple.getFirstBasePair().basePair().right().toResidueIdentifier())
+                        || residues.contains(baseTriple
+                                .getSecondBasePair()
+                                .basePair()
+                                .right()
+                                .toResidueIdentifier()))
+                .collect(Collectors.toList());
 
         return new BasePairAnalysisBuilder()
                 .withRepresented(representedFiltered)
@@ -201,6 +217,7 @@ public class BasePairAnalysis {
                 .withOther(otherFiltered)
                 .withInterStrand(interStrandFiltered)
                 .withBaseTriples(baseTriplesFiltered)
+                .withNonCoplanarBaseTriples(nonCoplanarBaseTriplesFiltered)
                 .build();
     }
 
@@ -240,6 +257,10 @@ public class BasePairAnalysis {
         return baseTriples;
     }
 
+    public List<BaseTriple> getNonCoplanarBaseTriples() {
+        return nonCoplanarBaseTriples;
+    }
+
     private BasePairAnalysis(
             List<AnalyzedBasePair> represented,
             List<AnalyzedBasePair> canonical,
@@ -249,7 +270,8 @@ public class BasePairAnalysis {
             List<AnalyzedBasePair> baseRibose,
             List<AnalyzedBasePair> other,
             List<AnalyzedBasePair> interStrand,
-            List<BaseTriple> baseTriples) {
+            List<BaseTriple> baseTriples,
+            List<BaseTriple> nonCoplanarBaseTriples) {
         this.represented = represented;
         this.canonical = canonical;
         this.nonCanonical = nonCanonical;
@@ -259,6 +281,7 @@ public class BasePairAnalysis {
         this.other = other;
         this.interStrand = interStrand;
         this.baseTriples = baseTriples;
+        this.nonCoplanarBaseTriples = nonCoplanarBaseTriples;
     }
 
     public static class BasePairAnalysisBuilder {
@@ -271,6 +294,7 @@ public class BasePairAnalysis {
         private List<AnalyzedBasePair> other;
         private List<AnalyzedBasePair> interStrand;
         private List<BaseTriple> baseTriples;
+        private List<BaseTriple> nonCoplanarBaseTriples;
 
         public BasePairAnalysisBuilder withRepresented(List<AnalyzedBasePair> represented) {
             this.represented = represented;
@@ -317,6 +341,11 @@ public class BasePairAnalysis {
             return this;
         }
 
+        public BasePairAnalysisBuilder withNonCoplanarBaseTriples(List<BaseTriple> nonCoplanarBaseTriples) {
+            this.nonCoplanarBaseTriples = nonCoplanarBaseTriples;
+            return this;
+        }
+
         public BasePairAnalysis build() {
             return new BasePairAnalysis(
                     represented,
@@ -327,7 +356,8 @@ public class BasePairAnalysis {
                     baseRibose,
                     other,
                     interStrand,
-                    baseTriples);
+                    baseTriples,
+                    nonCoplanarBaseTriples == null ? List.of() : nonCoplanarBaseTriples);
         }
     }
 }
