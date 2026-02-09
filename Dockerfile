@@ -28,5 +28,17 @@ EXPOSE 8081
 
 COPY --from=builder /app/target/rnapdbee-engine-0.0.1-SNAPSHOT.jar /app.jar
 
-ENTRYPOINT ["java", "-XX:+ExitOnOutOfMemoryError", "-Xmx8G", "-Xms8G", "-XX:MaxDirectMemorySize=1G", "-XX:+UseG1GC", "-XX:+UseStringDeduplication", "-jar", "/app.jar"]
+ENTRYPOINT ["java", \
+    "-XX:+ExitOnOutOfMemoryError", \
+    "-XX:+UseContainerSupport", \
+    "-XX:ActiveProcessorCount=4", \
+    "-Xmx8G", \
+    "-Xms8G", \
+    "-XX:MaxDirectMemorySize=1G", \
+    "-XX:+UseG1GC", \
+    "-XX:G1HeapRegionSize=4m", \
+    "-XX:MaxGCPauseMillis=200", \
+    "-XX:+UseStringDeduplication", \
+    "-XX:+AlwaysPreTouch", \
+    "-jar", "/app.jar"]
 
