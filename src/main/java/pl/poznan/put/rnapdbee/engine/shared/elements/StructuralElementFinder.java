@@ -567,9 +567,10 @@ public class StructuralElementFinder {
                 }
             }
 
-            final boolean hasUnpaired = blockStrands.stream().anyMatch(strand -> strand.length() > 2);
+            final boolean isBasePairStep = blockStrands.size() == 2
+                    && blockStrands.stream().allMatch(strand -> strand.length() <= 2);
 
-            if (found && isValid && hasUnpaired) {
+            if (found && isValid && !isBasePairStep) {
                 final StructuralElement loop = StructuralElement.createInstance(dotBracket, blockStrands);
                 elements.add(loop);
             }
