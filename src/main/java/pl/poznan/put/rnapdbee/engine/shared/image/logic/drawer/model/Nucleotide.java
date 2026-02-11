@@ -1,12 +1,11 @@
 package pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.awt.*;
-import java.util.Optional;
-
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Nucleotide {
   @JsonProperty("id")
   public int id;
@@ -25,24 +24,6 @@ public class Nucleotide {
 
   @JsonProperty("nameColor")
   public String nameColor;
-
-  // Transient fields to store the parsed color objects
-  public transient Optional<Color> parsedOutlineColor = Optional.empty();
-  public transient Optional<Color> parsedInnerColor = Optional.empty();
-  public transient Optional<Color> parsedNameColor = Optional.empty();
-
-  // Getters for the parsed colors (optional, but good practice)
-  public Optional<Color> getParsedOutlineColor() {
-    return parsedOutlineColor;
-  }
-
-  public Optional<Color> getParsedInnerColor() {
-    return parsedInnerColor;
-  }
-
-  public Optional<Color> getParsedNameColor() {
-    return parsedNameColor;
-  }
 
   @Override
   public String toString() {

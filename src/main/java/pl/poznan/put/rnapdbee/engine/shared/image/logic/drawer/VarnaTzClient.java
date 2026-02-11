@@ -51,6 +51,9 @@ public class VarnaTzClient {
         try {
             String jsonContent = objectMapper.writeValueAsString(structureData);
 
+            logger.info("Varna-tz request: {}", structureData);
+            logger.debug("Varna-tz request JSON ({} bytes): {}", jsonContent.length(), jsonContent);
+
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
@@ -72,7 +75,7 @@ public class VarnaTzClient {
             String url = UriComponentsBuilder.fromHttpUrl(serviceUrl)
                     .path(RUN_COMMAND_PATH)
                     .toUriString();
-            logger.debug("Sending draw request to Varna-tz service at: {}", url);
+            logger.info("Sending draw request to Varna-tz service at: {}", url);
 
             ResponseEntity<byte[]> responseEntity = restTemplate.exchange(
                     url,
@@ -80,7 +83,12 @@ public class VarnaTzClient {
                     requestEntity,
                     byte[].class);
 
+            int statusCode = responseEntity.getStatusCodeValue();
+            int responseSize = responseEntity.getBody() != null ? responseEntity.getBody().length : 0;
             MediaType contentType = responseEntity.getHeaders().getContentType();
+            logger.info("Varna-tz response: status={}, contentType={}, bodySize={} bytes",
+                    statusCode, contentType, responseSize);
+
             if (contentType != null && MediaType.MULTIPART_FORM_DATA.includes(contentType)) {
                 String boundary = extractBoundary(contentType);
                 if (boundary != null) {
@@ -92,8 +100,12 @@ public class VarnaTzClient {
             Map<String, Object> response = parseJsonResponse(responseEntity.getBody());
             return handleLegacyResponse(response);
         } catch (RestClientException e) {
+            logger.error("REST error communicating with Varna-tz service: {}", e.getMessage(), e);
             throw new VisualizationException("Error communicating with Varna-tz service", e);
+        } catch (VisualizationException e) {
+            throw e;
         } catch (Exception e) {
+            logger.error("Unexpected error during Varna-tz drawing: {}", e.getMessage(), e);
             throw new VisualizationException("Unexpected error during Varna-tz drawing", e);
         }
     }
@@ -101,20 +113,35 @@ public class VarnaTzClient {
     private SVGDocument handleMultipartResponse(byte[] responseBody, String boundary)
             throws IOException, VisualizationException {
         if (responseBody == null || responseBody.length == 0) {
+            logger.error("Received empty multipart response from Varna-tz service");
             throw new VisualizationException("Received empty multipart response from Varna-tz service");
         }
 
         List<MultipartPart> parts = parseMultipartParts(responseBody, boundary);
+        logger.debug("Parsed {} multipart parts from response", parts.size());
+        for (MultipartPart part : parts) {
+            logger.debug("  Part: name={}, filename={}, contentSize={} bytes",
+                    part.getName(), part.getFilename(),
+                    part.getContent() != null ? part.getContent().length : 0);
+        }
+
         Map<String, Object> metadata = parseMetadataPart(parts);
         logMetadata(metadata);
         validateExitCode(metadata);
 
         byte[] svgBytes = extractFileBytes(parts, "clean.svg");
         if (svgBytes == null) {
+            logger.error("No clean.svg file found in multipart response. Available parts: {}",
+                    parts.stream()
+                            .map(p -> String.format("name=%s, filename=%s", p.getName(), p.getFilename()))
+                            .collect(java.util.stream.Collectors.joining("; ")));
             throw new VisualizationException("No clean.svg file found in the multipart response");
         }
 
+        logger.info("Successfully extracted clean.svg ({} bytes) from Varna-tz response", svgBytes.length);
         String svgContent = new String(svgBytes, StandardCharsets.UTF_8);
+        logger.debug("SVG content preview (first 500 chars): {}",
+                svgContent.substring(0, Math.min(500, svgContent.length())));
         SAXSVGDocumentFactory factory =
                 new SAXSVGDocumentFactory(XMLResourceDescriptor.getXMLParserClassName());
         return factory.createSVGDocument(null, new StringReader(svgContent));
@@ -122,20 +149,27 @@ public class VarnaTzClient {
 
     private SVGDocument handleLegacyResponse(Map<String, Object> response) throws VisualizationException, IOException {
         if (response == null) {
+            logger.error("Received null JSON response from Varna-tz service");
             throw new VisualizationException("Received null response from Varna-tz service");
         }
 
+        logger.debug("Legacy JSON response keys: {}", response.keySet());
         logMetadata(response);
         validateExitCode(response);
 
         if (response.containsKey("output_files") && response.get("output_files") != null) {
             List<Map<String, String>> outputFiles = (List<Map<String, String>>) response.get("output_files");
+            logger.debug("Response contains {} output files", outputFiles.size());
 
             for (Map<String, String> file : outputFiles) {
+                logger.debug("  Output file: relative_path={}, has_content={}",
+                        file.get("relative_path"), file.containsKey("content_base64"));
                 if ("clean.svg".equals(file.get("relative_path"))
                         && file.containsKey("content_base64")) {
                     byte[] decodedData = Base64.getDecoder().decode(file.get("content_base64"));
                     String svgContent = new String(decodedData, StandardCharsets.UTF_8);
+                    logger.info("Successfully decoded clean.svg ({} bytes) from legacy Varna-tz response",
+                            decodedData.length);
 
                     SAXSVGDocumentFactory factory =
                             new SAXSVGDocumentFactory(XMLResourceDescriptor.getXMLParserClassName());
@@ -143,6 +177,7 @@ public class VarnaTzClient {
                 }
             }
         }
+        logger.error("No clean.svg file found in legacy JSON response. Response keys: {}", response.keySet());
         throw new VisualizationException("No clean.svg file found in the response from Varna-tz service");
     }
 
@@ -168,11 +203,19 @@ public class VarnaTzClient {
 
     private void logMetadata(Map<String, Object> metadata) {
         if (metadata == null) {
+            logger.warn("Varna-tz response metadata is null");
             return;
         }
 
+        if (metadata.containsKey("exit_code")) {
+            logger.info("Varna-tz exit_code: {}", metadata.get("exit_code"));
+        }
+
         if (metadata.containsKey("stdout")) {
-            logger.debug("Varna-tz stdout: {}", metadata.get("stdout"));
+            String stdout = String.valueOf(metadata.get("stdout"));
+            if (stdout != null && !stdout.isEmpty() && !"null".equals(stdout)) {
+                logger.info("Varna-tz stdout: {}", stdout);
+            }
         }
 
         if (metadata.containsKey("stderr")) {

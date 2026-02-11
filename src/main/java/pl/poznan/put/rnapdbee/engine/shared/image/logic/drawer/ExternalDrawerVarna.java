@@ -45,6 +45,9 @@ public class ExternalDrawerVarna implements SecondaryStructureDrawer {
             final DotBracket dotBracket, List<? extends ClassifiedBasePair> stacking) throws VisualizationException {
         var svgs = new ArrayList<SVGDocument>();
         for (var combinedStrand : dotBracket.combineStrands()) {
+            if (combinedStrand.symbols().size() < 2) {
+                continue;
+            }
             var currentStacking = stacking;
             if (combinedStrand instanceof DotBracketFromPdb) {
                 var currentChains = ((DotBracketFromPdb) combinedStrand)
@@ -109,10 +112,16 @@ public class ExternalDrawerVarna implements SecondaryStructureDrawer {
         for (var classifiedBasePair : nonCanonicalBasePairs) {
             assert combinedStrand instanceof DotBracketFromPdb;
 
-            var left = ((DotBracketFromPdb) combinedStrand)
-                    .symbol(classifiedBasePair.basePair().left().toResidueIdentifier());
-            var right = ((DotBracketFromPdb) combinedStrand)
-                    .symbol(classifiedBasePair.basePair().right().toResidueIdentifier());
+            var leftIdentifier = classifiedBasePair.basePair().left().toResidueIdentifier();
+            var rightIdentifier = classifiedBasePair.basePair().right().toResidueIdentifier();
+
+            if (!((DotBracketFromPdb) combinedStrand).contains(leftIdentifier)
+                    || !((DotBracketFromPdb) combinedStrand).contains(rightIdentifier)) {
+                continue;
+            }
+
+            var left = ((DotBracketFromPdb) combinedStrand).symbol(leftIdentifier);
+            var right = ((DotBracketFromPdb) combinedStrand).symbol(rightIdentifier);
             var basePair = new pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.model.BasePair();
             basePair.id1 = left.index();
             basePair.id2 = right.index();
@@ -127,10 +136,16 @@ public class ExternalDrawerVarna implements SecondaryStructureDrawer {
         for (var stackingInteraction : stackingInteractions) {
             assert combinedStrand instanceof DotBracketFromPdb;
 
-            var left = ((DotBracketFromPdb) combinedStrand)
-                    .symbol(stackingInteraction.basePair().left().toResidueIdentifier());
-            var right = ((DotBracketFromPdb) combinedStrand)
-                    .symbol(stackingInteraction.basePair().right().toResidueIdentifier());
+            var leftIdentifier = stackingInteraction.basePair().left().toResidueIdentifier();
+            var rightIdentifier = stackingInteraction.basePair().right().toResidueIdentifier();
+
+            if (!((DotBracketFromPdb) combinedStrand).contains(leftIdentifier)
+                    || !((DotBracketFromPdb) combinedStrand).contains(rightIdentifier)) {
+                continue;
+            }
+
+            var left = ((DotBracketFromPdb) combinedStrand).symbol(leftIdentifier);
+            var right = ((DotBracketFromPdb) combinedStrand).symbol(rightIdentifier);
             var stacking = new Stacking();
             stacking.id1 = left.index();
             stacking.id2 = right.index();
@@ -182,6 +197,9 @@ public class ExternalDrawerVarna implements SecondaryStructureDrawer {
 
         final List<SVGDocument> svgs = new ArrayList<>();
         for (final DotBracketFromPdb combinedStrand : combinedStrands) {
+            if (combinedStrand.symbols().size() < 2) {
+                continue;
+            }
             var currentChains = combinedStrand.identifierSet().stream()
                     .map(PdbResidueIdentifier::chainIdentifier)
                     .collect(Collectors.toSet());

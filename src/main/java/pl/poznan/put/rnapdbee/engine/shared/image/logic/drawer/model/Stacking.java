@@ -1,11 +1,11 @@
 package pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.awt.*;
-import java.util.Optional;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Stacking {
   @JsonProperty("id1")
   public int id1;
@@ -18,14 +18,6 @@ public class Stacking {
 
   @JsonProperty("thickness")
   public Double thickness;
-
-  // Transient field to store the parsed color object
-  public transient Optional<Color> parsedColor = Optional.empty();
-
-  // Getter for the parsed color
-  public Optional<Color> getParsedColor() {
-    return parsedColor;
-  }
 
   @Override
   public String toString() {

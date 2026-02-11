@@ -1,13 +1,12 @@
 package pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import fr.orsay.lri.varna.models.rna.ModeleBP;
 
-import java.awt.*;
-import java.util.Optional;
-
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class BasePair {
   @JsonProperty("id1")
   public int id1; // References Nucleotide.id
@@ -32,14 +31,6 @@ public class BasePair {
 
   @JsonProperty("thickness")
   public Double thickness; // Optional thickness field
-
-  // Transient field to store the parsed color object
-  public transient Optional<Color> parsedColor = Optional.empty();
-
-  // Getter for the parsed color
-  public Optional<Color> getParsedColor() {
-    return parsedColor;
-  }
 
   @Override
   public String toString() {
