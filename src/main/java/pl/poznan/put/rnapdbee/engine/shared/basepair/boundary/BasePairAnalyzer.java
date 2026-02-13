@@ -3,12 +3,13 @@ package pl.poznan.put.rnapdbee.engine.shared.basepair.boundary;
 import static pl.poznan.put.rnapdbee.engine.shared.basepair.domain.StackingTopology.mapToBioCommonsForm;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -244,40 +245,42 @@ public abstract class BasePairAnalyzer {
                                 .build();
         }
 
-        private CoplanarityFilterResult filterCoplanarBaseTriples(
-                        List<BaseTriple> baseTriples,
-                        PdbModel structureModel) {
-                List<BaseTripleCheckResult> results = IntStream.range(0, baseTriples.size())
-                                .parallel()
-                                .mapToObj(index -> checkBaseTriple(baseTriples.get(index), index, structureModel))
-                                .sorted((a, b) -> Integer.compare(a.index, b.index))
-                                .collect(Collectors.toList());
+	private CoplanarityFilterResult filterCoplanarBaseTriples(
+			List<BaseTriple> baseTriples,
+			PdbModel structureModel) {
+		Map<String, String> cifContents = new LinkedHashMap<>();
+		Map<String, Integer> filenameToIndex = new HashMap<>();
 
-                List<BaseTriple> coplanar = new ArrayList<>();
-                List<BaseTriple> filteredOut = new ArrayList<>();
+		for (int i = 0; i < baseTriples.size(); i++) {
+			String cifContent = buildCifForBaseTriple(structureModel, baseTriples.get(i));
+			if (cifContent != null) {
+				String filename = "triple-" + i + ".cif";
+				cifContents.put(filename, cifContent);
+				filenameToIndex.put(filename, i);
+			}
+		}
 
-                for (BaseTripleCheckResult result : results) {
-                        if (Boolean.FALSE.equals(result.isCoplanar)) {
-                                filteredOut.add(result.baseTriple);
-                        } else {
-                                coplanar.add(result.baseTriple);
-                        }
-                }
+		Map<String, Boolean> coplanarityResults = cifContents.isEmpty()
+				? Map.of()
+				: coplanarityClient.areBasesCoplanar(cifContents);
 
-                return new CoplanarityFilterResult(coplanar, filteredOut);
-        }
+		List<BaseTriple> coplanar = new ArrayList<>();
+		List<BaseTriple> filteredOut = new ArrayList<>();
 
-        private BaseTripleCheckResult checkBaseTriple(
-                        BaseTriple baseTriple,
-                        int index,
-                        PdbModel structureModel) {
-                String cifContent = buildCifForBaseTriple(structureModel, baseTriple);
-                if (cifContent == null) {
-                        return new BaseTripleCheckResult(baseTriple, index, null);
-                }
-                Boolean isCoplanar = coplanarityClient.areBasesCoplanar(cifContent);
-                return new BaseTripleCheckResult(baseTriple, index, isCoplanar);
-        }
+		for (int i = 0; i < baseTriples.size(); i++) {
+			String filename = "triple-" + i + ".cif";
+			Boolean isCoplanar = coplanarityResults != null
+					? coplanarityResults.get(filename)
+					: null;
+			if (Boolean.FALSE.equals(isCoplanar)) {
+				filteredOut.add(baseTriples.get(i));
+			} else {
+				coplanar.add(baseTriples.get(i));
+			}
+		}
+
+		return new CoplanarityFilterResult(coplanar, filteredOut);
+	}
 
         private String buildCifForBaseTriple(PdbModel structureModel, BaseTriple baseTriple) {
                 try {
@@ -325,19 +328,7 @@ public abstract class BasePairAnalyzer {
                 }
         }
 
-        private static final class BaseTripleCheckResult {
-                private final BaseTriple baseTriple;
-                private final int index;
-                private final Boolean isCoplanar;
-
-                private BaseTripleCheckResult(BaseTriple baseTriple, int index, Boolean isCoplanar) {
-                        this.baseTriple = baseTriple;
-                        this.index = index;
-                        this.isCoplanar = isCoplanar;
-                }
-        }
-
-        private List<AnalyzedBasePair> determineRepresentedPairs(
+	private List<AnalyzedBasePair> determineRepresentedPairs(
                         List<AnalyzedBasePair> canonicalPairs,
                         List<AnalyzedBasePair> nonCanonicalPairs,
                         boolean includeNonCanonical) {

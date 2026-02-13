@@ -40,29 +40,39 @@ public class CoplanarityClient {
     }
 
     public Boolean areBasesCoplanar(String cifContent) {
+        Map<String, Boolean> results = areBasesCoplanar(Map.of("input.cif", cifContent));
+        if (results == null) {
+            return null;
+        }
+        return results.get("input.cif");
+    }
+
+    public Map<String, Boolean> areBasesCoplanar(Map<String, String> cifContents) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             body.add("arguments", "coplanarity-checker-wrapper.py");
-            body.add("arguments", "input.cif");
+            body.add("output_files", "output.json");
 
-            ByteArrayResource fileResource =
-                    new ByteArrayResource(cifContent.getBytes(StandardCharsets.UTF_8)) {
-                        @Override
-                        public String getFilename() {
-                            return "input.cif";
-                        }
-                    };
-            body.add("input_files", fileResource);
+            for (Map.Entry<String, String> entry : cifContents.entrySet()) {
+                ByteArrayResource fileResource =
+                        new ByteArrayResource(entry.getValue().getBytes(StandardCharsets.UTF_8)) {
+                            @Override
+                            public String getFilename() {
+                                return entry.getKey();
+                            }
+                        };
+                body.add("input_files", fileResource);
+            }
 
             HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
             String url = UriComponentsBuilder.fromHttpUrl(serviceUrl)
                     .path(RUN_COMMAND_PATH)
                     .toUriString();
-            logger.debug("Sending coplanarity request to CLI2REST at: {}", url);
+            logger.debug("Sending batch coplanarity request to CLI2REST at: {} with {} files", url, cifContents.size());
 
             ResponseEntity<byte[]> responseEntity = restTemplate.exchange(
                     url,
@@ -70,41 +80,45 @@ public class CoplanarityClient {
                     requestEntity,
                     byte[].class);
 
-            Map<String, Object> metadata = parseResponseMetadata(responseEntity);
-            if (metadata == null) {
-                logger.warn("Coplanarity response metadata missing");
+            MediaType contentType = responseEntity.getHeaders().getContentType();
+            if (contentType == null || !MediaType.MULTIPART_FORM_DATA.includes(contentType)) {
+                logger.warn("Coplanarity response is not multipart");
                 return null;
             }
 
-            logMetadata(metadata);
-            Integer exitCode = parseExitCode(metadata);
-            if (exitCode != null && exitCode != 0) {
-                logger.warn("Coplanarity command failed with exit code: {}", exitCode);
+            String boundary = extractBoundary(contentType);
+            if (boundary == null) {
+                logger.warn("Coplanarity response boundary missing");
                 return null;
             }
 
-            String stdout = String.valueOf(metadata.get("stdout"));
-            return stdout != null && stdout.contains("True");
+            List<MultipartPart> parts = parseMultipartParts(responseEntity.getBody(), boundary);
+
+            Map<String, Object> metadata = parseMetadataPart(parts);
+            if (metadata != null) {
+                logMetadata(metadata);
+                Integer exitCode = parseExitCode(metadata);
+                if (exitCode != null && exitCode != 0) {
+                    logger.warn("Coplanarity command failed with exit code: {}", exitCode);
+                    return null;
+                }
+            }
+
+            for (MultipartPart part : parts) {
+                if ("output.json".equals(part.getFilename())) {
+                    return objectMapper.readValue(part.getContent(), new TypeReference<Map<String, Boolean>>() {});
+                }
+            }
+
+            logger.warn("Coplanarity response missing output.json part");
+            return null;
         } catch (RestClientException e) {
             logger.warn("Error communicating with coplanarity service", e);
             return null;
         } catch (Exception e) {
-            logger.warn("Unexpected error during coplanarity check", e);
+            logger.warn("Unexpected error during batch coplanarity check", e);
             return null;
         }
-    }
-
-    private Map<String, Object> parseResponseMetadata(ResponseEntity<byte[]> responseEntity) throws Exception {
-        MediaType contentType = responseEntity.getHeaders().getContentType();
-        if (contentType != null && MediaType.MULTIPART_FORM_DATA.includes(contentType)) {
-            String boundary = extractBoundary(contentType);
-            if (boundary == null) {
-                return null;
-            }
-            List<MultipartPart> parts = parseMultipartParts(responseEntity.getBody(), boundary);
-            return parseMetadataPart(parts);
-        }
-        return parseJsonResponse(responseEntity.getBody());
     }
 
     private Map<String, Object> parseMetadataPart(List<MultipartPart> parts) throws Exception {
@@ -115,14 +129,6 @@ public class CoplanarityClient {
             }
         }
         return null;
-    }
-
-    private Map<String, Object> parseJsonResponse(byte[] responseBody) throws Exception {
-        if (responseBody == null || responseBody.length == 0) {
-            return null;
-        }
-        return objectMapper.readValue(responseBody, new TypeReference<Map<String, Object>>() {
-        });
     }
 
     private void logMetadata(Map<String, Object> metadata) {
@@ -258,6 +264,10 @@ public class CoplanarityClient {
 
         private String getName() {
             return name;
+        }
+
+        private String getFilename() {
+            return filename;
         }
 
         private byte[] getContent() {

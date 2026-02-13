@@ -177,6 +177,7 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
         Supplier<CoplanarityClient> mockedCoplanarityClientSupplier = () -> {
             CoplanarityClient client = Mockito.mock(CoplanarityClient.class);
             Mockito.when(client.areBasesCoplanar(Mockito.anyString())).thenReturn(null);
+            Mockito.when(client.areBasesCoplanar(Mockito.anyMap())).thenReturn(null);
             return client;
         };
 
