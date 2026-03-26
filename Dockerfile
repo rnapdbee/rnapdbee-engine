@@ -33,12 +33,12 @@ ENTRYPOINT ["java", \
     "-XX:+UseContainerSupport", \
     "-XX:ActiveProcessorCount=4", \
     "-Xmx8G", \
-    "-Xms8G", \
     "-XX:MaxDirectMemorySize=1G", \
     "-XX:+UseG1GC", \
     "-XX:G1HeapRegionSize=4m", \
     "-XX:MaxGCPauseMillis=200", \
     "-XX:+UseStringDeduplication", \
-    "-XX:+AlwaysPreTouch", \
+    "-XX:MinHeapFreeRatio=20", \
+    "-XX:MaxHeapFreeRatio=40", \
     "-jar", "/app.jar"]
 
