@@ -108,9 +108,10 @@ public abstract class BasePairAnalyzer {
          * @return {@link AnalyzedBasePair} BasePairAnalysis object with populated pairs
          *         lists.
          */
-        protected BasePairAnalysis performPostAnalysisOnResponseFromAdapter(
-                        AdaptersAnalysisDTO responseFromAdapter, boolean includeNonCanonical, PdbModel structureModel) {
-                final Map<ChainNumberKey, String> pairIdentifiersWithTheirShortNames = structureModel.residues()
+	protected BasePairAnalysis performPostAnalysisOnResponseFromAdapter(
+			AdaptersAnalysisDTO responseFromAdapter, boolean includeNonCanonical, PdbModel structureModel) {
+
+		final Map<ChainNumberKey, String> pairIdentifiersWithTheirShortNames = structureModel.residues()
                                 .stream()
                                 .collect(Collectors.toMap(
                                                 residue -> new ChainNumberKey(

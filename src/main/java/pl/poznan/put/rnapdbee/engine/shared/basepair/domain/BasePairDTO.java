@@ -1,7 +1,6 @@
 package pl.poznan.put.rnapdbee.engine.shared.basepair.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import pl.poznan.put.pdb.ImmutablePdbNamedResidueIdentifier;
 import pl.poznan.put.pdb.PdbNamedResidueIdentifier;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.ChainNumberKey;
@@ -121,18 +120,24 @@ public class BasePairDTO {
     }
 
     public ImmutableBasePair toBasePair(PdbModel pdbModel) {
-        PdbNamedResidueIdentifier left = mapResidueToPdbNamedResidueIdentifier(nt1,  pdbModel);
-        PdbNamedResidueIdentifier right = mapResidueToPdbNamedResidueIdentifier(nt2,   pdbModel);
+        PdbNamedResidueIdentifier left = mapResidueToPdbNamedResidueIdentifier(nt1, pdbModel);
+        PdbNamedResidueIdentifier right = mapResidueToPdbNamedResidueIdentifier(nt2, pdbModel);
         return ImmutableBasePair.of(left, right);
     }
 
     private PdbNamedResidueIdentifier mapResidueToPdbNamedResidueIdentifier(Residue residue, PdbModel pdbModel) {
         if (pdbModel.hasResidue(residue)) {
-        return pdbModel.findResidue(residue).namedResidueIdentifier();
+            return pdbModel.findResidue(residue).namedResidueIdentifier();
         }
 
-        String name = residue.getAuth().getName();
-        return ImmutablePdbNamedResidueIdentifier.of(residue.chainIdentifier(), residue.residueNumber(), residue.insertionCode(), name.charAt(name.length() - 1));
+        throw new IllegalStateException(String.format(
+                "Residue not found in model: chain='%s', number=%d, icode=%s, name='%s'. "
+                        + "This may indicate a mismatch between adapter response and parsed structure "
+                        + "(e.g., chain identifier normalization issue).",
+                residue.chainIdentifier(),
+                residue.residueNumber(),
+                residue.insertionCode().orElse("(none)"),
+                residue.getAuth().getName()));
     }
 
     public boolean isCanonical(PdbModel pdbModel) {

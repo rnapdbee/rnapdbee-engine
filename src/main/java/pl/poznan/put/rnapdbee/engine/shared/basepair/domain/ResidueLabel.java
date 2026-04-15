@@ -26,8 +26,17 @@ public class ResidueLabel {
         this.name = residueLabel.getName();
     }
 
+    /**
+     * Returns the label-assigned chain identifier.
+     * <p>
+     * When mmCIF has "?" or "." for label_asym_id, the rnapolis-py parser correctly interprets
+     * these as missing data and returns null. BioCommons uses "" (empty string) for blank/missing
+     * chain identifiers, so we normalize null to "" here for consistency.
+     *
+     * @return chain identifier, never null (returns "" for missing/unknown chains)
+     */
     public String getChainIdentifier() {
-        return chainIdentifier;
+        return chainIdentifier != null ? chainIdentifier : "";
     }
 
     public void setChainIdentifier(String chainIdentifier) {
