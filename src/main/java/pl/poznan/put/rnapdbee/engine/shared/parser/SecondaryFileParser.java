@@ -13,10 +13,15 @@ import pl.poznan.put.structure.formats.Ct;
 import pl.poznan.put.structure.formats.DefaultDotBracket;
 import pl.poznan.put.structure.formats.DotBracket;
 
+import java.util.Arrays;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 @Component
 public class SecondaryFileParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SecondaryFileParser.class);
+    private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
     private final Converter converter;
 
     public DotBracket parseSecondaryFile(String content, InputType inputType, boolean removeIsolated) {
@@ -38,9 +43,10 @@ public class SecondaryFileParser {
 
     private DotBracket convertBpSeqIntoDotBracket(String content, boolean removeIsolated) {
         try {
+            String normalizedContent = normalizeSecondaryFileContent(content);
             BpSeq bpSeq = removeIsolated
-                    ? BpSeq.fromString(content).withoutIsolatedPairs()
-                    : BpSeq.fromString(content);
+                    ? BpSeq.fromString(normalizedContent).withoutIsolatedPairs()
+                    : BpSeq.fromString(normalizedContent);
             Ct ct = Ct.fromBpSeq(bpSeq);
             return DefaultDotBracket.copyWithStrands(converter.convert(bpSeq), ct);
         } catch (IllegalArgumentException exception) {
@@ -52,9 +58,10 @@ public class SecondaryFileParser {
 
     private DotBracket convertCtIntoDotBracket(String content, boolean removeIsolated) {
         try {
+            String normalizedContent = normalizeSecondaryFileContent(content);
             Ct ct = removeIsolated
-                    ? Ct.fromString(content).withoutIsolatedPairs()
-                    : Ct.fromString(content);
+                    ? Ct.fromString(normalizedContent).withoutIsolatedPairs()
+                    : Ct.fromString(normalizedContent);
             BpSeq bpSeq = BpSeq.fromCt(ct);
             return DefaultDotBracket.copyWithStrands(converter.convert(bpSeq), ct);
         } catch (IllegalArgumentException exception) {
@@ -77,6 +84,14 @@ public class SecondaryFileParser {
                     exception.getMessage()));
             throw new ImproperStructureFormatException("Failed to parse content of the dot bracket file", exception);
         }
+    }
+
+    private String normalizeSecondaryFileContent(String content) {
+        return Arrays.stream(content.split("\\R"))
+                .map(String::trim)
+                .filter(line -> !line.isEmpty())
+                .map(line -> WHITESPACE_PATTERN.matcher(line).replaceAll(" "))
+                .collect(Collectors.joining("\n"));
     }
 
     @Autowired
