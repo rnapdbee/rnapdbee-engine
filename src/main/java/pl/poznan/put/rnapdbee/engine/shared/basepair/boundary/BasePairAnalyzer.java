@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -41,6 +42,7 @@ import pl.poznan.put.rnapdbee.engine.shared.multiplet.BaseTriple;
 import pl.poznan.put.rnapdbee.engine.shared.multiplet.MultipletSet;
 import pl.poznan.put.structure.AnalyzedBasePair;
 import pl.poznan.put.structure.ImmutableAnalyzedBasePair;
+import pl.poznan.put.structure.ImmutableBasePair;
 
 // TODO: WebFlux would be really efficient with the 3D->multi 2D analysis as we there perform multiple calls to the
 //  adapters, it could be done in parallel and then joined up after each call is performed. We would save a tone of
@@ -124,7 +126,12 @@ public abstract class BasePairAnalyzer {
                                 .filter(pair -> pair.isCanonical(structureModel))
                                 .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair,
                                                 pairIdentifiersWithTheirShortNames))
-                                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair.toBasePair(structureModel))
+                                .map(basePair -> {
+                                    ImmutableBasePair bp = basePair.toBasePair(structureModel);
+                                    if (bp == null) {
+                                        return null;
+                                    }
+                                    return ImmutableAnalyzedBasePair.of(bp)
                                                 .withInteractionType(InteractionType.BASE_BASE)
                                                 .withSaenger(basePair.getSaengerType() != null
                                                                 ? SaengerType.mapToBioCommonsForm(
@@ -136,13 +143,20 @@ public abstract class BasePairAnalyzer {
                                                                 : LeontisWesthof.UNKNOWN)
                                                 .withBph(BPh.UNKNOWN)
                                                 .withBr(BR.UNKNOWN)
-                                                .withStackingTopology(StackingTopology.UNKNOWN))
+                                                .withStackingTopology(StackingTopology.UNKNOWN);
+                                })
+                                .filter(Objects::nonNull)
                                 .collect(Collectors.toList());
                 List<AnalyzedBasePair> nonCanonical = responseFromAdapter.getBasePairs().stream()
                         .filter(pair -> !pair.isCanonical(structureModel))
                                 .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair,
                                                 pairIdentifiersWithTheirShortNames))
-                                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair.toBasePair(structureModel))
+                                .map(basePair -> {
+                                    ImmutableBasePair bp = basePair.toBasePair(structureModel);
+                                    if (bp == null) {
+                                        return null;
+                                    }
+                                    return ImmutableAnalyzedBasePair.of(bp)
                                                 .withInteractionType(InteractionType.BASE_BASE)
                                                 .withSaenger(basePair.getSaengerType() != null
                                                                 ? SaengerType.mapToBioCommonsForm(
@@ -154,56 +168,91 @@ public abstract class BasePairAnalyzer {
                                                                 : LeontisWesthof.UNKNOWN)
                                                 .withBph(BPh.UNKNOWN)
                                                 .withBr(BR.UNKNOWN)
-                                                .withStackingTopology(StackingTopology.UNKNOWN))
+                                                .withStackingTopology(StackingTopology.UNKNOWN);
+                                })
+                                .filter(Objects::nonNull)
                                 .collect(Collectors.toList());
                 List<AnalyzedBasePair> stackings = responseFromAdapter.getStackings().stream()
                                 .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair,
                                                 pairIdentifiersWithTheirShortNames))
-                                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair.toBasePair(structureModel))
+                                .map(basePair -> {
+                                    ImmutableBasePair bp = basePair.toBasePair(structureModel);
+                                    if (bp == null) {
+                                        return null;
+                                    }
+                                    return ImmutableAnalyzedBasePair.of(bp)
                                                 .withInteractionType(InteractionType.STACKING)
                                                 .withSaenger(Saenger.UNKNOWN)
                                                 .withLeontisWesthof(LeontisWesthof.UNKNOWN)
                                                 .withBph(BPh.UNKNOWN)
                                                 .withBr(BR.UNKNOWN)
-                                                .withStackingTopology(mapToBioCommonsForm(basePair.getTopology())))
+                                                .withStackingTopology(mapToBioCommonsForm(basePair.getTopology()));
+                                })
+                                .filter(Objects::nonNull)
                                 .collect(Collectors.toList());
                 List<AnalyzedBasePair> basePhosphate = responseFromAdapter.getBasePhosphateInteractions().stream()
                                 .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair,
                                                 pairIdentifiersWithTheirShortNames))
-                                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair.toBasePair(structureModel))
+                                .map(basePair -> {
+                                    ImmutableBasePair bp = basePair.toBasePair(structureModel);
+                                    if (bp == null) {
+                                        return null;
+                                    }
+                                    return ImmutableAnalyzedBasePair.of(bp)
                                                 .withInteractionType(InteractionType.BASE_PHOSPHATE)
                                                 .withSaenger(Saenger.UNKNOWN)
                                                 .withLeontisWesthof(LeontisWesthof.UNKNOWN)
                                                 .withBph(BasePhosphateType.mapToBioCommonsForm(basePair.getBph()))
                                                 .withBr(BR.UNKNOWN)
-                                                .withStackingTopology(StackingTopology.UNKNOWN))
+                                                .withStackingTopology(StackingTopology.UNKNOWN);
+                                })
+                                .filter(Objects::nonNull)
                                 .collect(Collectors.toList());
                 List<AnalyzedBasePair> baseRibose = responseFromAdapter.getBaseRiboseInteractions().stream()
                                 .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair,
                                                 pairIdentifiersWithTheirShortNames))
-                                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair.toBasePair(structureModel))
+                                .map(basePair -> {
+                                    ImmutableBasePair bp = basePair.toBasePair(structureModel);
+                                    if (bp == null) {
+                                        return null;
+                                    }
+                                    return ImmutableAnalyzedBasePair.of(bp)
                                                 .withInteractionType(InteractionType.BASE_RIBOSE)
                                                 .withSaenger(Saenger.UNKNOWN)
                                                 .withLeontisWesthof(LeontisWesthof.UNKNOWN)
                                                 .withBph(BPh.UNKNOWN)
                                                 .withBr(BaseRiboseType.mapToBioCommonsForm(basePair.getBr()))
-                                                .withStackingTopology(StackingTopology.UNKNOWN))
+                                                .withStackingTopology(StackingTopology.UNKNOWN);
+                                })
+                                .filter(Objects::nonNull)
                                 .collect(Collectors.toList());
                 List<AnalyzedBasePair> otherInteractions = responseFromAdapter.getOther().stream()
                                 .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair,
                                                 pairIdentifiersWithTheirShortNames))
-                                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair.toBasePair(structureModel))
+                                .map(basePair -> {
+                                    ImmutableBasePair bp = basePair.toBasePair(structureModel);
+                                    if (bp == null) {
+                                        return null;
+                                    }
+                                    return ImmutableAnalyzedBasePair.of(bp)
                                                 .withInteractionType(InteractionType.OTHER)
                                                 .withSaenger(Saenger.UNKNOWN)
                                                 .withLeontisWesthof(LeontisWesthof.UNKNOWN)
                                                 .withBph(BPh.UNKNOWN)
                                                 .withBr(BR.UNKNOWN)
-                                                .withStackingTopology(StackingTopology.UNKNOWN))
+                                                .withStackingTopology(StackingTopology.UNKNOWN);
+                                })
+                                .filter(Objects::nonNull)
                                 .collect(Collectors.toList());
                 List<AnalyzedBasePair> interStrand = responseFromAdapter.getBasePairs().stream()
                                 .map(pair -> BasePairDTO.ofBasePairDTOWithNameFromMap(pair,
                                                 pairIdentifiersWithTheirShortNames))
-                                .map(basePair -> ImmutableAnalyzedBasePair.of(basePair.toBasePair(structureModel))
+                                .map(basePair -> {
+                                    ImmutableBasePair bp = basePair.toBasePair(structureModel);
+                                    if (bp == null) {
+                                        return null;
+                                    }
+                                    return ImmutableAnalyzedBasePair.of(bp)
                                                 .withInteractionType(InteractionType.BASE_BASE)
                                                 .withSaenger(basePair.getSaengerType() != null
                                                                 ? SaengerType.mapToBioCommonsForm(
@@ -215,7 +264,9 @@ public abstract class BasePairAnalyzer {
                                                                 : LeontisWesthof.UNKNOWN)
                                                 .withBph(BPh.UNKNOWN)
                                                 .withBr(BR.UNKNOWN)
-                                                .withStackingTopology(StackingTopology.UNKNOWN))
+                                                .withStackingTopology(StackingTopology.UNKNOWN);
+                                })
+                                .filter(Objects::nonNull)
                                 .filter(basePair -> !basePair.basePair()
                                                 .left()
                                                 .chainIdentifier()
