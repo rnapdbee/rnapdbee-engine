@@ -14,14 +14,18 @@ import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.model.Nucleotide;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.model.Stacking;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.model.StructureData;
 import pl.poznan.put.structure.ClassifiedBasePair;
+import pl.poznan.put.structure.DotBracketSymbol;
 import pl.poznan.put.structure.formats.DotBracket;
 import pl.poznan.put.structure.formats.DotBracketFromPdb;
+import pl.poznan.put.structure.formats.Strand;
 import pl.poznan.put.utility.svg.SVGHelper;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -74,6 +78,17 @@ public class ExternalDrawerVarna implements SecondaryStructureDrawer {
             List<? extends ClassifiedBasePair> stackingInteractions) {
         var nucleotides = new ArrayList<Nucleotide>();
         var symbols = combinedStrand.symbols();
+
+        Map<DotBracketSymbol, Integer> symbolToStrandPosition = new HashMap<>();
+        if (!(combinedStrand instanceof DotBracketFromPdb)) {
+            for (Strand strand : combinedStrand.strands()) {
+                int position = 1;
+                for (DotBracketSymbol strandSymbol : strand.symbols()) {
+                    symbolToStrandPosition.put(strandSymbol, position++);
+                }
+            }
+        }
+
         for (int i = 0; i < symbols.size(); i++) {
             var symbol = symbols.get(i);
             var nucleotide = new Nucleotide();
@@ -82,7 +97,7 @@ public class ExternalDrawerVarna implements SecondaryStructureDrawer {
                 nucleotide.number =
                         ((DotBracketFromPdb) combinedStrand).identifier(symbol).residueNumber();
             } else {
-                nucleotide.number = i + 1;
+                nucleotide.number = symbolToStrandPosition.get(symbol);
             }
             nucleotide.character = String.valueOf(symbol.sequence());
             if (symbol.isMissing()) {
