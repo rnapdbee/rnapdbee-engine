@@ -61,6 +61,7 @@ class ExternalDrawerVarnaTest {
 
         assertEquals(18, numbers.size());
         assertEquals(List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8, 9), numbers);
+        assertEquals(List.of(8), structureData.strandBreaks);
     }
 
     @Test
@@ -77,5 +78,6 @@ class ExternalDrawerVarnaTest {
                 .collect(Collectors.toList());
 
         assertEquals(List.of(1, 2, 3, 4, 5, 6, 7, 8, 9), numbers);
+        assertEquals(Collections.emptyList(), structureData.strandBreaks);
     }
 }

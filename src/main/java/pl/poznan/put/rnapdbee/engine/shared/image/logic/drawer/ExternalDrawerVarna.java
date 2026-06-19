@@ -170,10 +170,25 @@ public class ExternalDrawerVarna implements SecondaryStructureDrawer {
         var structureData = new StructureData();
         structureData.nucleotides = nucleotides;
         structureData.basePairs = basePairs;
+        structureData.strandBreaks = computeStrandBreaks(combinedStrand);
         // TODO: disable stacking visualization for now
         // structureData.stackings = stackings;
         structureData.drawingAlgorithm = "NAVIEW";
         return structureData;
+    }
+
+    private static List<Integer> computeStrandBreaks(DotBracket combinedStrand) {
+        var strands = combinedStrand.strands();
+        if (strands.size() < 2) {
+            return Collections.emptyList();
+        }
+        var breaks = new ArrayList<Integer>();
+        int offset = 0;
+        for (int s = 0; s < strands.size() - 1; s++) {
+            offset += strands.get(s).symbols().size();
+            breaks.add(offset - 1);
+        }
+        return breaks;
     }
 
     private static ModeleBP.Edge map(NucleobaseEdge edge) {

@@ -20,6 +20,9 @@ public class StructureData {
   @JsonProperty("drawingAlgorithm")
   public String drawingAlgorithm;
 
+  @JsonProperty("strandBreaks")
+  public List<Integer> strandBreaks;
+
   @Override
   public String toString() {
     return "StructureData{"
@@ -30,6 +33,8 @@ public class StructureData {
         + " items, drawingAlgorithm='"
         + drawingAlgorithm
         + '\''
+        + ", strandBreaks="
+        + (strandBreaks != null ? strandBreaks : "[]")
         + ", stackings="
         + (stackings != null ? stackings.size() : 0)
         + " items"
