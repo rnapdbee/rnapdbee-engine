@@ -126,54 +126,47 @@ public class DrawerManager {
         LOGGER.info(String.format(
                 "Drawing non-canonical image started with drawer: %s, structure: %s, sequence: %s",
                 visualizationTool, dotBracket.structure(), dotBracket.sequence()));
-        final boolean onlyDotsMinuses = StringUtils.containsOnly(dotBracket.structure(), ".-");
-        final boolean isMainToolVarna = visualizationTool == VisualizationTool.VARNA;
         final SecondaryStructureDrawer mainDrawer = drawerFactory.loadDrawer(visualizationTool);
 
-        if (!onlyDotsMinuses || isMainToolVarna) {
-            try {
-                final SVGDocument svgDocument =
-                        mainDrawer.drawSecondaryStructure(dotBracket, structureModel, nonCanonicalBasePairs, stacking);
-                final byte[] svgDocumentAsByteArray = SVGHelper.export(svgDocument, Format.SVG);
-                return new ImageInformationOutput()
-                        .withSuccessfulDrawer(visualizationTool)
-                        .withFailedDrawer(VisualizationTool.NONE)
-                        .withDrawingResult(DrawingResult.DONE_BY_MAIN_DRAWER)
-                        .withSvgFile(svgDocumentAsByteArray);
-            } catch (final VisualizationException | IOException e) {
-                LOGGER.error(
-                        String.format(
-                                "Failed drawing non-canonical image with drawer: %s, structure: %s, sequence: %s",
-                                visualizationTool, dotBracket.structure(), dotBracket.sequence()),
-                        e);
-            }
+        try {
+            final SVGDocument svgDocument =
+                    mainDrawer.drawSecondaryStructure(dotBracket, structureModel, nonCanonicalBasePairs, stacking);
+            final byte[] svgDocumentAsByteArray = SVGHelper.export(svgDocument, Format.SVG);
+            return new ImageInformationOutput()
+                    .withSuccessfulDrawer(visualizationTool)
+                    .withFailedDrawer(VisualizationTool.NONE)
+                    .withDrawingResult(DrawingResult.DONE_BY_MAIN_DRAWER)
+                    .withSvgFile(svgDocumentAsByteArray);
+        } catch (final VisualizationException | IOException e) {
+            LOGGER.error(
+                    String.format(
+                            "Failed drawing non-canonical image with drawer: %s, structure: %s, sequence: %s",
+                            visualizationTool, dotBracket.structure(), dotBracket.sequence()),
+                    e);
         }
 
-        final boolean isBackupToolVarna = visualizationTool.getBackupVisualizationTool() == VisualizationTool.VARNA;
         final VisualizationTool backupVisualizationTool = visualizationTool.getBackupVisualizationTool();
         final SecondaryStructureDrawer backupDrawer =
                 drawerFactory.loadDrawer(visualizationTool.getBackupVisualizationTool());
 
-        if (!onlyDotsMinuses || isBackupToolVarna) {
-            try {
-                LOGGER.info(String.format(
-                        "Drawing non-canonical image started with backup drawer: %s, structure: %s, sequence: %s",
-                        backupVisualizationTool, dotBracket.structure(), dotBracket.sequence()));
-                final SVGDocument svgDocument = backupDrawer.drawSecondaryStructure(
-                        dotBracket, structureModel, nonCanonicalBasePairs, stacking);
-                final byte[] svgDocumentAsByteArray = SVGHelper.export(svgDocument, Format.SVG);
-                return new ImageInformationOutput()
-                        .withSuccessfulDrawer(backupVisualizationTool)
-                        .withFailedDrawer(visualizationTool)
-                        .withDrawingResult(DrawingResult.DONE_BY_BACKUP_DRAWER)
-                        .withSvgFile(svgDocumentAsByteArray);
-            } catch (final VisualizationException | IOException e) {
-                LOGGER.error(
-                        String.format(
-                                "Drawing non-canonical image with drawer: %s, structure: %s, sequence: %s",
-                                visualizationTool, dotBracket.structure(), dotBracket.sequence()),
-                        e);
-            }
+        try {
+            LOGGER.info(String.format(
+                    "Drawing non-canonical image started with backup drawer: %s, structure: %s, sequence: %s",
+                    backupVisualizationTool, dotBracket.structure(), dotBracket.sequence()));
+            final SVGDocument svgDocument = backupDrawer.drawSecondaryStructure(
+                    dotBracket, structureModel, nonCanonicalBasePairs, stacking);
+            final byte[] svgDocumentAsByteArray = SVGHelper.export(svgDocument, Format.SVG);
+            return new ImageInformationOutput()
+                    .withSuccessfulDrawer(backupVisualizationTool)
+                    .withFailedDrawer(visualizationTool)
+                    .withDrawingResult(DrawingResult.DONE_BY_BACKUP_DRAWER)
+                    .withSvgFile(svgDocumentAsByteArray);
+        } catch (final VisualizationException | IOException e) {
+            LOGGER.error(
+                    String.format(
+                            "Drawing non-canonical image with drawer: %s, structure: %s, sequence: %s",
+                            visualizationTool, dotBracket.structure(), dotBracket.sequence()),
+                    e);
         }
 
         return ImageInformationOutput.FAILED_INSTANCE;
