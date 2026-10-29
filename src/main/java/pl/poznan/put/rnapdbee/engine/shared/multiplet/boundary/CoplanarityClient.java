@@ -1,7 +1,5 @@
 package pl.poznan.put.rnapdbee.engine.shared.multiplet.boundary;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +20,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 @Service
 public class CoplanarityClient {
@@ -30,12 +30,12 @@ public class CoplanarityClient {
 
     private final RestTemplate restTemplate;
     private final String serviceUrl;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper objectMapper;
 
     public CoplanarityClient(@Value("${coplanarity.service.url}") String serviceUrl) {
         this.restTemplate = new RestTemplate();
         this.serviceUrl = serviceUrl;
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = JsonMapper.builder().build();
         logger.info("CoplanarityClient initialized with service URL: {}", serviceUrl);
     }
 
@@ -69,7 +69,7 @@ public class CoplanarityClient {
 
             HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
-            String url = UriComponentsBuilder.fromHttpUrl(serviceUrl)
+            String url = UriComponentsBuilder.fromUriString(serviceUrl)
                     .path(RUN_COMMAND_PATH)
                     .toUriString();
             logger.debug("Sending batch coplanarity request to CLI2REST at: {} with {} files", url, cifContents.size());

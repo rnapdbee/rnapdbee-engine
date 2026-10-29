@@ -1,5 +1,6 @@
 package pl.poznan.put.rnapdbee.engine.shared.parser;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
@@ -11,7 +12,6 @@ import pl.poznan.put.rnapdbee.engine.shared.domain.InputType;
 import pl.poznan.put.rnapdbee.engine.shared.exception.CifParsingException;
 import pl.poznan.put.rnapdbee.engine.shared.exception.UnknownFileExtensionException;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.List;
 
@@ -24,7 +24,7 @@ public class TertiaryFileParser {
     private final CifParser cifParser = new CifParser();
     private final PdbParser pdbParser = new PdbParser();
 
-    @Nonnull
+    @NonNull
     @Cacheable("FileContents")
     public List<? extends PdbModel> parseFileContents(final InputType inputType, final String fileContents) {
         switch (inputType) {

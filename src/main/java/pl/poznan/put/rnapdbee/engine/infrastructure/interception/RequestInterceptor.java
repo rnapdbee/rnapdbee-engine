@@ -1,20 +1,19 @@
 package pl.poznan.put.rnapdbee.engine.infrastructure.interception;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.NonNullApi;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Locale;
 
 @Component
@@ -33,7 +32,7 @@ public class RequestInterceptor implements HandlerInterceptor {
     public boolean preHandle(@NonNull HttpServletRequest request,
                              @NonNull HttpServletResponse response,
                              @NonNull Object handler) {
-        MDC.put("RequestId", RandomStringUtils.randomAlphabetic(8).toUpperCase(Locale.ROOT));
+        MDC.put("RequestId", RandomStringUtils.insecure().nextAlphabetic(8).toUpperCase(Locale.ROOT));
 
         String filename = getFilenameFromRequest(request);
         MDC.put("Filename", filename);

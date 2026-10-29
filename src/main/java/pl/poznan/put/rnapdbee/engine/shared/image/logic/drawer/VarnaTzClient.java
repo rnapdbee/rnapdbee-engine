@@ -26,10 +26,10 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.w3c.dom.svg.SVGDocument;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import pl.poznan.put.rnapdbee.engine.shared.image.exception.VisualizationException;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.model.StructureData;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 @Service
 public class VarnaTzClient {
@@ -38,12 +38,12 @@ public class VarnaTzClient {
 
     private final RestTemplate restTemplate;
     private final String serviceUrl;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper objectMapper;
 
     public VarnaTzClient(@Value("${varna-tz.service.url}") String serviceUrl) {
         this.restTemplate = new RestTemplate();
         this.serviceUrl = serviceUrl;
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = JsonMapper.builder().build();
         logger.info("VarnaTzClient initialized with service URL: {}", serviceUrl);
     }
 
@@ -72,7 +72,7 @@ public class VarnaTzClient {
 
             HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
-            String url = UriComponentsBuilder.fromHttpUrl(serviceUrl)
+            String url = UriComponentsBuilder.fromUriString(serviceUrl)
                     .path(RUN_COMMAND_PATH)
                     .toUriString();
             logger.info("Sending draw request to Varna-tz service at: {}", url);
@@ -83,7 +83,7 @@ public class VarnaTzClient {
                     requestEntity,
                     byte[].class);
 
-            int statusCode = responseEntity.getStatusCodeValue();
+            int statusCode = responseEntity.getStatusCode().value();
             int responseSize = responseEntity.getBody() != null ? responseEntity.getBody().length : 0;
             MediaType contentType = responseEntity.getHeaders().getContentType();
             logger.info("Varna-tz response: status={}, contentType={}, bodySize={} bytes",

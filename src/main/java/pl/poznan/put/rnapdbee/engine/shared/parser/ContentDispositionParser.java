@@ -1,13 +1,13 @@
 package pl.poznan.put.rnapdbee.engine.shared.parser;
 
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ContentDisposition;
 import org.springframework.stereotype.Component;
 import pl.poznan.put.rnapdbee.engine.shared.exception.ImproperContentDispositionException;
 
-import javax.annotation.Nonnull;
 import java.util.Objects;
 
 @Component
@@ -23,7 +23,7 @@ public class ContentDispositionParser {
      * @return parsed Content-Disposition header
      * @throws ImproperContentDispositionException if header is improper or does not contain the filename
      */
-    @Nonnull
+    @NonNull
     public String parseContentDispositionHeader(String contentDispositionHeader) {
         try {
             ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionHeader);

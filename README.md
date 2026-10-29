@@ -1,11 +1,11 @@
 # RNApdbee engine
 
-Project generated with [Spring](https://start.spring.io/) version 2.6.6.
+Project generated with [Spring](https://start.spring.io/) version 2.6.6, currently built against Spring Boot 4.1.2.
 
 ## Requirements
 
 - Maven
-- Java 11 (SDK 11)
+- Java 17 (SDK 17)
 - Docker
 
 ## Build
