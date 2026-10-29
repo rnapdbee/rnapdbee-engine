@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -77,21 +77,21 @@ public class RnaPDBeeAdaptersCaller {
                     .contentType(MediaType.TEXT_PLAIN)
                     .body(BodyInserters.fromValue(fileContent))
                     .retrieve()
-                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> clientResponse
+                    .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> clientResponse
                             .bodyToMono(String.class)
                             .map(resp -> {
                                 LOGGER.warn(String.format(ERROR_4XX_GOTTEN_FROM_ADAPTERS_FORMAT,
-                                        clientResponse.rawStatusCode(), resp));
+                                        clientResponse.statusCode().value(), resp));
                                 return new IllegalStateException(String.format(
-                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.rawStatusCode()));
+                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.statusCode().value()));
                             }))
-                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> clientResponse
+                    .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> clientResponse
                             .bodyToMono(String.class)
                             .map(resp -> {
                                 LOGGER.warn(String.format(ERROR_5XX_GOTTEN_FROM_ADAPTERS_FORMAT,
-                                        clientResponse.rawStatusCode(), resp));
+                                        clientResponse.statusCode().value(), resp));
                                 return new IllegalStateException(String.format(
-                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.rawStatusCode()));
+                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.statusCode().value()));
                             }))
                     .bodyToMono(AdaptersAnalysisDTO.class)
                     .cache(Duration.ofSeconds(properties.getMonoCacheDurationInSeconds()))
@@ -119,21 +119,21 @@ public class RnaPDBeeAdaptersCaller {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(BodyInserters.fromValue(payload))
                     .retrieve()
-                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> clientResponse
+                    .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> clientResponse
                             .bodyToMono(String.class)
                             .map(resp -> {
                                 LOGGER.warn(String.format(ERROR_4XX_GOTTEN_FROM_ADAPTERS_FORMAT,
-                                        clientResponse.rawStatusCode(), resp));
+                                        clientResponse.statusCode().value(), resp));
                                 return new IllegalStateException(String.format(
-                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.rawStatusCode()));
+                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.statusCode().value()));
                             }))
-                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> clientResponse
+                    .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> clientResponse
                             .bodyToMono(String.class)
                             .map(resp -> {
                                 LOGGER.warn(String.format(ERROR_5XX_GOTTEN_FROM_ADAPTERS_FORMAT,
-                                        clientResponse.rawStatusCode(), resp));
+                                        clientResponse.statusCode().value(), resp));
                                 return new IllegalStateException(String.format(
-                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.rawStatusCode()));
+                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.statusCode().value()));
                             }))
                     .bodyToMono(byte[].class)
                     .cache(Duration.ofSeconds(properties.getMonoCacheDurationInSeconds()))
@@ -198,21 +198,21 @@ public class RnaPDBeeAdaptersCaller {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(BodyInserters.fromValue(adaptersVisualizationPayload))
                     .retrieve()
-                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> clientResponse
+                    .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> clientResponse
                             .bodyToMono(String.class)
                             .map(resp -> {
                                 LOGGER.warn(String.format(ERROR_4XX_GOTTEN_FROM_ADAPTERS_FORMAT,
-                                        clientResponse.rawStatusCode(), resp));
+                                        clientResponse.statusCode().value(), resp));
                                 return new IllegalStateException(String.format(
-                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.rawStatusCode()));
+                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.statusCode().value()));
                             }))
-                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> clientResponse
+                    .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> clientResponse
                             .bodyToMono(String.class)
                             .map(resp -> {
                                 LOGGER.warn(String.format(ERROR_5XX_GOTTEN_FROM_ADAPTERS_FORMAT,
-                                        clientResponse.rawStatusCode(), resp));
+                                        clientResponse.statusCode().value(), resp));
                                 return new IllegalStateException(String.format(
-                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.rawStatusCode()));
+                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.statusCode().value()));
                             }))
                     .bodyToMono(byte[].class)
                     .cache(Duration.ofSeconds(properties.getMonoCacheDurationInSeconds()))
@@ -261,21 +261,21 @@ public class RnaPDBeeAdaptersCaller {
                     .contentType(MediaType.TEXT_PLAIN)
                     .body(BodyInserters.fromValue(bpSeq.toString()))
                     .retrieve()
-                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> clientResponse
+                    .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> clientResponse
                             .bodyToMono(String.class)
                             .map(resp -> {
                                 LOGGER.warn(String.format(ERROR_4XX_GOTTEN_FROM_ADAPTERS_FORMAT,
-                                        clientResponse.rawStatusCode(), resp));
+                                        clientResponse.statusCode().value(), resp));
                                 return new IllegalStateException(String.format(
-                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.rawStatusCode()));
+                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.statusCode().value()));
                             }))
-                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> clientResponse
+                    .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> clientResponse
                             .bodyToMono(String.class)
                             .map(resp -> {
                                 LOGGER.warn(String.format(ERROR_5XX_GOTTEN_FROM_ADAPTERS_FORMAT,
-                                        clientResponse.rawStatusCode(), resp));
+                                        clientResponse.statusCode().value(), resp));
                                 return new IllegalStateException(String.format(
-                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.rawStatusCode()));
+                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.statusCode().value()));
                             }))
                     .bodyToMono(String.class)
                     .cache(Duration.ofSeconds(properties.getMonoCacheDurationInSeconds()))
@@ -301,21 +301,21 @@ public class RnaPDBeeAdaptersCaller {
                     .contentType(MediaType.TEXT_PLAIN)
                     .body(BodyInserters.fromValue(fileContent))
                     .retrieve()
-                    .onStatus(HttpStatus::is4xxClientError, clientResponse -> clientResponse
+                    .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> clientResponse
                             .bodyToMono(String.class)
                             .map(resp -> {
                                 LOGGER.warn(String.format(ERROR_4XX_GOTTEN_FROM_ADAPTERS_FORMAT,
-                                        clientResponse.rawStatusCode(), resp));
+                                        clientResponse.statusCode().value(), resp));
                                 return new IllegalStateException(String.format(
-                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.rawStatusCode()));
+                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.statusCode().value()));
                             }))
-                    .onStatus(HttpStatus::is5xxServerError, clientResponse -> clientResponse
+                    .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> clientResponse
                             .bodyToMono(String.class)
                             .map(resp -> {
                                 LOGGER.warn(String.format(ERROR_5XX_GOTTEN_FROM_ADAPTERS_FORMAT,
-                                        clientResponse.rawStatusCode(), resp));
+                                        clientResponse.statusCode().value(), resp));
                                 return new IllegalStateException(String.format(
-                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.rawStatusCode()));
+                                        ERROR_STATUS_GOTTEN_FROM_ADAPTERS_FORMAT, clientResponse.statusCode().value()));
                             }))
                     .bodyToMono(String.class)
                     .cache(Duration.ofSeconds(properties.getMonoCacheDurationInSeconds()))

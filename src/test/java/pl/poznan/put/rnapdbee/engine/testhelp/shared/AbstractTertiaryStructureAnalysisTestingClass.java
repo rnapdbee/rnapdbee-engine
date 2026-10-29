@@ -9,11 +9,13 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.Fr3dBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.image.logic.drawer.WeblogoConsensualVisualizationDrawer;
@@ -25,7 +27,6 @@ import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.BasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.RnaViewBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.RnapolisBasePairAnalyzer;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.MaxitBasePairAnalyzer;
-import pl.poznan.put.rnapdbee.engine.infrastructure.configuration.AdapterWebClientConfiguration;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.component.PathDeterminer;
 import pl.poznan.put.rnapdbee.engine.shared.integration.adapters.boundary.RnaPDBeeAdaptersCaller;
 import pl.poznan.put.rnapdbee.engine.shared.multiplet.boundary.CoplanarityClient;
@@ -164,10 +165,13 @@ public abstract class AbstractTertiaryStructureAnalysisTestingClass {
         RnaPDBeeAdaptersProperties rnapdbeeAdaptersProperties;
         @Autowired
         PathDeterminer pathDeterminer;
+        @Autowired
+        @Qualifier("adaptersExchangeStrategies")
+        ExchangeStrategies adaptersExchangeStrategies;
 
         Supplier<WebClient> mockedWebClientSupplier = () -> WebClient.builder()
                 .baseUrl(String.format("http://localhost:%s", mockWebServer.getPort()))
-                .exchangeStrategies(AdapterWebClientConfiguration.EXCHANGE_STRATEGIES)
+                .exchangeStrategies(adaptersExchangeStrategies)
                 .build();
 
         Supplier<RnaPDBeeAdaptersCaller> mockedRnapdbeeAdaptersCallerSupplier = () -> new RnaPDBeeAdaptersCaller(
