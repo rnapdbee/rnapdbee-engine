@@ -138,11 +138,13 @@ public class TertiaryStructureAnalysisService {
                 .limit(modelsToBeProcessed)
                 .map(pdbModel -> {
                     final PdbModel rna = pdbModel.filteredNewInstance(MoleculeType.RNA);
+
                     final BasePairAnalysis basePairAnalysis = handleBasePairAnalysis(
                             analysisTool, nonCanonicalHandling, removeIsolated, fileContent, rna);
 
                     // assuming the atoms are always to be reordered
                     final PdbModel finalModel = ChainReorderer.reorderAtoms(rna, basePairAnalysis.getRepresented());
+
                     final BpSeq bpSeq = BpSeq.fromBasePairs(
                             finalModel.namedResidueIdentifiers(), basePairAnalysis.getRepresented());
 

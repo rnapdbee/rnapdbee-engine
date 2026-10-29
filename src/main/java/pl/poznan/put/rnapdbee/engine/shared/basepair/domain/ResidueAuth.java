@@ -32,8 +32,19 @@ public class ResidueAuth {
         this.name = residueAuth.getName();
     }
 
+    /**
+     * Returns the author-assigned chain identifier.
+     * <p>
+     * When the original PDB file has a blank chain identifier (single space " "), MAXIT converts
+     * it to "?" in mmCIF (the standard unknown/missing indicator in PDBx/mmCIF nomenclature).
+     * The rnapolis-py parser correctly interprets "?" and "." as missing data and returns null.
+     * BioCommons uses "" (empty string) for blank/missing chain identifiers, so we normalize
+     * null to "" here to ensure residue matching between adapter responses and the parsed model.
+     *
+     * @return chain identifier, never null (returns "" for missing/unknown chains)
+     */
     public String getChainIdentifier() {
-        return chainIdentifier;
+        return chainIdentifier != null ? chainIdentifier : "";
     }
 
     public void setChainIdentifier(String chainIdentifier) {

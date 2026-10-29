@@ -1,7 +1,8 @@
 package pl.poznan.put.rnapdbee.engine.shared.basepair.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import pl.poznan.put.pdb.ImmutablePdbNamedResidueIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.poznan.put.pdb.PdbNamedResidueIdentifier;
 import pl.poznan.put.pdb.analysis.PdbModel;
 import pl.poznan.put.rnapdbee.engine.shared.basepair.boundary.ChainNumberKey;
@@ -20,6 +21,7 @@ import java.util.stream.Stream;
  */
 public class BasePairDTO {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(BasePairDTO.class);
     private static final Set<String> CANONICAL_ONE_LETTER_NAME_SORTED_PAIRS = new HashSet<>(Arrays.asList("AU", "GU", "CG"));
 
     @JsonProperty("nt1")
@@ -121,18 +123,28 @@ public class BasePairDTO {
     }
 
     public ImmutableBasePair toBasePair(PdbModel pdbModel) {
-        PdbNamedResidueIdentifier left = mapResidueToPdbNamedResidueIdentifier(nt1,  pdbModel);
-        PdbNamedResidueIdentifier right = mapResidueToPdbNamedResidueIdentifier(nt2,   pdbModel);
+        PdbNamedResidueIdentifier left = mapResidueToPdbNamedResidueIdentifier(nt1, pdbModel);
+        PdbNamedResidueIdentifier right = mapResidueToPdbNamedResidueIdentifier(nt2, pdbModel);
+        if (left == null || right == null) {
+            return null;
+        }
         return ImmutableBasePair.of(left, right);
     }
 
     private PdbNamedResidueIdentifier mapResidueToPdbNamedResidueIdentifier(Residue residue, PdbModel pdbModel) {
         if (pdbModel.hasResidue(residue)) {
-        return pdbModel.findResidue(residue).namedResidueIdentifier();
+            return pdbModel.findResidue(residue).namedResidueIdentifier();
         }
 
-        String name = residue.getAuth().getName();
-        return ImmutablePdbNamedResidueIdentifier.of(residue.chainIdentifier(), residue.residueNumber(), residue.insertionCode(), name.charAt(name.length() - 1));
+        LOGGER.warn(
+                "Residue not found in model: chain='{}', number={}, icode={}, name='{}'. "
+                        + "This may indicate a mismatch between adapter response and parsed structure "
+                        + "(e.g., chain identifier normalization issue).",
+                residue.chainIdentifier(),
+                residue.residueNumber(),
+                residue.insertionCode().orElse("(none)"),
+                residue.getAuth().getName());
+        return null;
     }
 
     public boolean isCanonical(PdbModel pdbModel) {
@@ -142,6 +154,9 @@ public class BasePairDTO {
         if (leontisWesthofType == LeontisWesthofType.CWW) {
             PdbNamedResidueIdentifier left = mapResidueToPdbNamedResidueIdentifier(nt1, pdbModel);
             PdbNamedResidueIdentifier right = mapResidueToPdbNamedResidueIdentifier(nt2, pdbModel);
+            if (left == null || right == null) {
+                return false;
+            }
             String sequence = Stream.of(left.oneLetterName(), right.oneLetterName())
                     .map(c -> Character.toString(c))
                     .map(String::toUpperCase)
