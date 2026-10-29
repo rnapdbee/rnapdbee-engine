@@ -11,9 +11,6 @@ updates:
     commit-message:
       prefix: "build"
     target-branch: "main"
-    ignore:
-      - dependency-name: "org.springframework.boot:spring-boot-starter-parent"
-        versions: [">= 5.0.0"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
